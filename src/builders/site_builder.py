@@ -64,7 +64,7 @@ class SiteBuilder:
     
     def generate_plots(self):
         """Generate all plots and icons"""
-        print("📊 Generating plots...")
+        print("🎨 Generating navigation icons...")
         
         # Store current directory and change to project root for consistent paths
         original_cwd = os.getcwd()
@@ -77,6 +77,7 @@ class SiteBuilder:
             
             # Generate icons and plots
             generate_all_icons()
+            print("📊 Generating plots...")
             generate_all_plots(
                 data_dir=str(self.data_dir),
                 output_dir=str(images_dir)

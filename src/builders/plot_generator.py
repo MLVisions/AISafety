@@ -15,26 +15,29 @@ import matplotlib.dates as mdates
 from matplotlib.patches import Rectangle
 import os
 
-# Website color scheme
+# Website color scheme - cohesive blue theme with complementary accents
 COLORS = {
     'primary_blue': '#0a1f44',
     'medium_blue': '#1e4a80', 
     'accent_blue': '#295da0',
     'light_blue': '#4da3d8',
     'bright_blue': '#66c2ff',
+    'soft_cyan': '#7dd3fc',
+    'mint_green': '#10b981',
+    'warm_amber': '#f59e0b',
+    'soft_purple': '#8b5cf6',
+    'coral_pink': '#f97316',
     'background': '#f5f8fc',
     'text_dark': '#2c3e50',
     'text_light': '#6a7aa2',
-    'success_green': '#27ae60',
-    'warning_orange': '#f39c12',
-    'error_red': '#e74c3c',
-    'neutral_gray': '#95a5a6'
+    'white': '#ffffff',
+    'light_gray': '#e2e8f0'
 }
 
-# Set the style
-plt.style.use('seaborn-v0_8-whitegrid')
+# Set the seaborn palette with cohesive theme colors
 sns.set_palette([COLORS['primary_blue'], COLORS['accent_blue'], COLORS['light_blue'], 
-                COLORS['bright_blue'], COLORS['success_green'], COLORS['warning_orange']])
+                COLORS['bright_blue'], COLORS['soft_cyan'], COLORS['mint_green'], 
+                COLORS['warm_amber'], COLORS['soft_purple'], COLORS['coral_pink']])
 
 def setup_plot_style():
     """Configure matplotlib for professional styling matching website theme"""
@@ -86,7 +89,7 @@ def create_market_trends_plot(csv_path='data/market_trends.csv', save_path='webs
     
     # Create second y-axis for Bitcoin
     ax2 = ax1.twinx()
-    color2 = COLORS['warning_orange']
+    color2 = COLORS['warm_amber']
     ax2.plot(df['Date'], df['Bitcoin'], color=color2, linewidth=3, label='Bitcoin', marker='s', markersize=6)
     ax2.set_ylabel('Bitcoin Price (USD)', fontweight='bold', color=color2)
     ax2.tick_params(axis='y', labelcolor=color2)
@@ -128,14 +131,14 @@ def create_portfolio_projection_plot(person='A', csv_path=None, save_path=None):
     fig, ax = plt.subplots(figsize=(12, 8))
     fig.patch.set_facecolor('white')
     
-    # Define colors for different asset types
+    # Define colors for different asset types - cohesive theme
     colors = {
         'Savings': COLORS['light_blue'],
         '401k': COLORS['accent_blue'],
-        'TechStocks': COLORS['success_green'],
-        'RealEstate': COLORS['warning_orange'],
-        'Crypto': COLORS['bright_blue'],
-        'House': COLORS['error_red']
+        'TechStocks': COLORS['soft_cyan'],
+        'RealEstate': COLORS['mint_green'],
+        'Crypto': COLORS['warm_amber'],
+        'House': COLORS['coral_pink']
     }
     
     # Create stacked area plot for asset allocation
@@ -148,7 +151,7 @@ def create_portfolio_projection_plot(person='A', csv_path=None, save_path=None):
     for col in asset_cols:
         if col in df.columns:
             asset_name = col.split('_')[1]  # Extract asset type
-            color = colors.get(asset_name, COLORS['neutral_gray'])
+            color = colors.get(asset_name, COLORS['light_gray'])
             ax.fill_between(df['Year'], bottom, bottom + df[col], 
                           color=color, alpha=0.7, label=asset_name)
             bottom += df[col]
@@ -209,11 +212,11 @@ def create_comparative_wealth_plot(data_dir='data', save_path='website/images/co
     fig, ax = plt.subplots(figsize=(12, 8))
     fig.patch.set_facecolor('white')
     
-    # Create bar chart
+    # Create bar chart with cohesive theme colors
     x_pos = np.arange(len(persons))
     bars = ax.bar(x_pos, portfolios, 
-                  color=[COLORS['primary_blue'], COLORS['accent_blue'], COLORS['success_green']], 
-                  alpha=0.8, width=0.6)
+                  color=[COLORS['primary_blue'], COLORS['light_blue'], COLORS['mint_green']], 
+                  alpha=0.85, width=0.6)
     
     # Add error bars for uncertainty
     error_lower = [portfolios[i] - lower_bounds[i] for i in range(len(portfolios))]
@@ -265,8 +268,6 @@ def create_comparative_wealth_plot(data_dir='data', save_path='website/images/co
 
 def generate_all_plots(data_dir='data', output_dir='images'):
     """Generate all plots and save them"""
-    print("Generating AI Safety Website Plots...")
-    print("=" * 50)
     
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
@@ -295,7 +296,6 @@ def generate_all_plots(data_dir='data', output_dir='images'):
     )
     
     print("✅ All plots generated successfully!")
-    print("🎨 Plots use website color scheme and professional styling")
 
 if __name__ == "__main__":
     generate_all_plots()

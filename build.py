@@ -30,13 +30,6 @@ def main():
         print(f"📁 Website built in: {builder.output_dir}")
         print("🌐 Ready for deployment!")
         
-        # Instructions for next steps
-        print("\n📋 Next Steps:")
-        print("1. Test locally: python -m http.server 8000 -d docs")
-        print("2. Commit changes: git add . && git commit -m 'Update website'")
-        print("3. Push to GitHub: git push origin main")
-        print("4. Enable GitHub Pages in repository settings")
-        
     except Exception as e:
         print(f"\n❌ Build failed: {e}")
         import traceback
