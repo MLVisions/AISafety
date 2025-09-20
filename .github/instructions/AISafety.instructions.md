@@ -56,6 +56,7 @@ The project follows a clean separation of concerns:
 - **Interactive features**: Preserve tab switching, smooth animations, and responsive behavior
 - **Navigation structure**: Keep current page hierarchy and navigation patterns
 - **Professional typography**: Maintain current font choices and text styling
+- **Mobile responsiveness**: Ensure front end is designed to be mobile-responsive (IOS and Safari) and accessible
 
 ### Error Handling
 - **Graceful failure**: Build should end if individual plots fail

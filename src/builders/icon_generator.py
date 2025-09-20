@@ -27,10 +27,10 @@ COLORS = {
 }
 
 def setup_icon_style():
-    """Configure matplotlib for clean icon generation"""
+    """Configure matplotlib for clean icon generation with transparency"""
     plt.rcParams.update({
-        'figure.facecolor': 'white',
-        'axes.facecolor': 'none'
+        'figure.facecolor': 'none',  # Transparent figure
+        'axes.facecolor': 'none'     # Transparent axes
     })
 
 def generate_page_icons():
@@ -71,15 +71,14 @@ def generate_page_icons():
     }
     
     for filename, config in icons.items():
-        fig, ax = plt.subplots(figsize=(3, 3), dpi=200)
+        # Larger figure size for bigger icons
+        fig, ax = plt.subplots(figsize=(4, 4), dpi=300)
         ax.set_xlim(0, 10)
         ax.set_ylim(0, 10)
         ax.axis('off')
         
-        # Background circle with subtle border
-        circle = Circle((5, 5), 4.2, facecolor=config['color'], alpha=0.12, 
-                       linewidth=2, edgecolor=config['color'])
-        ax.add_patch(circle)
+        # Remove background circle - make it fully transparent
+        # Just draw the icon directly without background
         
         # Generate icon based on type
         if config['type'] == 'home_house':
@@ -164,10 +163,11 @@ def generate_page_icons():
             check_y = [5.2, 4.5, 6.8]
             ax.plot(check_x, check_y, color=config['color'], linewidth=4, alpha=0.9)
         
-        # Save icon with white background
+        # Save icon with transparent background
         save_path = f'docs/images/{filename}'
-        plt.savefig(save_path, dpi=200, bbox_inches='tight', 
-                   facecolor='white', edgecolor='none', pad_inches=0.05)
+        plt.savefig(save_path, dpi=300, bbox_inches='tight', 
+                   facecolor='none', edgecolor='none', pad_inches=0.05,
+                   transparent=True)
         plt.close()
         print(f"✅ Generated {filename}")
 
