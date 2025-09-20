@@ -8,7 +8,7 @@ layout: "page"
 
 ## Understanding the Economic Cycle
 
-The global economy has oscillated between crisis and exuberance over the past few years. The **S&P 500** plunged roughly 34% during the March 2020 crash but recovered by August 2020 amid massive stimulus and renewed optimism. Since then technology and AI enthusiasm have propelled the index to record highs. In contrast, **Bitcoin** surged 416% in 2020, peaked near $69k in late 2021, crashed below $20k in 2022 and rebounded above $100k by May 2025. **Ether** climbed from $186 to over $4.8k during 2020–21 before stabilising near $3.8k in mid‑2025.
+The global economy has oscillated between crisis and exuberance over the past few years. The **[S&P 500 plunged roughly 34% during the March 2020 crash](references.html#14)** but recovered by August 2020 amid massive stimulus and renewed optimism *(S&P Dow Jones Indices)*. Since then technology and AI enthusiasm have propelled the index to record highs. In contrast, **[Bitcoin surged 416% in 2020, peaked near $69k in late 2021, crashed below $20k in 2022](references.html#15)** and rebounded above $100k by May 2025 *(CoinMarketCap)*. **Ether** climbed from $186 to over $4.8k during 2020–21 before stabilising near $3.8k in mid‑2025.
 
 Defensive sectors like consumer staples (XLP) fell much less than cyclicals during the pandemic, illustrating how some industries act as safe havens. Looking ahead, U.S. residential real estate is projected to grow about 3.3% annually, inflation is likely to remain above 3% into 2026 and the Federal Reserve is expected to cut rates gradually toward ~3.25%.
 
@@ -83,6 +83,10 @@ Simulations show that by 2030, Person C's crypto‑heavy portfolio could deliver
 
 {{< tab "Comparison" "comparison-tab" >}}
 ![Comparative Wealth](images/comparative_wealth.png)
-*Comparative wealth accumulation by 2030 shows how riskier allocations (Person C) deliver higher median wealth but with wider variability compared to conservative (Person A) or balanced (Person B) portfolios. Source: Economic Trends deck.*
+*Comparative wealth projections for three different portfolio strategies through 2030. Source: Economic Trends deck.*
 {{< /tab >}}
 {{< /tabs >}}
+
+---
+
+*For detailed sources and research citations, see our [References page](references.html)*

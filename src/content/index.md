@@ -22,7 +22,7 @@ The AI revolution isn't coming—**it's here**. We're in the critical early stag
 
 ### Economic Disruption Is Accelerating
 
-- **40% of all jobs** could be impacted by AI within the next decade
+- **[40% of all jobs](references.html#4)** could be impacted by AI within the next decade *(PwC, 2024)*
 - **New industries** are emerging faster than traditional education can adapt
 - **Wealth concentration** is accelerating among those who understand and leverage AI
 - **Investment opportunities** exist now that won't be available to late adopters

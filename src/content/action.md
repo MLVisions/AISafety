@@ -21,7 +21,11 @@ Set up safe phrases with loved ones and always call back before sending money. T
 ### 💡 Reskill & adapt
 **Build AI‑adjacent skills**
 
-Develop skills that complement automation: data literacy, prompt engineering, and human‑centred design. Cultivate portfolio careers and collaborate with machines instead of competing against them. According to labour forecasts, as many as 83 million jobs could be displaced by 2027; reskilling helps you stay relevant.
+Develop skills that complement automation: data literacy, prompt engineering, and human‑centred design. Cultivate portfolio careers and collaborate with machines instead of competing against them. According to **[labour forecasts, as many as 83 million jobs could be displaced by 2027](references.html#3)** *(World Economic Forum, 2023)*; reskilling helps you stay relevant.
+
+---
+
+*For detailed sources and research citations, see our [References page](references.html)*
 
 ### 🤝 Build community
 **Form local AI‑check groups**
