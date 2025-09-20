@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
 {% block main %}
-<!-- The landing page does not display deep content; navigate to a topic to explore details. -->
+<main>
+  <section class="content-section">
+    {{ content | safe }}
+  </section>
+</main>
 {% endblock %}
