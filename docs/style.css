@@ -71,7 +71,8 @@ header {
   text-align: center;
   padding: 100px 20px 80px;
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.15);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   border-radius: 16px;
   margin: 20px;
@@ -83,6 +84,8 @@ header {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  /* iOS fallback */
+  background: rgba(10, 31, 68, 0.8);
 }
 
 /* Add floating particles/elements for gamification */
@@ -163,13 +166,16 @@ header h1 {
  #nav-buttons {
    padding: 40px 20px;
    text-align: center;
-   background: rgba(255, 255, 255, 0.15);
+   background: rgba(255, 255, 255, 0.2);
+   -webkit-backdrop-filter: blur(10px);
    backdrop-filter: blur(10px);
    border-radius: 16px;
    margin: 20px;
    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
    position: relative;
    z-index: 2;
+   /* iOS fallback */
+   background: rgba(255, 255, 255, 0.9);
  }
 
  #nav-buttons::before {
@@ -195,6 +201,21 @@ header h1 {
    justify-items: center;
    position: relative;
    z-index: 1;
+ }
+
+ /* iOS Safari fallback for grid */
+ @supports not (grid-template-columns: repeat(auto-fit, minmax(160px, 1fr))) {
+   .button-row {
+     display: flex;
+     flex-wrap: wrap;
+     justify-content: center;
+     align-items: center;
+   }
+   
+   .button-row > * {
+     flex: 0 1 160px;
+     margin: 10px;
+   }
  }
 
  .nav-button,
@@ -362,7 +383,8 @@ header h1 {
  }
 
  .content-section {
-   background: rgba(255, 255, 255, 0.8);
+   background: rgba(255, 255, 255, 0.9);
+   -webkit-backdrop-filter: blur(8px);
    backdrop-filter: blur(8px);
    padding: 36px;
    border-radius: 16px;
@@ -375,6 +397,8 @@ header h1 {
    position: relative;
    overflow: hidden;
    transition: all 0.3s ease;
+   /* iOS fallback */
+   background: rgba(255, 255, 255, 0.95);
  }
 
  .content-section::before {
@@ -884,6 +908,43 @@ header h1 {
      font-size: 0.8rem;
      padding: 10px 12px;
      margin: 16px 0 0 0;
+   }
+ }
+
+ /* iOS-specific optimizations */
+ @supports (-webkit-touch-callout: none) {
+   /* iOS Safari specific styles */
+   body {
+     -webkit-overflow-scrolling: touch;
+   }
+   
+   .content-section {
+     /* Ensure content is always visible on iOS */
+     opacity: 1 !important;
+     transform: translateY(0) !important;
+   }
+   
+   /* Reduce complex animations on iOS for better performance */
+   .nav-button,
+   .cta-button {
+     transition: opacity 0.2s ease;
+   }
+   
+   /* Disable problematic hover effects on iOS */
+   .content-section:hover {
+     transform: none;
+   }
+ }
+
+ /* Additional iOS fallbacks */
+ @media screen and (-webkit-min-device-pixel-ratio: 2) {
+   /* High DPI iOS devices */
+   .content-section {
+     background: rgba(255, 255, 255, 0.95);
+   }
+   
+   header {
+     background: rgba(10, 31, 68, 0.9);
    }
  }
 

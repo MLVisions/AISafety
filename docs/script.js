@@ -118,42 +118,62 @@ function addButtonFeedback() {
 }
 
 function addScrollAnimations() {
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -100px 0px'
-  };
+  // Check if IntersectionObserver is supported (iOS Safari compatibility)
+  if ('IntersectionObserver' in window) {
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.style.opacity = '1';
-        entry.target.style.transform = 'translateY(0)';
-      }
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+
+    // Observe content sections for scroll animations
+    document.querySelectorAll('.content-section').forEach(section => {
+      section.style.opacity = '0';
+      section.style.transform = 'translateY(30px)';
+      section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+      observer.observe(section);
     });
-  }, observerOptions);
-
-  // Observe content sections for scroll animations
-  document.querySelectorAll('.content-section').forEach(section => {
-    section.style.opacity = '0';
-    section.style.transform = 'translateY(30px)';
-    section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    observer.observe(section);
-  });
+  } else {
+    // Fallback for older iOS versions - show all content immediately
+    document.querySelectorAll('.content-section').forEach(section => {
+      section.style.opacity = '1';
+      section.style.transform = 'translateY(0)';
+    });
+  }
 }
 
 function addGamificationElements() {
-  // Add particle effects on hover for nav buttons
+  // Detect if device is iOS/touch device
+  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  
+  // Add particle effects on hover for nav buttons (desktop) or touch for mobile
   document.querySelectorAll('.nav-button, .cta-button').forEach(button => {
-    button.addEventListener('mouseenter', function() {
-      createParticles(this);
-    });
+    if (isTouch) {
+      // For touch devices, use touch events instead of hover
+      button.addEventListener('touchstart', function() {
+        createParticles(this);
+      }, { passive: true });
+    } else {
+      button.addEventListener('mouseenter', function() {
+        createParticles(this);
+      });
+    }
   });
 
   // Add achievement-style feedback for action cards
   document.querySelectorAll('.action-card').forEach(card => {
-    card.addEventListener('click', function() {
+    const eventType = isTouch ? 'touchstart' : 'click';
+    card.addEventListener(eventType, function() {
       showAchievementToast('Progress tracked!');
-    });
+    }, { passive: true });
   });
 
   // Add floating elements animation
