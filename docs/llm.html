@@ -64,10 +64,42 @@
 <p>Adding extra context – such as a document or search results – changes the probability landscape. With retrieval‑augmented generation (RAG), a vector store stores relevant knowledge and the model uses semantic search to fetch supporting documents. This retrieved context is appended to the prompt, enabling the LLM to answer questions more accurately and cite sources. Emergent abilities, such as reasoning and summarisation, arise when models scale up in size and data; behaviours not present in smaller models suddenly appear at larger scales. Conversely, two agents built from the same base model can behave quite differently if they have distinct training data, personas or memory priorities, a phenomenon sometimes called <em>divergent minds</em>.</p>
 <div class="chart-wrapper"><img src="images/how_llms.png" alt="Illustration of how LLMs think and how this will change" loading="lazy" /></div>
 <p><em>Figure: Visualising decision trees with and without additional context illustrates how retrieval‑augmented models re‑rank possible continuations. Source: AI Prep deck.</em></p>
-<h2 id="single-vs-multiagent-architecture">Single vs Multi‑Agent Architecture</h2>
-<p>A single LLM can handle many tasks on its own, integrating memory, web search and tools within a linear workflow. However, a <strong>multi‑agent</strong> architecture decomposes a complex problem into specialised roles. An orchestrator coordinates agents – each with its own instructions, LLM and tool access – to perform summarisation, research, verification, development, validation and deployment in parallel. Collaboration and competition among agents improves overall performance and reduces hallucination by cross‑checking results. Key benefits of multi‑agent systems include autonomy, decentralisation, scalability and adaptability.</p>
-<div class="chart-wrapper"><img src="images/agent_architecture.png" alt="Single vs multi‑agent architecture" loading="lazy" /></div>
-<p><em>Figure: In a single‑agent setup (top), one model handles all reasoning and retrieval. In a multi‑agent network (bottom), an orchestrator coordinates multiple agents with dedicated tasks and shared data stores. Source: AI Prep deck.</em></p>
+<h2 id="ai-agent-architectures-from-monolithic-to-distributed-systems">AI Agent Architectures: From Monolithic to Distributed Systems</h2>
+<p>Understanding how AI scales requires examining the evolution from single-agent to multi-agent architectures—a fundamental shift in how we design intelligent systems. Think of this evolution like the difference between a Swiss Army knife and a specialized toolbox: one tool trying to do everything versus multiple specialized tools working together.</p>
+<h3 id="single-agent-architecture-the-digital-swiss-army-knife">Single-Agent Architecture: The Digital Swiss Army Knife</h3>
+<p>Imagine an AI agent as a highly capable assistant working alone in a library. This monolithic AI agent operates as a unified system where one Large Language Model (LLM) handles all cognitive tasks within a single execution context—reading, analyzing, reasoning, and responding sequentially.</p>
+<div class="chart-wrapper"><img src="images/ai_agent.png" alt="Single AI Agent Architecture" loading="lazy" /></div>
+<p><em>Figure: A single AI agent manages all tasks through one LLM core. Like a skilled librarian working alone, it maintains memory, accesses information, and uses tools—but everything happens in sequence, creating bottlenecks when complexity increases.</em></p>
+<p><strong>Key Characteristics:</strong></p>
+<ul>
+<li><strong>Linear Processing</strong>: Tasks are handled one after another, like reading a book from start to finish</li>
+<li><strong>Centralized Memory</strong>: All information flows through one context window</li>
+<li><strong>Tool Integration</strong>: One agent learns to use all available tools and data sources</li>
+<li><strong>Simplicity</strong>: Easier to design, debug, and understand—but limited by single-threaded thinking</li>
+</ul>
+<h3 id="multi-agent-orchestration-the-specialized-research-team">Multi-Agent Orchestration: The Specialized Research Team</h3>
+<p>Now imagine transforming that lone librarian into an entire research department. Multi-agent architectures represent a paradigm shift toward distributed AI systems—like having a research director coordinating multiple specialists, each expert in their domain.</p>
+<div class="chart-wrapper"><img src="images/ai_agents.png" alt="Multi-Agent Orchestration" loading="lazy" /></div>
+<p><em>Figure: Multiple specialized AI agents work in parallel under an orchestrator's guidance. Like a research team where experts in different fields collaborate simultaneously, each agent has dedicated LLMs, memory systems, and tool access—enabling parallel processing and specialized expertise.</em></p>
+<p><strong>How This Changes Everything:</strong></p>
+<ul>
+<li><strong>Parallel Thinking</strong>: Multiple agents can work simultaneously on different aspects of complex problems</li>
+<li><strong>Domain Expertise</strong>: Instead of one generalist, you have specialists (a research agent, analysis agent, verification agent, synthesis agent)</li>
+<li><strong>Scalable Intelligence</strong>: Add new agents for new capabilities without rebuilding the entire system</li>
+</ul>
+<h3 id="why-multi-agent-systems-matter-the-technical-revolution">Why Multi-Agent Systems Matter: The Technical Revolution</h3>
+<p>The shift from single-agent to multi-agent systems isn't just about adding more AI—it's about fundamentally changing how intelligent systems work. Here's why this matters for the future:</p>
+<p><strong>Parallel Processing: From Sequential to Simultaneous</strong>
+Unlike sequential single-agent workflows, orchestrated systems enable true parallelization of cognitive tasks. Imagine the difference between one person solving a complex research problem step-by-step versus a team of experts working simultaneously on different aspects. This dramatically improves both throughput and response times.</p>
+<p><strong>Specialization &amp; Expertise: The Expert Advantage</strong>
+Each agent can be fine-tuned for specific domains (research, analysis, verification, synthesis) rather than requiring one generalist model to handle all tasks. Just as you wouldn't want a general practitioner performing brain surgery, specialized AI agents perform better in their domains than generalist models.</p>
+<p><strong>Fault Tolerance &amp; Redundancy: Built-in Backup Systems</strong>
+Distributed systems provide natural redundancy—if one agent fails or produces unreliable output, others can compensate or provide verification. This is like having multiple experts review important decisions, significantly reducing the risk of critical errors.</p>
+<p><strong>Resource Optimization: Right-sized Intelligence</strong>
+Different agents can utilize different model sizes and computational resources based on task complexity, optimizing cost and performance. Simple tasks use lightweight models, complex reasoning uses powerful models—like having both calculators and supercomputers available as needed.</p>
+<p><strong>Cross-Verification: The Wisdom of AI Crowds</strong>
+Multiple agents can independently process the same problem, enabling consensus mechanisms that reduce hallucination and improve accuracy through <strong>ensemble inference</strong>. When multiple AI experts agree on a conclusion, confidence in the result increases dramatically.</p>
+<p>This architectural evolution mirrors the broader software industry's shift from monolithic applications to microservices—enabling AI systems to achieve unprecedented scale, reliability, and capability through distributed intelligence. The future of AI isn't about building one superintelligent agent, but about orchestrating networks of specialized agents that can tackle problems no single system could handle alone.</p>
   </section>
 </main>
 
