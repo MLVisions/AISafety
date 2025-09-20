@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Understanding how large language models work and how AI agent networks process information and make decisions." />
+  <meta name="keywords" content="AI, artificial intelligence, economic insights, technology trends, society, privacy, security" />
+  <title>How LLMs &amp; AI Agents Think – AI‑Driven Economic Insights</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>How LLMs &amp; AI Agents Think</h1>
+    
+    <p class="tagline">Demystifying probabilistic models, emergent behavior and multi‑agent systems</p>
+    
+  </header>
+
+  <!-- Navigation -->
+  <nav id="nav-buttons">
+    <div class="button-row">
+      
+      <button class="nav-button " onclick="location.href='index.html'">
+        <img src="images/home_icon.png" alt="Home icon" class="nav-icon" />
+        <span class="label">Home</span>
+      </button>
+      
+      <button class="nav-button " onclick="location.href='economy.html'">
+        <img src="images/economy_icon.png" alt="Economy &amp; Policy icon" class="nav-icon" />
+        <span class="label">Economy &amp; Policy</span>
+      </button>
+      
+      <button class="nav-button " onclick="location.href='technology.html'">
+        <img src="images/ai_icon.png" alt="AI &amp; Technology icon" class="nav-icon" />
+        <span class="label">AI &amp; Technology</span>
+      </button>
+      
+      <button class="nav-button " onclick="location.href='society.html'">
+        <img src="images/society_icon.png" alt="Society &amp; Mental Health icon" class="nav-icon" />
+        <span class="label">Society &amp; Mental Health</span>
+      </button>
+      
+      <button class="nav-button " onclick="location.href='privacy.html'">
+        <img src="images/privacy_icon.png" alt="Privacy &amp; Security icon" class="nav-icon" />
+        <span class="label">Privacy &amp; Security</span>
+      </button>
+      
+    </div>
+    
+    <div class="cta-container">
+      <button class="cta-button " onclick="location.href='action.html'">
+        <img src="images/action_icon.png" alt="What We Can Do Now icon" class="nav-icon" />
+        <span class="label">What We Can Do Now</span>
+      </button>
+    </div>
+    
+  </nav>
+
+  
+<main>
+  <section class="content-section">
+    <h2 id="how-large-language-models-work">How Large Language Models Work</h2>
+<p>Large language models (LLMs) do not "think" like humans. Instead, they use <em>probabilistic modeling</em> to predict the most likely next word (token) given the words that came before. During training, an LLM observes billions of text snippets and learns statistical patterns in grammar, syntax, semantics and context. At inference time the model uses these patterns to generate coherent sentences by sampling from a probability distribution over possible continuations. Because LLMs are trained on a diverse corpus, they can adapt to new prompts by drawing on related examples.</p>
+<p>Adding extra context – such as a document or search results – changes the probability landscape. With retrieval‑augmented generation (RAG), a vector store stores relevant knowledge and the model uses semantic search to fetch supporting documents. This retrieved context is appended to the prompt, enabling the LLM to answer questions more accurately and cite sources. Emergent abilities, such as reasoning and summarisation, arise when models scale up in size and data; behaviours not present in smaller models suddenly appear at larger scales. Conversely, two agents built from the same base model can behave quite differently if they have distinct training data, personas or memory priorities, a phenomenon sometimes called <em>divergent minds</em>.</p>
+<div class="chart-wrapper"><img src="images/how_llms.png" alt="Illustration of how LLMs think and how this will change" loading="lazy" /></div>
+<p><em>Figure: Visualising decision trees with and without additional context illustrates how retrieval‑augmented models re‑rank possible continuations. Source: AI Prep deck.</em></p>
+<h2 id="single-vs-multiagent-architecture">Single vs Multi‑Agent Architecture</h2>
+<p>A single LLM can handle many tasks on its own, integrating memory, web search and tools within a linear workflow. However, a <strong>multi‑agent</strong> architecture decomposes a complex problem into specialised roles. An orchestrator coordinates agents – each with its own instructions, LLM and tool access – to perform summarisation, research, verification, development, validation and deployment in parallel. Collaboration and competition among agents improves overall performance and reduces hallucination by cross‑checking results. Key benefits of multi‑agent systems include autonomy, decentralisation, scalability and adaptability.</p>
+<div class="chart-wrapper"><img src="images/agent_architecture.png" alt="Single vs multi‑agent architecture" loading="lazy" /></div>
+<p><em>Figure: In a single‑agent setup (top), one model handles all reasoning and retrieval. In a multi‑agent network (bottom), an orchestrator coordinates multiple agents with dedicated tasks and shared data stores. Source: AI Prep deck.</em></p>
+  </section>
+</main>
+
+
+  <footer>
+    <p>&copy; 2025 The Swarm Collective. All rights reserved.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

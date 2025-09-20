@@ -1,81 +1,227 @@
-# Swarm Economic Insights – Developer Guide
+# AI Safety
 
-This repository contains a proof‑of‑concept for a self‑updating website that aggregates economic, policy, technological and social data through a network of AI agents.  The goal is to provide rich, evidence‑based content while allowing new information to be added via weekly batch updates.  This guide explains how to set up the environment, customise the agents and run the update workflow.
+The goal is to develop and maintain a self‑updating website that aggregates economic, policy, technological and social data through a network of AI agents. Its intention is to help people prepare for the upcoming changes related to AI and automation, drastic economic changes (debt crisis, crypto, geopolitics, etc). The goal is to provide rich, evidence‑based content while allowing new information to be added via weekly batch updates.
 
-## Project Structure
 
-```
-├── website/              # Static site files (HTML, CSS, JS and images)
-│   ├── index.html        # Landing page with high‑level categories
-│   ├── economy.html      # Economy & policy page with graphs and Bitcoin buyers
-│   ├── technology.html   # AI & technology page
-│   ├── society.html      # Society & mental health page
-│   ├── privacy.html      # Privacy & security page
-│   ├── action.html       # What you can do now – practical steps
-│   ├── llm.html          # How LLMs & agents work
-│   ├── images/           # Icons and charts used on the site
-│   ├── style.css         # Shared stylesheet
-│   └── script.js         # Tab logic for portfolio charts
-├── agents/               # CrewAI agent definitions
-│   └── crew_agents.py    # Build agents and tasks for the update pipeline
-├── run_full_update.py    # Script to execute the full update cycle
-├── requirements.txt      # Python dependencies
-└── README.md             # This file
-```
 
-## Prerequisites
 
-- **Python 3.9+** – The agent pipeline is written in Python.  You can install dependencies via `pip` or [uv](https://github.com/astral-sh/uv).  The `crewai` library has its own requirements, so using a virtual environment is recommended.
-- **Node.js 16+** – Only necessary if you intend to build or extend the front‑end with additional tooling.  The current site uses plain HTML, CSS and JavaScript, so no build step is required.
-- **OpenAI API key** – The agents use OpenAI models via the `openai` package.  Export your key as an environment variable before running updates (see below).
+# AI Safety Website
 
-## Setup
+A modern, self-updating website that aggregates economic, policy, technological and social data to help people prepare for AI-driven changes. Built with a clean markdown-based content management system and automated plot generation.
 
-1. **Clone the repository** and navigate to its root directory.
-
-2. **Create a virtual environment** (optional but recommended):
-
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   ```
-
-3. **Install Python dependencies** using `pip` or `uv`:
-
-   ```bash
-   # using pip
-   pip install -r requirements.txt
-
-   # or using uv (fast alternative)
-   uv pip install -r requirements.txt
-   ```
-
-4. **Configure your OpenAI API key** by exporting it as an environment variable.  The crew agents read this key from `OPENAI_API_KEY`:
-
-   ```bash
-   export OPENAI_API_KEY="sk-your-key-here"
-   ```
-
-   You can also create a `.env` file in the project root with the line `OPENAI_API_KEY=sk-your-key-here` and install [`python-dotenv`](https://pypi.org/project/python-dotenv/) to load it automatically.
-
-## Running the Full Update
-
-Uploaded documents (e.g., PDF, DOCX, PPTX) should be placed in a designated directory (you can modify `run_full_update.py` to specify the path).  To run the full update pipeline:
+## 🚀 Quick Start
 
 ```bash
-python run_full_update.py
+# Clone the repository
+git clone https://github.com/MLVisions/AISafety.git
+cd AISafety
+
+# Install dependencies with uv
+uv sync
+
+# Build the website
+uv run python build.py
+
+# Start local development server
+uv run python -m http.server 8000 -d docs
+
+# Open http://localhost:8000 in your browser
 ```
 
-The script performs the following high‑level steps:
+## 📁 Project Structure
 
-1. **Summarise** newly uploaded files with the `SummarizerAgent`, storing both raw text and concise summaries in a knowledge base.
-2. **Research** external sources for each fact via the `ResearcherAgent`, returning authoritative URLs for citations.
-3. **Fetch market data** (optional) using `DataFetcherAgent` for specified tickers and date ranges.  Historical price data is saved for later analysis.
-4. **Forecast** future prices with the `ForecastAgent`, producing projections and uncertainty ribbons based on macro context.
-5. **Evaluate** whether the new information warrants updates to existing web pages.
-6. **Develop** draft Markdown files for any sections that need modification, embedding clickable citations.
-7. **Validate** the drafts for accuracy, bias and alignment with the site’s mission.
-8. **Deploy** the approved changes by integrating them into the `website/` directory and committing them to version control.
+```
+AISafety/
+├── src/
+│   ├── content/           # Markdown files with YAML frontmatter
+│   │   ├── index.md       # Homepage content
+│   │   ├── economy.md     # Economic analysis
+│   │   ├── technology.md  # AI & Technology insights
+│   │   ├── society.md     # Social impact analysis
+│   │   ├── privacy.md     # Privacy & Security
+│   │   ├── action.md      # Actionable recommendations
+│   │   └── llm.md         # LLM-specific content
+│   ├── templates/         # Jinja2 HTML templates
+│   │   ├── base.html      # Base template with navigation
+│   │   ├── index.html     # Homepage template
+│   │   └── page.html      # Standard page template
+│   ├── static/            # CSS, JavaScript, and images
+│   │   ├── style.css      # Website styling
+│   │   └── script.js      # Interactive functionality
+│   ├── builders/          # Python build system
+│   │   ├── markdown_processor.py  # Markdown to HTML conversion
+│   │   ├── template_engine.py     # Jinja2 template rendering
+│   │   ├── plot_generator.py      # Data visualization
+│   │   ├── icon_generator.py      # Navigation icon creation
+│   │   └── site_builder.py       # Main build orchestration
+│   └── agents/            # AI agents for content automation
+│       ├── crew_agents.py # CrewAI agent definitions
+│       └── local_data/    # Agent data storage
+├── docs/                  # Generated website (GitHub Pages)
+├── .github/              
+│   └── workflows/
+│       └── deploy.yml     # Automated deployment
+├── build.py              # Main build script
+├── pyproject.toml        # Dependencies and project config
+└── README.md
+```
+
+## 🛠️ Build System
+
+The website uses a modern Python-based build system with these key features:
+
+- **Markdown Content**: All pages written in Markdown with YAML frontmatter
+- **Template Engine**: Jinja2 templates preserve the glass-morphism design
+- **Plot Generation**: Matplotlib/Seaborn plots with website color scheme
+- **Icon Generation**: Custom navigation icons created programmatically
+- **Single Command Build**: `uv run python build.py` handles everything
+
+### Content Management
+
+Create or edit Markdown files in `src/content/` with YAML frontmatter:
+
+```markdown
+---
+title: "Page Title"
+tagline: "Subtitle text"
+description: "SEO description"
+---
+
+# Your Content Here
+
+Use standard Markdown syntax...
+```
+
+### Adding Data Visualizations
+
+Add new plots by extending `src/builders/plot_generator.py`:
+
+```python
+def create_your_plot():
+    setup_plot_style()  # Uses website colors
+    # Your matplotlib code here
+    plt.savefig('docs/images/your_plot.png', dpi=300, bbox_inches='tight')
+```
+
+## 🤖 AI Agent Integration
+
+The project includes CrewAI agents for automated content updates:
+
+- **SummarizerAgent**: Processes new data files
+- **ResearcherAgent**: Finds authoritative sources  
+- **DataFetcherAgent**: Retrieves market data
+- **ForecastAgent**: Generates predictions
+- **EvaluatorAgent**: Assesses content quality
+- **DeveloperAgent**: Creates Markdown drafts
+- **ValidatorAgent**: Ensures accuracy
+- **DeployerAgent**: Handles updates
+
+Agents are positioned for future automation but not currently integrated into the build process.
+
+## 🚀 Deployment
+
+### GitHub Pages (Recommended)
+
+1. **Push to GitHub**:
+   ```bash
+   git add .
+   git commit -m "Update website"
+   git push origin main
+   ```
+
+2. **GitHub Actions automatically**:
+   - Builds the website
+   - Deploys to GitHub Pages
+   - Updates live site
+
+### Manual Deployment
+
+```bash
+# Build locally
+uv run python build.py
+
+# Deploy docs/ folder to your hosting provider
+```
+
+## 🎨 Design System
+
+The website uses a professional glass-morphism design with:
+
+- **Color Scheme**: Blues and teals with strategic accent colors
+- **Typography**: Clean, readable fonts optimized for content
+- **Interactive Elements**: Smooth animations and hover effects
+- **Responsive Design**: Works on desktop, tablet, and mobile
+- **Accessibility**: High contrast and keyboard navigation
+
+## 🔧 Development
+
+### Prerequisites
+
+- Python 3.11+
+- [uv](https://github.com/astral-sh/uv) for dependency management
+
+### Local Development
+
+```bash
+# Install dependencies
+uv sync
+
+# Start development server with auto-reload
+uv run python build.py && uv run python -m http.server 8000 -d docs
+
+# Make changes to src/content/ or src/templates/
+# Re-run build.py to see updates
+```
+
+### Adding New Features
+
+1. **New Page**: Add `your-page.md` to `src/content/`
+2. **New Template**: Add to `src/templates/` if needed
+3. **New Icons**: Extend `src/builders/icon_generator.py`
+4. **New Plots**: Extend `src/builders/plot_generator.py`
+
+## 📊 Content Structure
+
+### Main Sections
+
+- **Home**: Overview and introduction
+- **Economy & Policy**: Financial analysis and portfolio projections
+- **AI & Technology**: Technical insights and capabilities
+- **Society & Mental Health**: Social impact analysis
+- **Privacy & Security**: Safety and protection strategies
+- **What We Can Do Now**: Actionable recommendations
+
+### Interactive Features
+
+- **Portfolio Analysis Tabs**: Compare investment strategies
+- **Responsive Navigation**: Clean, accessible menu system
+- **Chart Integration**: Professional data visualizations
+
+## 🔄 Update Workflow
+
+1. **Content Updates**: Edit Markdown files in `src/content/`
+2. **Build**: Run `uv run python build.py`
+3. **Test**: Start local server and verify changes
+4. **Deploy**: Push to GitHub for automatic deployment
+
+## 📝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test the build process
+5. Submit a pull request
+
+## 📄 License
+
+MIT License - see LICENSE file for details
+
+## 🆘 Support
+
+For issues or questions:
+- Open a GitHub issue
+- Check the build logs for error messages
+- Ensure all dependencies are installed with `uv sync`
 
 The update process is designed to run manually for the proof‑of‑concept but can easily be scheduled (e.g., via `cron`) to execute weekly.
 
@@ -91,10 +237,8 @@ All factual statements on the website should link to authoritative sources.  The
 
 ## Updating or Extending the Site
 
-- To add a new page, create an HTML file in `website/` and link it from the navigation bar.
-- To modify styling, edit `website/style.css`.  Avoid using em‑dashes in text; instead substitute hyphens or break the sentence into two.  Icons are stored in `website/images/` and can be replaced or expanded as needed.
-- To regenerate or add new graphs, update the images in `website/images/` or implement additional Python scripts that generate charts from the data fetcher’s outputs.
+- To add a new page, create an HTML file in `docs/` and link it from the navigation bar.
 
 ## License
 
-This project is provided as a demonstration and does not constitute financial advice.  Use it as a starting point for your own informational website or research portal.
+MIT License

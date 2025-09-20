@@ -1,0 +1,4 @@
+Person,Portfolio_2030,Lower_Bound,Upper_Bound,Strategy
+Person A,107000,95000,119000,Conservative (Savings + 401k)
+Person B,115000,98000,132000,Balanced (Tech + Real Estate + Savings + 401k)
+Person C,145000,105000,185000,Aggressive (Crypto + Tech + Savings + House + 401k)
