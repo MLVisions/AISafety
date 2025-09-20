@@ -6,12 +6,16 @@ description: "Understanding how large language models work and how AI agent netw
 
 ## How Large Language Models Work
 
-Large language models (LLMs) do not "think" like humans. Instead, they use *probabilistic modeling* to predict the most likely next word (token) given the words that came before. During training, an LLM observes billions of text snippets and learns statistical patterns in grammar, syntax, semantics and context. At inference time the model uses these patterns to generate coherent sentences by sampling from a probability distribution over possible continuations. Because LLMs are trained on a diverse corpus, they can adapt to new prompts by drawing on related examples.
+Large language models (LLMs) do not "think" like humans. Instead, they use *probabilistic modeling* to predict the most likely next word (token) given the words that came before. During training, an LLM observes billions of text snippets and learns statistical patterns in grammar, syntax, semantics and context. At inference time the model uses these patterns to generate coherent sentences by sampling from a probability distribution over possible continuations.
 
-Adding extra context – such as a document or search results – changes the probability landscape. With retrieval‑augmented generation (RAG), a vector store stores relevant knowledge and the model uses semantic search to fetch supporting documents. This retrieved context is appended to the prompt, enabling the LLM to answer questions more accurately and cite sources. Emergent abilities, such as reasoning and summarisation, arise when models scale up in size and data; behaviours not present in smaller models suddenly appear at larger scales. Conversely, two agents built from the same base model can behave quite differently if they have distinct training data, personas or memory priorities, a phenomenon sometimes called *divergent minds*.
+Think of it like a sophisticated autocomplete system. When you start typing a sentence, the model considers thousands of possible ways to continue, assigning each option a probability score based on what it learned during training. The actual process involves complex neural network mathematics with millions, billions, or even trillions of parameters, but we can visualize this decision-making process as a branching tree of possibilities.
 
-![Illustration of how LLMs think and how this will change](images/how_llms.png)
-*Figure: Visualising decision trees with and without additional context illustrates how retrieval‑augmented models re‑rank possible continuations. Source: AI Prep deck.*
+Adding extra context – such as a document or search results – dramatically changes which paths the model is likely to take. With retrieval‑augmented generation (RAG), a vector store contains relevant knowledge that gets fetched and included in the prompt. This additional context acts like giving the model more information to consider, reshaping the entire probability landscape and often leading to more accurate, fact-based responses.
+
+![LLM Decision Tree Visualization](images/llm_decision_tree.png)
+*Figure: A simplified visualization of how LLMs evaluate word choices. While the actual neural network process involves complex mathematical transformations across millions of parameters, this decision tree illustrates the core concept: LLMs consider multiple possible continuations and select based on learned probability patterns. Additional context (shown in green) can dramatically shift these probabilities toward more informed responses.*
+
+Emergent abilities, such as reasoning and summarisation, arise when models scale up in size and data; behaviours not present in smaller models suddenly appear at larger scales. Conversely, two agents built from the same base model can behave quite differently if they have distinct training data, personas or memory priorities, a phenomenon sometimes called *divergent minds*.
 
 ## AI Agent Architectures: From Monolithic to Distributed Systems
 
