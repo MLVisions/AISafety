@@ -6,6 +6,7 @@ Professional plotting functions that match the website's design theme
 import matplotlib
 matplotlib.use('Agg')  # Use non-interactive backend to prevent popups
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import seaborn as sns
 import pandas as pd
 import numpy as np
@@ -170,7 +171,7 @@ def create_portfolio_projection_plot(person='A', csv_path=None, save_path=None):
                 fontsize=18, fontweight='bold', color=COLORS['text_dark'], pad=20)
     
     # Format y-axis as currency
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'${x:,.0f}'))
+    ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f'${x:,.0f}'))
     
     # Legend
     ax.legend(loc='upper left', frameon=True, fancybox=True, shadow=True, framealpha=0.9)
@@ -184,27 +185,41 @@ def create_portfolio_projection_plot(person='A', csv_path=None, save_path=None):
     
     return fig
 
-def create_comparative_wealth_plot(csv_path='data/comparative_wealth.csv', save_path='website/images/comparative_wealth_new.png'):
-    """Create comparative wealth outcomes bar chart"""
+def create_comparative_wealth_plot(data_dir='data', save_path='website/images/comparative_wealth.png'):
+    """Create comparative wealth outcomes bar chart using actual portfolio data"""
     setup_plot_style()
     
-    # Load data
-    df = pd.read_csv(csv_path)
+    # Load individual portfolio data
+    person_a_df = pd.read_csv(f'{data_dir}/personA_portfolio.csv')
+    person_b_df = pd.read_csv(f'{data_dir}/personB_portfolio.csv')
+    person_c_df = pd.read_csv(f'{data_dir}/personC_portfolio.csv')
+    
+    # Extract 2030 data for each person
+    a_2030 = person_a_df[person_a_df['Year'] == 2030].iloc[0]
+    b_2030 = person_b_df[person_b_df['Year'] == 2030].iloc[0]
+    c_2030 = person_c_df[person_c_df['Year'] == 2030].iloc[0]
+    
+    # Prepare comparison data
+    persons = ['Person A', 'Person B', 'Person C']
+    portfolios = [a_2030['PersonA_Total'], b_2030['PersonB_Total'], c_2030['PersonC_Total']]
+    lower_bounds = [a_2030['PersonA_Lower'], b_2030['PersonB_Lower'], c_2030['PersonC_Lower']]
+    upper_bounds = [a_2030['PersonA_Upper'], b_2030['PersonB_Upper'], c_2030['PersonC_Upper']]
     
     # Create figure
     fig, ax = plt.subplots(figsize=(12, 8))
     fig.patch.set_facecolor('white')
     
     # Create bar chart
-    x_pos = np.arange(len(df))
-    bars = ax.bar(x_pos, df['Portfolio_2030'], 
+    x_pos = np.arange(len(persons))
+    bars = ax.bar(x_pos, portfolios, 
                   color=[COLORS['primary_blue'], COLORS['accent_blue'], COLORS['success_green']], 
                   alpha=0.8, width=0.6)
     
     # Add error bars for uncertainty
-    ax.errorbar(x_pos, df['Portfolio_2030'], 
-               yerr=[df['Portfolio_2030'] - df['Lower_Bound'], 
-                     df['Upper_Bound'] - df['Portfolio_2030']], 
+    error_lower = [portfolios[i] - lower_bounds[i] for i in range(len(portfolios))]
+    error_upper = [upper_bounds[i] - portfolios[i] for i in range(len(portfolios))]
+    ax.errorbar(x_pos, portfolios, 
+               yerr=[error_lower, error_upper], 
                fmt='none', color='black', capsize=8, capthick=2, linewidth=2)
     
     # Formatting
@@ -215,19 +230,33 @@ def create_comparative_wealth_plot(csv_path='data/comparative_wealth.csv', save_
     
     # Set x-axis labels
     ax.set_xticks(x_pos)
-    ax.set_xticklabels(df['Person'])
+    ax.set_xticklabels(persons)
     
     # Format y-axis as currency
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: f'${x:,.0f}'))
+    ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: f'${x:,.0f}'))
     
     # Add value labels on bars
-    for i, (bar, value) in enumerate(zip(bars, df['Portfolio_2030'])):
-        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 2000, 
+    for i, (bar, value) in enumerate(zip(bars, portfolios)):
+        ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 5000, 
                f'${value:,.0f}', ha='center', va='bottom', fontweight='bold')
+    
+    # Add strategy descriptions as subtitle text
+    strategies = [
+        'Conservative (Savings + 401k)',
+        'Balanced (Tech + Real Estate + Savings + 401k)', 
+        'Aggressive (Crypto + Tech + Savings + House + 401k)'
+    ]
+    
+    for i, (bar, strategy) in enumerate(zip(bars, strategies)):
+        ax.text(bar.get_x() + bar.get_width()/2, -15000, 
+               strategy, ha='center', va='top', fontsize=9, 
+               style='italic', color=COLORS['text_light'])
     
     # Grid
     ax.grid(True, alpha=0.3, axis='y')
     
+    # Adjust layout to make room for strategy labels
+    plt.subplots_adjust(bottom=0.15)
     plt.tight_layout()
     plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
     plt.close()  # Close the figure to free memory
@@ -261,7 +290,7 @@ def generate_all_plots(data_dir='data', output_dir='images'):
     # Generate comparative wealth plot
     print("📊 Creating comparative wealth analysis...")
     create_comparative_wealth_plot(
-        csv_path=f'{data_dir}/comparative_wealth.csv',
+        data_dir=data_dir,
         save_path=f'{output_dir}/comparative_wealth.png'
     )
     
