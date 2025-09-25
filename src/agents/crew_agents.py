@@ -1,40 +1,38 @@
- """
- crew_agents.py
+"""
+crew_agents.py
 
- This module defines a set of CrewAI agents and tasks that collectively
- implement the self‑updating workflow for the Swarm website.  The
- implementation here serves as a template: you can expand the tools
- available to each agent, adjust prompts, and integrate your own
- knowledge base.  See the CrewAI documentation for detailed examples of
- defining agents, tasks and crews.
+This module defines a set of CrewAI agents and tasks that collectively
+implement the self‑updating workflow for the Swarm website.  The
+implementation here serves as a template: you can expand the tools
+available to each agent, adjust prompts, and integrate your own
+knowledge base.  See the CrewAI documentation for detailed examples of
+defining agents, tasks and crews.
 
- Agents defined:
-   * SummarizerAgent – extracts and summarises new content from uploaded files.
-   * ResearcherAgent – verifies facts and fetches additional context from the web.
-   * EvaluatorAgent – compares verified facts with existing site content to decide
+Agents defined:
+  * SummarizerAgent – extracts and summarises new content from uploaded files.
+  * ResearcherAgent – verifies facts and fetches additional context from the web.
+  * EvaluatorAgent – compares verified facts with existing site content to decide
      whether updates are warranted.
-   * DeveloperAgent – drafts new or updated content sections in Markdown.
-   * ValidatorAgent – checks for bias, ensures citations and maintains the site’s focus.
-   * DeployerAgent – applies approved changes in a development branch and
+  * DeveloperAgent – drafts new or updated content sections in Markdown.
+  * ValidatorAgent – checks for bias, ensures citations and maintains the site’s focus.
+  * DeployerAgent – applies approved changes in a development branch and
      triggers the deployment process.
 
- A helper function build_crew() constructs a Crew object with a default
- process flow.  You can adjust the order of tasks or add additional
- conditional logic as needed.
- """
+A helper function build_crew() constructs a Crew object with a default
+process flow.  You can adjust the order of tasks or add additional
+conditional logic as needed.
+"""
 
- from __future__ import annotations
+from __future__ import annotations
 
- from typing import List, Optional
-
- # Import CrewAI classes.  If you haven't installed crewai yet, run
- # `pip install crewai` in your environment.  These imports are kept
- # inside a try/except so that the module can be imported without
- # errors during local development.  Replace them with actual imports
- # when deploying.
- try:
-     from crewai import Agent, Task, Crew
- except ImportError:
+# Import CrewAI classes.  If you haven't installed crewai yet, run
+# `pip install crewai` in your environment.  These imports are kept
+# inside a try/except so that the module can be imported without
+# errors during local development.  Replace them with actual imports
+# when deploying.
+try:
+     from crewai import Agent, Crew, Task
+except ImportError:
      # Define dummy classes for type checking and to prevent runtime errors
      class Agent:  # type: ignore
          def __init__(self, *args, **kwargs):
@@ -49,7 +47,7 @@
              pass
 
 
- def build_agents() -> List[Agent]:
+def build_agents() -> list[Agent]:
      """Create and return the list of agents used in the crew.
 
      Each agent is defined with a name, a role, a goal and (optionally)
@@ -58,11 +56,11 @@
      CrewAI examples for details on tool integration.
      """
      # Summarizer agent: ingests uploaded documents and produces concise summaries.
-    summarizer = Agent(
+     summarizer = Agent(
          name="SummarizerAgent",
          role="A diligent summariser that extracts key points from uploaded files",
          goal=(
-            "Read uploaded documents, presentations or URLs and create "
+             "Read uploaded documents, presentations or URLs and create "
             "concise summaries with citations.  Whenever possible, identify the "
             "original source (e.g., news article, report, blog) associated with a fact "
             "and include the full URL.  Citations should be rendered as clickable "
@@ -177,12 +175,12 @@
          allow_delegation=False,
      )
 
-    # DataFetcher agent: retrieves historical price data for a list of tickers.
-    data_fetcher = Agent(
-        name="DataFetcherAgent",
-        role="A data retriever for market prices",
-        goal=(
-            "Given a list of stock or crypto tickers and a date range, fetch historical "
+     # DataFetcher agent: retrieves historical price data for a list of tickers.
+     data_fetcher = Agent(
+         name="DataFetcherAgent",
+         role="A data retriever for market prices",
+         goal=(
+             "Given a list of stock or crypto tickers and a date range, fetch historical "
             "price data (time, price) for each asset.  Prefer daily or monthly close prices. "
             "Use a reliable API such as Yahoo Finance or Alpha Vantage via a Python library "
             "like yfinance.  Output should be a structured table or DataFrame that downstream "
@@ -194,14 +192,14 @@
             "and handle missing data gracefully.  Your output will be passed to the forecasting agent."
         ),
         allow_delegation=False,
-    )
+     )
 
-    # Forecast agent: generates future projections using price data and macro context.
-    forecast = Agent(
-        name="ForecastAgent",
-        role="A forecaster that projects prices and uncertainty bands",
-        goal=(
-            "Given historical price data and contextual information (inflation, policy, AI investment, etc.), "
+     # Forecast agent: generates future projections using price data and macro context.
+     forecast = Agent(
+         name="ForecastAgent",
+         role="A forecaster that projects prices and uncertainty bands",
+         goal=(
+             "Given historical price data and contextual information (inflation, policy, AI investment, etc.), "
             "predict price trajectories for the next five years.  Use statistical models (e.g., ARIMA, "
             "exponential smoothing or regression) and incorporate macro indicators as features.  "
             "Generate a plot with confidence ribbons to illustrate uncertainty and save it for inclusion "
@@ -213,35 +211,35 @@
             "provided by the research agent.  Communicate uncertainty clearly through confidence intervals."
         ),
         allow_delegation=False,
-    )
+     )
 
-    return [
-        summarizer,
-        researcher,
-        evaluator,
-        developer,
-        validator,
-        deployer,
-        data_fetcher,
-        forecast,
-    ]
+     return [
+         summarizer,
+         researcher,
+         evaluator,
+         developer,
+         validator,
+         deployer,
+         data_fetcher,
+         forecast,
+     ]
 
 
- def build_tasks(agents: List[Agent]) -> List[Task]:
+def build_tasks(agents: list[Agent]) -> list[Task]:
      """Define tasks and link them to the respective agents.
 
      The tasks describe what each agent should accomplish in the context
      of the crew.  Dependencies ensure the order of execution.
      """
-    # Unpack agents for clarity.  Note: additional agents may be appended at the end of the list.
-    summarizer = agents[0]
-    researcher = agents[1]
-    evaluator = agents[2]
-    developer = agents[3]
-    validator = agents[4]
-    deployer = agents[5]
-    data_fetcher = agents[6] if len(agents) > 6 else None
-    forecast_agent = agents[7] if len(agents) > 7 else None
+     # Unpack agents for clarity.  Note: additional agents may be appended at the end of the list.
+     summarizer = agents[0]
+     researcher = agents[1]
+     evaluator = agents[2]
+     developer = agents[3]
+     validator = agents[4]
+     deployer = agents[5]
+     data_fetcher = agents[6] if len(agents) > 6 else None
+     forecast_agent = agents[7] if len(agents) > 7 else None
 
      # Task 1: summarise uploaded documents
      summarise_task = Task(
@@ -311,60 +309,60 @@
          context=[validate_task]
      )
 
-    # Task: fetch market price data (if the data_fetcher agent exists)
-    if data_fetcher:
-        data_fetch_task = Task(
-            description=(
-                "Retrieve historical price data for a list of tickers between 2020 and 2025. "
-                "Produce a table of dates and closing prices for each ticker.  Use yfinance or "
-                "another API through Python.  Save the data as CSV or DataFrame in the knowledge base. "
-                "Assume tickers are provided via configuration (e.g., ['^GSPC','BTC-USD','ETH-USD','XLP'])."
-            ),
-            agent=data_fetcher,
-            expected_output="A dictionary mapping each ticker to a DataFrame of date and price.",
-            context=[research_task],
-        )
-    else:
-        data_fetch_task = None
+     # Task: fetch market price data (if the data_fetcher agent exists)
+     if data_fetcher:
+         data_fetch_task = Task(
+             description=(
+                 "Retrieve historical price data for a list of tickers between 2020 and 2025. "
+                 "Produce a table of dates and closing prices for each ticker.  Use yfinance or "
+                 "another API through Python.  Save the data as CSV or DataFrame in the knowledge base. "
+                 "Assume tickers are provided via configuration (e.g., ['^GSPC','BTC-USD','ETH-USD','XLP'])."
+             ),
+             agent=data_fetcher,
+             expected_output="A dictionary mapping each ticker to a DataFrame of date and price.",
+             context=[research_task],
+         )
+     else:
+         data_fetch_task = None
 
-    # Task: forecast future prices using historical data and macro context
-    if forecast_agent:
-        forecast_task = Task(
-            description=(
-                "Using the historical price data and macro context from the research task, "
-                "build forecasting models (e.g., ARIMA or regression).  Predict price trajectories "
-                "for 2026–2030 and include confidence intervals to reflect uncertainty.  Generate a "
-                "plot for each asset with ribbons showing the forecast range and save as an image."
-            ),
-            agent=forecast_agent,
-            expected_output=(
-                "Forecast plots saved to the staging directory and a report describing the modelling "
-                "approach, assumptions and key insights."
-            ),
-            context=[research_task, data_fetch_task] if data_fetch_task else [research_task],
-        )
-    else:
-        forecast_task = None
+     # Task: forecast future prices using historical data and macro context
+     if forecast_agent:
+         forecast_task = Task(
+             description=(
+                 "Using the historical price data and macro context from the research task, "
+                 "build forecasting models (e.g., ARIMA or regression).  Predict price trajectories "
+                 "for 2026–2030 and include confidence intervals to reflect uncertainty.  Generate a "
+                 "plot for each asset with ribbons showing the forecast range and save as an image."
+             ),
+             agent=forecast_agent,
+             expected_output=(
+                 "Forecast plots saved to the staging directory and a report describing the modelling "
+                 "approach, assumptions and key insights."
+             ),
+             context=[research_task, data_fetch_task] if data_fetch_task else [research_task],
+         )
+     else:
+         forecast_task = None
 
-    # Assemble tasks in order.  Include optional data fetch and forecast tasks if defined.
-    tasks = [summarise_task, research_task]
-    if data_fetch_task:
-        tasks.append(data_fetch_task)
-    if forecast_task:
-        tasks.append(forecast_task)
-    tasks.extend([evaluate_task, develop_task, validate_task, deploy_task])
-    return tasks
+     # Assemble tasks in order.  Include optional data fetch and forecast tasks if defined.
+     tasks = [summarise_task, research_task]
+     if data_fetch_task:
+         tasks.append(data_fetch_task)
+     if forecast_task:
+         tasks.append(forecast_task)
+     tasks.extend([evaluate_task, develop_task, validate_task, deploy_task])
+     return tasks
 
 
- def build_crew() -> Crew:
-     """Construct and return the CrewAI crew with agents and tasks."""
-     agents = build_agents()
-     tasks = build_tasks(agents)
-     crew = Crew(
-         agents=agents,
-         tasks=tasks,
-         # The process can be sequential or defined with more fine‑grained
-         # flows.  Here we rely on the tasks' `context` to enforce order.
-         verbose=True
-     )
-     return crew
+def build_crew() -> Crew:
+    """Construct and return the CrewAI crew with agents and tasks."""
+    agents = build_agents()
+    tasks = build_tasks(agents)
+    crew = Crew(
+        agents=agents,
+        tasks=tasks,
+        # The process can be sequential or defined with more fine‑grained
+        # flows.  Here we rely on the tasks' `context` to enforce order.
+        verbose=True
+    )
+    return crew

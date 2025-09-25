@@ -4,16 +4,17 @@ Clean, professional icons for navigation using matplotlib
 """
 
 import matplotlib
+
 matplotlib.use('Agg')  # Use non-interactive backend to prevent popups
+
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.patches import Rectangle, Circle
-import os
+from matplotlib.patches import Circle, Rectangle
 
 # Website color scheme - cohesive blue theme with complementary accents
 COLORS = {
     'primary_blue': '#0a1f44',
-    'medium_blue': '#1e4a80', 
+    'medium_blue': '#1e4a80',
     'accent_blue': '#295da0',
     'light_blue': '#4da3d8',
     'bright_blue': '#66c2ff',
@@ -26,17 +27,17 @@ COLORS = {
     'light_gray': '#e2e8f0'
 }
 
-def setup_icon_style():
+def setup_icon_style() -> None:
     """Configure matplotlib for clean icon generation with transparency"""
     plt.rcParams.update({
         'figure.facecolor': 'none',  # Transparent figure
         'axes.facecolor': 'none'     # Transparent axes
     })
 
-def generate_page_icons():
+def generate_page_icons() -> None:
     """Generate clean, professional icons for each main page"""
     setup_icon_style()
-    
+
     icons = {
         'home_icon.png': {
             'title': 'Home',
@@ -49,13 +50,13 @@ def generate_page_icons():
             'type': 'neural_network'
         },
         'economy_icon.png': {
-            'title': 'Economy & Policy', 
+            'title': 'Economy & Policy',
             'color': COLORS['mint_green'],
             'type': 'trend_chart'
         },
         'society_icon.png': {
             'title': 'Society & Mental Health',
-            'color': COLORS['soft_purple'], 
+            'color': COLORS['soft_purple'],
             'type': 'people_group'
         },
         'privacy_icon.png': {
@@ -69,17 +70,17 @@ def generate_page_icons():
             'type': 'action_arrow'
         }
     }
-    
+
     for filename, config in icons.items():
         # Much larger figure size for bigger, more proportional icons
         fig, ax = plt.subplots(figsize=(8, 8), dpi=300)
         ax.set_xlim(0, 10)
         ax.set_ylim(0, 10)
         ax.axis('off')
-        
+
         # Set equal aspect ratio to prevent horizontal compression
         ax.set_aspect('equal')
-        
+
         # Generate icon based on type with improved sizing and proportions
         if config['type'] == 'home_house':
             # Home icon - improved house shape with better proportions
@@ -100,7 +101,7 @@ def generate_page_icons():
             window2 = Rectangle((6, 4.8), 1, 1, color=COLORS['white'], alpha=0.95)
             ax.add_patch(window1)
             ax.add_patch(window2)
-            
+
         elif config['type'] == 'neural_network':
             # AI/Tech icon - improved neural network with better proportions
             nodes = [(2.5, 7.5), (7.5, 7.5), (2, 5), (8, 5), (5, 2.5)]
@@ -112,24 +113,22 @@ def generate_page_icons():
                 ax.plot([x1, x2], [y1, y2], color=config['color'], alpha=0.6, linewidth=4)
             # Draw nodes on top - larger and more prominent
             for x, y in nodes:
-                ax.scatter(x, y, s=500, c=config['color'], alpha=0.9, zorder=10, 
+                ax.scatter(x, y, s=500, c=config['color'], alpha=0.9, zorder=10,
                           edgecolors=COLORS['white'], linewidth=3)
-                
+
         elif config['type'] == 'trend_chart':
             # Economy icon - improved bar chart with better proportions
             x_positions = [2.5, 4, 5.5, 7]
             heights = [2.5, 4, 5.5, 7]
             bar_width = 1
-            for i, (x, h) in enumerate(zip(x_positions, heights)):
-                bar = Rectangle((x - bar_width/2, 2), bar_width, h, 
+            for _, (x, h) in enumerate(zip(x_positions, heights, strict=False)):
+                bar = Rectangle((x - bar_width/2, 2), bar_width, h,
                               color=config['color'], alpha=0.85)
                 ax.add_patch(bar)
             # Add trend arrow - more prominent
-            arrow_x = [2, 8.5]
-            arrow_y = [2.5, 8.5]
             ax.annotate('', xy=(8.5, 8.5), xytext=(2, 2.5),
-                       arrowprops=dict(arrowstyle='->', lw=4, color=config['color'], alpha=0.8))
-            
+                       arrowprops={'arrowstyle': '->', 'lw': 4, 'color': config['color'], 'alpha': 0.8})
+
         elif config['type'] == 'people_group':
             # Society icon - improved people figures with better proportions
             people_positions = [(2.5, 5), (5, 5), (7.5, 5)]
@@ -141,19 +140,18 @@ def generate_page_icons():
                 body = Rectangle((x-0.5, y-1.5), 1, 3, color=config['color'], alpha=0.9)
                 ax.add_patch(body)
             # Add connection symbol above - heart/connection
-            heart_x, heart_y = 5, 8.5
             # Draw a connecting arc above center figure
             ax.plot([3.5, 5, 6.5], [8, 8.5, 8], color=config['color'], linewidth=5, alpha=0.8)
             # Add small circles/dots for connection
             for hx in [3.5, 5, 6.5]:
-                ax.scatter(hx, 8 if hx != 5 else 8.5, s=120, c=config['color'], 
+                ax.scatter(hx, 8 if hx != 5 else 8.5, s=120, c=config['color'],
                           alpha=0.9, marker='o')
-                
+
         elif config['type'] == 'security_shield':
             # Privacy/Security icon - improved shield with better proportions
             shield_x = [5, 2.5, 2.5, 5, 7.5, 7.5, 5]
             shield_y = [8.5, 7, 3, 1.5, 3, 7, 8.5]
-            ax.fill(shield_x, shield_y, color=config['color'], alpha=0.9, 
+            ax.fill(shield_x, shield_y, color=config['color'], alpha=0.9,
                    edgecolor=COLORS['white'], linewidth=3)
             # Lock symbol inside shield - larger and more detailed
             lock_body = Rectangle((3.8, 4), 2.4, 2, color=COLORS['white'], alpha=0.95)
@@ -163,7 +161,7 @@ def generate_page_icons():
             ax.add_patch(lock_shackle)
             # Add keyhole detail
             ax.scatter(5, 4.8, s=100, c=config['color'], alpha=0.9, marker='o')
-            
+
         elif config['type'] == 'action_arrow':
             # Action icon - improved arrow with better proportions
             # Main arrow body - larger
@@ -178,18 +176,18 @@ def generate_page_icons():
             for angle in star_angles:
                 x_star = 5.5 + 2.5 * np.cos(angle)
                 y_star = 5 + 2.5 * np.sin(angle)
-                ax.plot([5.5, x_star], [5, y_star], color=config['color'], 
+                ax.plot([5.5, x_star], [5, y_star], color=config['color'],
                        linewidth=3, alpha=0.6)
-        
+
         # Save icon with transparent background - higher quality
         save_path = f'docs/images/{filename}'
-        plt.savefig(save_path, dpi=300, bbox_inches='tight', 
+        plt.savefig(save_path, dpi=300, bbox_inches='tight',
                    facecolor='none', edgecolor='none', pad_inches=0.1,
                    transparent=True, format='png')
         plt.close()
         print(f"✅ Generated {filename} - larger size with improved proportions")
 
-def generate_all_icons():
+def generate_all_icons() -> None:
     """Generate all navigation icons"""
     generate_page_icons()
     print("✅ All icons generated successfully!")

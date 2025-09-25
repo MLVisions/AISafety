@@ -2,64 +2,87 @@
 applyTo: '**/*.{py,ts,md}'
 ---
 
-The goal is to develop and maintain a self‑updating website that aggregates economic, policy, technological and social data through a network of AI agents. Its intention is to help people prepare for the upcoming changes related to AI and automation, drastic economic changes (debt crisis, crypto, geopolitics, etc). The goal is to provide rich, evidence‑based content while allowing new information to be added via weekly batch updates.
+# AI Safety Website Development Guidelines
+
+## Vision & Purpose
+
+This project develops and maintains a self-updating website that aggregates economic, policy, technological and social data through AI agents to help people prepare for AI-driven societal changes. See the main README.md for complete project details, setup instructions, and deployment information.
 
 ## Project Architecture
 
-The project follows a clean separation of concerns:
+The project follows a clean separation of concerns with modular, scalable design:
 
 - **`src/content/`** - Markdown files with YAML frontmatter for all page content
 - **`src/templates/`** - Jinja2 HTML templates that preserve the glass-morphism design
 - **`src/builders/`** - Python modules for markdown processing, plot generation, and site building
 - **`src/static/`** - CSS, JavaScript, and image assets
-- **`src/agents/`** - AI agents for automated content updates (CrewAI-based). May involve data or fine-tuning.
+- **`src/agents/`** - AI agents for automated content updates (CrewAI-based).
+- **`src/agents/local_data/`** - Local data sources for AI agents
+- **`src/agents/utils/`** - *Generalized* utility functions for AI agents
+- **`src/agents/mcp_server.py`** - *Generalized* CrewAI server interface for AI agents. 
+  - Should be usable by `copilot` and `continue`. Refer to online documentation for development details.
 - **`docs/`** - Generated website output for GitHub Pages deployment
-- ** `tests/`** - Unit tests for core functionality
+- **`tests/`** - Comprehensive unit tests for all core functionality
 
-## Development Guidelines
+## Development Standards
 
-### Dependencies and Environment
-- Use `uv` and `pyproject.toml` for all dependency management
-- Configure matplotlib with `matplotlib.use('Agg')` to prevent GUI popups during plot generation
-- Use `uv run` for all command execution instead of manual virtual environment activation
+### Environment & Dependencies
+- **ALWAYS use `uv`** for all dependency management and command execution
+- Use `uv run` prefix for ALL terminal commands (pytest, ruff, mypy, python scripts)
+- Manage dependencies exclusively through `pyproject.toml`
+- Configure matplotlib with `matplotlib.use('Agg')` to prevent GUI popups
 
-### Build System
-- **Single build command**: `uv run python build.py` handles everything
-- **Plot generation**: Use website color scheme and save directly to output directory
+### Code Quality & Testing
+- **Linting**: `uv run ruff check` - must pass with zero issues
+- **Type checking**: `uv run mypy .` - address all type annotation requirements
+- **Testing**: `uv run pytest` - maintain comprehensive test coverage for business logic
+- **Build verification**: `uv run python build.py` - ensure functionality remains intact
+
+### Development Practices
+- **Context-aware development**: Always consider upstream and downstream logic when making changes
+- **Avoid unnecessary conditionals**: Engineer clean, modular solutions over complex branching
+- **Modular design**: Keep functions focused, reusable, and easily testable
+- **Scalable architecture**: Design for extensibility - new agents, data sources, and content types should integrate seamlessly
+
+### Documentation Requirements
+- **README.md**: Keep project overview, setup, and usage instructions current
+- **Function documentation**: Document all core business logic with clear docstrings
+- **pyproject.toml**: Maintain accurate dependencies and project metadata
+- **Tests**: Update test expectations when functionality changes
+
+### Build & Content System
+- **Single build command**: `uv run python build.py` handles complete site generation
+- **Plot generation**: Use website color scheme, save directly to output directory
 - **Template rendering**: Preserve exact current styling and responsive design
-- **Asset copying**: Maintain all current images, CSS, and JavaScript functionality
+- **Asset management**: Maintain all current images, CSS, and JavaScript functionality
+- **Markdown processing**: YAML frontmatter for metadata, custom shortcodes for interactive content
 
-### Content Management
-- **Markdown files** should use YAML frontmatter for metadata (title, tagline, description)
-- **Custom shortcodes** are supported for tabs, image wrapping, and interactive content
-- **Plot references** should use standard markdown image syntax pointing to generated plots
-
-### Code Quality
-- Run `uv run ruff check` and `uv run mypy .` for linting and type checking
-- Write tests for core functionality only - focus on business logic, not simple integrations
-- Design for extensibility: new agents, data sources, and content types should be easy to add
-- Keep functions modular and reusable across different build steps
-
-### Deployment Workflow
-- **GitHub Pages hosting**: Build output goes to `docs/` folder
-- **Push-to-deploy**: Pushing to main branch automatically triggers build and deployment via GitHub Actions
-- **Local testing**: Use `uv run python -m http.server 8000 -d docs` for local preview
+### Testing Strategy
+- **Business logic focus**: Test core functionality, not simple integrations
+- **Test-driven changes**: Update tests when modifying functionality
+- **Integration validation**: Ensure changes don't break existing workflows
+- **Build verification**: Always verify `uv run python build.py` succeeds after changes
 
 ### AI Agent Integration
 - **Agents location**: `src/agents/` with data in `src/agents/local_data/`
-- **Weekly updates**: Agents should update markdown content and data files, then trigger rebuild
-- **Content validation**: Agents should verify factual accuracy and maintain citation links
-- **Deployment automation**: Agents can commit changes that trigger automatic deployment
+- **Weekly updates**: Agents update markdown content and data files, trigger rebuilds
+- **Content validation**: Verify factual accuracy and maintain citation links
+- **Deployment automation**: Agents commit changes that trigger automatic deployment
 
 ### Design Preservation
 - **Glass-morphism styling**: Maintain translucent elements and current visual design
 - **Interactive features**: Preserve tab switching, smooth animations, and responsive behavior
 - **Navigation structure**: Keep current page hierarchy and navigation patterns
 - **Professional typography**: Maintain current font choices and text styling
-- **Mobile responsiveness**: Ensure front end is designed to be mobile-responsive (IOS and Safari) and accessible
+- **Mobile responsiveness**: Ensure compatibility with iOS Safari and accessibility standards
+
+### Deployment & Local Development
+- **GitHub Pages**: Build output goes to `docs/` folder for automatic deployment
+- **Local testing**: Use `uv run python -m http.server 8000 -d docs` for preview
+- **CI/CD**: Pushing to main branch triggers build and deployment via GitHub Actions
 
 ### Error Handling
-- **Graceful failure**: Build should end if individual plots fail
-- **Clear error messages**: Provide actionable feedback for build failures
-- **Non-blocking warnings**: matplotlib backend warnings are acceptable if plots generate correctly
+- **Graceful degradation**: Build should continue if individual components fail
+- **Clear diagnostics**: Provide actionable feedback for build failures
+- **Non-blocking warnings**: Acceptable if functionality remains intact
 

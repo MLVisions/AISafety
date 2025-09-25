@@ -13,25 +13,24 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 from builders.site_builder import SiteBuilder
 
 
-def main():
+def main() -> None:
     """Main build function"""
     print("🚀 AI Safety Website Builder")
     print("=" * 40)
-    
+
     # Get project root
     project_root = Path(__file__).parent
-    
+
     # Create and run site builder
     builder = SiteBuilder(str(project_root))
-    
+
     try:
         builder.build()
-        print("\n🎉 Build completed successfully!")
-        print(f"📁 Website built in: {builder.output_dir}")
-        print("🌐 Ready for deployment!")
-        
+        print("\nBuild completed successfully!")
+        print(f"Website built in: {builder.output_dir}")
+
     except Exception as e:
-        print(f"\n❌ Build failed: {e}")
+        print(f"\n Build failed: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)

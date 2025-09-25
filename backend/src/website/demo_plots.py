@@ -21,7 +21,7 @@ if __name__ == "__main__":
     print("• High-resolution PNG output")
     print("• Responsive design compatibility")
     print("")
-    
+
     try:
         generate_all_plots()
         print("")
