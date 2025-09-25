@@ -2,19 +2,13 @@
 Tests for the markdown processor module - Core functionality only
 """
 
-# Add src to path for imports
-import sys
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-
-from builders.markdown_processor import MarkdownProcessor
+from src.builders.markdown_processor import MarkdownProcessor
 
 
 class TestMarkdownProcessor:
     """Test core MarkdownProcessor functionality"""
 
-    def test_parse_frontmatter_with_yaml(self, sample_markdown_content):
+    def test_parse_frontmatter_with_yaml(self, sample_markdown_content: str) -> None:
         """Test parsing frontmatter from markdown content"""
         processor = MarkdownProcessor()
         frontmatter, content = processor.parse_frontmatter(sample_markdown_content)
@@ -24,7 +18,7 @@ class TestMarkdownProcessor:
         assert frontmatter["description"] == "Test description"
         assert "# Test Content" in content
 
-    def test_parse_frontmatter_without_yaml(self):
+    def test_parse_frontmatter_without_yaml(self) -> None:
         """Test parsing content without frontmatter"""
         content = "# Just a heading\n\nSome content."
         processor = MarkdownProcessor()
@@ -33,7 +27,7 @@ class TestMarkdownProcessor:
         assert frontmatter == {}
         assert processed_content == content
 
-    def test_convert_basic_markdown(self):
+    def test_convert_basic_markdown(self) -> None:
         """Test basic markdown to HTML conversion"""
         content = "# Heading\n\n**Bold text** and *italic text*"
         processor = MarkdownProcessor()
@@ -45,7 +39,7 @@ class TestMarkdownProcessor:
         assert "<strong>Bold text</strong>" in html
         assert "<em>italic text</em>" in html
 
-    def test_convert_with_frontmatter(self, sample_markdown_content):
+    def test_convert_with_frontmatter(self, sample_markdown_content: str) -> None:
         """Test complete conversion process with frontmatter"""
         processor = MarkdownProcessor()
         frontmatter, html = processor.convert(sample_markdown_content)

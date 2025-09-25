@@ -24,6 +24,7 @@ conditional logic as needed.
 """
 
 from __future__ import annotations
+from typing import Any
 
 # Import CrewAI classes.  If you haven't installed crewai yet, run
 # `pip install crewai` in your environment.  These imports are kept
@@ -35,15 +36,15 @@ try:
 except ImportError:
      # Define dummy classes for type checking and to prevent runtime errors
      class Agent:  # type: ignore
-         def __init__(self, *args, **kwargs):
+         def __init__(self, *args: Any, **kwargs: Any) -> None:
              pass
 
      class Task:  # type: ignore
-         def __init__(self, *args, **kwargs):
+         def __init__(self, *args: Any, **kwargs: Any) -> None:
              pass
 
      class Crew:  # type: ignore
-         def __init__(self, *args, **kwargs):
+         def __init__(self, *args: Any, **kwargs: Any) -> None:
              pass
 
 

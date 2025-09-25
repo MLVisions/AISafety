@@ -7,10 +7,7 @@ Main build script to generate the complete website
 import sys
 from pathlib import Path
 
-# Add src to path so we can import our builders
-sys.path.insert(0, str(Path(__file__).parent / "src"))
-
-from builders.site_builder import SiteBuilder
+from src.builders.site_builder import SiteBuilder
 
 
 def main() -> None:

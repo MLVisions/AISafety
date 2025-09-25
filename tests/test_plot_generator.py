@@ -4,23 +4,19 @@ Tests for the plot generator module - Core functionality only
 
 import matplotlib
 import pytest
+from pathlib import Path
 
 matplotlib.use('Agg')  # Use non-interactive backend for testing
-# Add src to path for imports
-import sys
-from pathlib import Path
 
 import matplotlib.pyplot as plt
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-
-from builders.plot_generator import create_market_trends_plot, setup_plot_style
+from src.builders.plot_generator import create_market_trends_plot, setup_plot_style
 
 
 class TestPlotGenerator:
     """Test core plot generator functionality"""
 
-    def test_setup_plot_style(self):
+    def test_setup_plot_style(self) -> None:
         """Test plot style configuration"""
         setup_plot_style()
 
@@ -30,7 +26,7 @@ class TestPlotGenerator:
         assert not plt.rcParams['axes.spines.top']
         assert not plt.rcParams['axes.spines.right']
 
-    def test_create_market_trends_plot(self, temp_dir, sample_csv_data):
+    def test_create_market_trends_plot(self, temp_dir: Path, sample_csv_data: str) -> None:
         """Test market trends plot creation"""
         # Create test CSV file
         csv_file = temp_dir / "market_trends.csv"
@@ -46,7 +42,7 @@ class TestPlotGenerator:
         assert output_file.exists()
         assert output_file.stat().st_size > 0
 
-    def test_error_handling_missing_csv(self, temp_dir):
+    def test_error_handling_missing_csv(self, temp_dir: Path) -> None:
         """Test error handling when CSV file is missing"""
         output_file = temp_dir / "test.png"
 
