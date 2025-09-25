@@ -1102,3 +1102,217 @@ header h1 {
    animation: fadeInUp 0.6s ease-out;
    animation-delay: 0.6s;
  }
+
+/* Ticker dropdown styles */
+.ticker-dropdown-container {
+  margin: 2rem 0;
+  position: relative;
+}
+
+.ticker-dropdown {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.ticker-dropdown-toggle {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: #ffffff;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.ticker-dropdown-toggle:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-arrow {
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.ticker-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+.dropdown-header {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-header h4 {
+  margin: 0 0 0.5rem 0;
+  color: #0a1f44;
+  font-size: 1.1rem;
+}
+
+.dropdown-header p {
+  margin: 0;
+  color: #295da0;
+  font-size: 0.9rem;
+}
+
+.ticker-category {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.ticker-category:last-child {
+  border-bottom: none;
+}
+
+.category-title {
+  margin: 0 0 0.5rem 0;
+  color: #0a1f44;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.category-description {
+  margin: 0 0 1rem 0;
+  color: #295da0;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.ticker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.5rem;
+}
+
+.ticker-button {
+  background: rgba(77, 163, 216, 0.1);
+  border: 1px solid rgba(77, 163, 216, 0.3);
+  border-radius: 6px;
+  color: #0a1f44;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.ticker-button:hover {
+  background: rgba(77, 163, 216, 0.2);
+  border-color: rgba(77, 163, 216, 0.5);
+  transform: translateY(-1px);
+}
+
+.dropdown-footer {
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.dropdown-footer small {
+  color: #295da0;
+  font-size: 0.8rem;
+}
+
+.ticker-display-area {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.ticker-display-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.ticker-display-header h4 {
+  margin: 0;
+  color: #0a1f44;
+  font-size: 1.2rem;
+}
+
+.close-ticker-display {
+  background: rgba(255, 0, 0, 0.1);
+  border: 1px solid rgba(255, 0, 0, 0.3);
+  border-radius: 50%;
+  color: #cc0000;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.close-ticker-display:hover {
+  background: rgba(255, 0, 0, 0.2);
+  transform: scale(1.1);
+}
+
+#selected-ticker-image {
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
+}
+
+#selected-ticker-description {
+  color: #295da0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Mobile responsiveness for ticker dropdown */
+@media (max-width: 768px) {
+  .ticker-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.4rem;
+  }
+  
+  .ticker-button {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+  
+  .ticker-dropdown-menu {
+    max-height: 300px;
+  }
+  
+  .ticker-display-area {
+    padding: 1rem;
+  }
+}

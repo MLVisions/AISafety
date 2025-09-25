@@ -1,0 +1,230 @@
+# AI Safety Website Task Configuration
+# Unified task definitions for website maintenance workflow
+
+# RESEARCH TASKS - Gather current information
+market_research_task:
+  description: >
+    Research current market trends and economic developments for the Economy section.
+    Compare with existing content in economy.md and identify updates needed.
+    
+    Focus areas:
+    1. AI-related stock performance and investment trends
+    2. Economic indicators affecting individual financial planning
+    3. Inflation and monetary policy impacts on different asset classes
+    4. Alternative assets (crypto) developments relevant to AI economy
+    5. Job market data related to AI displacement
+    
+    For each finding:
+    - Verify with authoritative sources (Fed, BLS, major financial outlets)
+    - Include specific data points with dates
+    - Provide proper citation URLs
+    - Compare with current economy.md content
+    - Identify what needs updating vs what is still accurate
+    
+  expected_output: >
+    Research report with:
+    - Executive summary of key findings
+    - Comparison with current economy.md content
+    - Specific recommendations for content updates
+    - New data points with citations
+    - List of outdated information to remove/update
+
+technology_research_task:
+  description: >
+    Research latest AI technology developments for Technology and LLM sections.
+    Compare with existing content in technology.md and llm.md.
+    
+    Focus areas:
+    1. Major AI model releases and capability improvements
+    2. AI adoption trends across industries
+    3. AI safety and alignment research developments
+    4. Changes in AI accessibility and democratization
+    5. Technical limitations and breakthrough solutions
+    
+    For each finding:
+    - Focus on developments within last 6 months
+    - Use authoritative sources (research institutions, major tech companies)
+    - Include proper citations with URLs
+    - Compare with current technology.md and llm.md content
+    - Identify accuracy improvements and valuable additions
+    
+  expected_output: >
+    Technology research report with:
+    - Summary of recent AI developments
+    - Content comparison analysis
+    - Specific update recommendations for technology.md and llm.md
+    - New insights with proper citations
+    - Outdated content identification
+
+policy_research_task:
+  description: >
+    Research policy and regulatory developments for Privacy and Society sections.
+    Compare with existing content in privacy.md and society.md.
+    
+    Focus areas:
+    1. AI regulation developments (US, EU, international)
+    2. Privacy law changes affecting individual preparation
+    3. Economic policy changes related to AI and automation
+    4. Government AI initiatives and their implications
+    5. Legal frameworks for AI deployment and liability
+    
+    For each finding:
+    - Use official government sources and legal authorities
+    - Include specific policy details with dates
+    - Provide official document URLs
+    - Compare with current privacy.md and society.md content
+    - Focus on individual preparation implications
+    
+  expected_output: >
+    Policy research report with:
+    - Summary of recent policy developments
+    - Content accuracy assessment
+    - Specific recommendations for privacy.md and society.md updates
+    - New regulatory insights with official citations
+    - Outdated policy information to update
+
+social_research_task:
+  description: >
+    Research societal implications and individual preparation strategies.
+    Compare with existing content in society.md and action.md.
+    
+    Focus areas:
+    1. Employment displacement studies and projections
+    2. Mental health impacts of AI adoption
+    3. Social equity and access issues
+    4. Individual adaptation strategies and success stories
+    5. Community and social preparation approaches
+    
+    For each finding:
+    - Use academic research and reputable social science sources
+    - Include study methodologies and sample sizes where relevant
+    - Provide proper academic citations
+    - Compare with current society.md and action.md content
+    - Focus on actionable individual preparation strategies
+    
+  expected_output: >
+    Social research report with:
+    - Summary of recent social impact research
+    - Content relevance assessment
+    - Specific recommendations for society.md and action.md updates  
+    - New insights with academic citations
+    - Enhanced individual preparation strategies
+
+# CONTENT MAINTENANCE TASKS
+content_validation_task:
+  description: >
+    Validate all website content for accuracy, currency, and citation quality.
+    Check all external links and verify source accessibility.
+    
+    Validation checklist:
+    1. Verify all statistical claims and data points
+    2. Check all external links for accessibility
+    3. Ensure consistent citation formatting
+    4. Identify content that may be outdated
+    5. Flag any unsupported claims or opinions presented as facts
+    
+    Files to validate: index.md, economy.md, technology.md, llm.md, 
+    privacy.md, society.md, action.md, references.md
+    
+  expected_output: >
+    Content validation report with:
+    - File-by-file accuracy assessment
+    - List of broken or inaccessible links
+    - Citation formatting issues
+    - Outdated content identification
+    - Unsupported claims flagged for verification
+
+content_update_task:
+  description: >
+    Update website content based on research findings and validation results.
+    Maintain consistent tone, structure, and editorial quality.
+    
+    Update guidelines:
+    1. Integrate new research findings into appropriate sections
+    2. Update outdated statistics and data points
+    3. Improve accuracy of existing claims
+    4. Add valuable new insights and context
+    5. Maintain the site's focus on individual preparation
+    6. Preserve existing structure and navigation
+    
+    Ensure all updates include proper citations and maintain the
+    professional, actionable tone of the website.
+    
+  expected_output: >
+    Updated content files with:
+    - Improved accuracy and currency
+    - New valuable insights integrated
+    - Consistent citation formatting
+    - Maintained editorial quality and structure
+    - Clear documentation of changes made
+
+reference_sync_task:
+  description: >
+    Synchronize references.md with all citations used across the website.
+    Ensure academic formatting and verify source accessibility.
+    
+    Synchronization process:
+    1. Extract all citations from updated content files
+    2. Verify each source URL is accessible
+    3. Format citations according to academic standards
+    4. Organize references by topic/section
+    5. Remove citations no longer used in content
+    6. Add new citations from updated content
+    
+    Ensure references.md accurately reflects all sources used
+    across the website and maintains professional academic standards.
+    
+  expected_output: >
+    Updated references.md file with:
+    - All current citations properly formatted
+    - Verified accessible source URLs
+    - Organized by topic sections
+    - Removed outdated/unused references
+    - Academic formatting consistency
+
+# INFRASTRUCTURE TASKS
+market_data_update_task:
+  description: >
+    Fetch current market data for charts and visualizations.
+    Update data files used for economic analysis plots.
+    
+    Data requirements:
+    1. Update stock market indices (S&P 500, major tech stocks)
+    2. Refresh cryptocurrency data (Bitcoin, Ethereum)
+    3. Update economic indicators (inflation, employment)
+    4. Fetch AI investment and adoption metrics
+    5. Refresh comparative wealth analysis data
+    
+    Ensure all data is current, accurate, and properly formatted
+    for the website's visualization system.
+    
+  expected_output: >
+    Updated data files with:
+    - Current market data (within 24 hours)
+    - Proper CSV formatting for visualization system
+    - Data quality validation results
+    - Summary of changes from previous update
+
+website_build_task:
+  description: >
+    Execute complete website build after content and data updates.
+    Validate build success and verify all functionality.
+    
+    Build process:
+    1. Execute main build.py script
+    2. Verify all HTML files generated correctly
+    3. Check that all assets (images, CSS, JS) are copied
+    4. Validate internal links and navigation
+    5. Test responsive design and key functionality
+    6. Generate build success report
+    
+    Ensure the website builds successfully and all functionality
+    is preserved after content updates.
+    
+  expected_output: >
+    Build completion report with:
+    - Build success/failure status
+    - Generated file inventory
+    - Validation results for key functionality
+    - Any errors or warnings encountered
+    - Recommendations for deployment

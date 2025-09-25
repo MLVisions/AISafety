@@ -1,0 +1,465 @@
+{
+  "categories": {
+    "equity": {
+      "display_name": "Equity",
+      "description": "US stocks, indices, and equity ETFs for domestic market exposure",
+      "tickers": [
+        {
+          "ticker": "^GSPC",
+          "display_name": "S&P 500 Index",
+          "image_path": "images/raw_tickers/INDEX_GSPC_historical.png",
+          "description": "Broad US market index tracking 500 largest companies"
+        },
+        {
+          "ticker": "^DJI",
+          "display_name": "Dow Jones",
+          "image_path": "images/raw_tickers/INDEX_DJI_historical.png",
+          "description": "Historical price data for Dow Jones"
+        },
+        {
+          "ticker": "^IXIC",
+          "display_name": "NASDAQ",
+          "image_path": "images/raw_tickers/INDEX_IXIC_historical.png",
+          "description": "Historical price data for NASDAQ"
+        },
+        {
+          "ticker": "^RUT",
+          "display_name": "Russell 2000",
+          "image_path": "images/raw_tickers/INDEX_RUT_historical.png",
+          "description": "Historical price data for Russell 2000"
+        },
+        {
+          "ticker": "SPY",
+          "display_name": "S&P 500 ETF",
+          "image_path": "images/raw_tickers/SPY_historical.png",
+          "description": "Historical price data for S&P 500 ETF"
+        },
+        {
+          "ticker": "QQQ",
+          "display_name": "NASDAQ 100 ETF",
+          "image_path": "images/raw_tickers/QQQ_historical.png",
+          "description": "Historical price data for NASDAQ 100 ETF"
+        },
+        {
+          "ticker": "IWM",
+          "display_name": "IWM",
+          "image_path": "images/raw_tickers/IWM_historical.png",
+          "description": "Historical price data for IWM"
+        },
+        {
+          "ticker": "VTI",
+          "display_name": "VTI",
+          "image_path": "images/raw_tickers/VTI_historical.png",
+          "description": "Historical price data for VTI"
+        },
+        {
+          "ticker": "XLP",
+          "display_name": "XLP",
+          "image_path": "images/raw_tickers/XLP_historical.png",
+          "description": "Historical price data for XLP"
+        },
+        {
+          "ticker": "XLF",
+          "display_name": "XLF",
+          "image_path": "images/raw_tickers/XLF_historical.png",
+          "description": "Historical price data for XLF"
+        },
+        {
+          "ticker": "XLK",
+          "display_name": "XLK",
+          "image_path": "images/raw_tickers/XLK_historical.png",
+          "description": "Historical price data for XLK"
+        },
+        {
+          "ticker": "XLE",
+          "display_name": "XLE",
+          "image_path": "images/raw_tickers/XLE_historical.png",
+          "description": "Historical price data for XLE"
+        },
+        {
+          "ticker": "AAPL",
+          "display_name": "Apple Inc.",
+          "image_path": "images/raw_tickers/AAPL_historical.png",
+          "description": "Historical price data for Apple Inc."
+        },
+        {
+          "ticker": "MSFT",
+          "display_name": "Microsoft",
+          "image_path": "images/raw_tickers/MSFT_historical.png",
+          "description": "Historical price data for Microsoft"
+        },
+        {
+          "ticker": "GOOGL",
+          "display_name": "Alphabet/Google",
+          "image_path": "images/raw_tickers/GOOGL_historical.png",
+          "description": "Historical price data for Alphabet/Google"
+        },
+        {
+          "ticker": "AMZN",
+          "display_name": "Amazon",
+          "image_path": "images/raw_tickers/AMZN_historical.png",
+          "description": "Historical price data for Amazon"
+        },
+        {
+          "ticker": "NVDA",
+          "display_name": "NVIDIA",
+          "image_path": "images/raw_tickers/NVDA_historical.png",
+          "description": "Historical price data for NVIDIA"
+        },
+        {
+          "ticker": "TSLA",
+          "display_name": "Tesla",
+          "image_path": "images/raw_tickers/TSLA_historical.png",
+          "description": "Historical price data for Tesla"
+        },
+        {
+          "ticker": "META",
+          "display_name": "Meta/Facebook",
+          "image_path": "images/raw_tickers/META_historical.png",
+          "description": "Historical price data for Meta/Facebook"
+        }
+      ]
+    },
+    "international": {
+      "display_name": "International",
+      "description": "Global markets and international equity exposure",
+      "tickers": [
+        {
+          "ticker": "^FTSE",
+          "display_name": "FTSE 100 (UK)",
+          "image_path": "images/raw_tickers/INDEX_FTSE_historical.png",
+          "description": "Historical price data for FTSE 100 (UK)"
+        },
+        {
+          "ticker": "^N225",
+          "display_name": "Nikkei 225 (Japan)",
+          "image_path": "images/raw_tickers/INDEX_N225_historical.png",
+          "description": "Historical price data for Nikkei 225 (Japan)"
+        },
+        {
+          "ticker": "^HSI",
+          "display_name": "Hang Seng (HK)",
+          "image_path": "images/raw_tickers/INDEX_HSI_historical.png",
+          "description": "Historical price data for Hang Seng (HK)"
+        },
+        {
+          "ticker": "^GDAXI",
+          "display_name": "DAX (Germany)",
+          "image_path": "images/raw_tickers/INDEX_GDAXI_historical.png",
+          "description": "Historical price data for DAX (Germany)"
+        },
+        {
+          "ticker": "VEA",
+          "display_name": "VEA",
+          "image_path": "images/raw_tickers/VEA_historical.png",
+          "description": "Historical price data for VEA"
+        },
+        {
+          "ticker": "VWO",
+          "display_name": "VWO",
+          "image_path": "images/raw_tickers/VWO_historical.png",
+          "description": "Historical price data for VWO"
+        },
+        {
+          "ticker": "EFA",
+          "display_name": "EFA",
+          "image_path": "images/raw_tickers/EFA_historical.png",
+          "description": "Historical price data for EFA"
+        },
+        {
+          "ticker": "EEM",
+          "display_name": "EEM",
+          "image_path": "images/raw_tickers/EEM_historical.png",
+          "description": "Historical price data for EEM"
+        }
+      ]
+    },
+    "crypto": {
+      "display_name": "Crypto",
+      "description": "Digital assets and cryptocurrency investments",
+      "tickers": [
+        {
+          "ticker": "BTC-USD",
+          "display_name": "Bitcoin",
+          "image_path": "images/raw_tickers/BTC_USD_historical.png",
+          "description": "Leading cryptocurrency and digital store of value"
+        },
+        {
+          "ticker": "ETH-USD",
+          "display_name": "Ethereum",
+          "image_path": "images/raw_tickers/ETH_USD_historical.png",
+          "description": "Historical price data for Ethereum"
+        },
+        {
+          "ticker": "ADA-USD",
+          "display_name": "Cardano",
+          "image_path": "images/raw_tickers/ADA_USD_historical.png",
+          "description": "Historical price data for Cardano"
+        },
+        {
+          "ticker": "DOT-USD",
+          "display_name": "Polkadot",
+          "image_path": "images/raw_tickers/DOT_USD_historical.png",
+          "description": "Historical price data for Polkadot"
+        },
+        {
+          "ticker": "SOL-USD",
+          "display_name": "Solana",
+          "image_path": "images/raw_tickers/SOL_USD_historical.png",
+          "description": "Historical price data for Solana"
+        },
+        {
+          "ticker": "AVAX-USD",
+          "display_name": "Avalanche",
+          "image_path": "images/raw_tickers/AVAX_USD_historical.png",
+          "description": "Historical price data for Avalanche"
+        },
+        {
+          "ticker": "MATIC-USD",
+          "display_name": "MATIC-USD",
+          "image_path": "images/raw_tickers/MATIC_USD_historical.png",
+          "description": "Historical price data for MATIC-USD"
+        },
+        {
+          "ticker": "LINK-USD",
+          "display_name": "Chainlink",
+          "image_path": "images/raw_tickers/LINK_USD_historical.png",
+          "description": "Historical price data for Chainlink"
+        },
+        {
+          "ticker": "SUI-USD",
+          "display_name": "Sui",
+          "image_path": "images/raw_tickers/SUI_USD_historical.png",
+          "description": "Historical price data for Sui"
+        },
+        {
+          "ticker": "XRP-USD",
+          "display_name": "Ripple",
+          "image_path": "images/raw_tickers/XRP_USD_historical.png",
+          "description": "Historical price data for Ripple"
+        },
+        {
+          "ticker": "XLM-USD",
+          "display_name": "Stellar",
+          "image_path": "images/raw_tickers/XLM_USD_historical.png",
+          "description": "Historical price data for Stellar"
+        },
+        {
+          "ticker": "ONDO-USD",
+          "display_name": "Ondo Finance",
+          "image_path": "images/raw_tickers/ONDO_USD_historical.png",
+          "description": "Historical price data for Ondo Finance"
+        },
+        {
+          "ticker": "WFLI-USD",
+          "display_name": "WFLI-USD",
+          "image_path": "images/raw_tickers/WFLI_USD_historical.png",
+          "description": "Historical price data for WFLI-USD"
+        }
+      ]
+    },
+    "commodities": {
+      "display_name": "Commodities",
+      "description": "Raw materials, precious metals, energy, and agricultural products",
+      "tickers": [
+        {
+          "ticker": "GC=F",
+          "display_name": "Gold Futures",
+          "image_path": "images/raw_tickers/GC_F_historical.png",
+          "description": "Precious metal commodity futures for inflation hedge"
+        },
+        {
+          "ticker": "SI=F",
+          "display_name": "Silver Futures",
+          "image_path": "images/raw_tickers/SI_F_historical.png",
+          "description": "Historical price data for Silver Futures"
+        },
+        {
+          "ticker": "PL=F",
+          "display_name": "PL=F",
+          "image_path": "images/raw_tickers/PL_F_historical.png",
+          "description": "Historical price data for PL=F"
+        },
+        {
+          "ticker": "CL=F",
+          "display_name": "Crude Oil",
+          "image_path": "images/raw_tickers/CL_F_historical.png",
+          "description": "Historical price data for Crude Oil"
+        },
+        {
+          "ticker": "NG=F",
+          "display_name": "NG=F",
+          "image_path": "images/raw_tickers/NG_F_historical.png",
+          "description": "Historical price data for NG=F"
+        },
+        {
+          "ticker": "HG=F",
+          "display_name": "HG=F",
+          "image_path": "images/raw_tickers/HG_F_historical.png",
+          "description": "Historical price data for HG=F"
+        },
+        {
+          "ticker": "ZC=F",
+          "display_name": "ZC=F",
+          "image_path": "images/raw_tickers/ZC_F_historical.png",
+          "description": "Historical price data for ZC=F"
+        },
+        {
+          "ticker": "ZW=F",
+          "display_name": "ZW=F",
+          "image_path": "images/raw_tickers/ZW_F_historical.png",
+          "description": "Historical price data for ZW=F"
+        },
+        {
+          "ticker": "GLD",
+          "display_name": "Gold ETF",
+          "image_path": "images/raw_tickers/GLD_historical.png",
+          "description": "Historical price data for Gold ETF"
+        },
+        {
+          "ticker": "SLV",
+          "display_name": "Silver ETF",
+          "image_path": "images/raw_tickers/SLV_historical.png",
+          "description": "Historical price data for Silver ETF"
+        },
+        {
+          "ticker": "USO",
+          "display_name": "USO",
+          "image_path": "images/raw_tickers/USO_historical.png",
+          "description": "Historical price data for USO"
+        },
+        {
+          "ticker": "DBA",
+          "display_name": "DBA",
+          "image_path": "images/raw_tickers/DBA_historical.png",
+          "description": "Historical price data for DBA"
+        }
+      ]
+    },
+    "real_estate": {
+      "display_name": "Real Estate",
+      "description": "REITs and real estate investment trusts",
+      "tickers": [
+        {
+          "ticker": "VNQ",
+          "display_name": "VNQ",
+          "image_path": "images/raw_tickers/VNQ_historical.png",
+          "description": "Real estate investment trust ETF for property exposure"
+        },
+        {
+          "ticker": "IYR",
+          "display_name": "IYR",
+          "image_path": "images/raw_tickers/IYR_historical.png",
+          "description": "Historical price data for IYR"
+        },
+        {
+          "ticker": "RWR",
+          "display_name": "RWR",
+          "image_path": "images/raw_tickers/RWR_historical.png",
+          "description": "Historical price data for RWR"
+        },
+        {
+          "ticker": "XLRE",
+          "display_name": "XLRE",
+          "image_path": "images/raw_tickers/XLRE_historical.png",
+          "description": "Historical price data for XLRE"
+        },
+        {
+          "ticker": "PLD",
+          "display_name": "PLD",
+          "image_path": "images/raw_tickers/PLD_historical.png",
+          "description": "Historical price data for PLD"
+        },
+        {
+          "ticker": "AMT",
+          "display_name": "AMT",
+          "image_path": "images/raw_tickers/AMT_historical.png",
+          "description": "Historical price data for AMT"
+        },
+        {
+          "ticker": "CCI",
+          "display_name": "CCI",
+          "image_path": "images/raw_tickers/CCI_historical.png",
+          "description": "Historical price data for CCI"
+        },
+        {
+          "ticker": "SPG",
+          "display_name": "SPG",
+          "image_path": "images/raw_tickers/SPG_historical.png",
+          "description": "Historical price data for SPG"
+        }
+      ]
+    },
+    "bonds": {
+      "display_name": "Bonds",
+      "description": "Fixed income securities, treasury bonds, and bond ETFs",
+      "tickers": [
+        {
+          "ticker": "^TNX",
+          "display_name": "10-Year Treasury",
+          "image_path": "images/raw_tickers/INDEX_TNX_historical.png",
+          "description": "US government 10-year bond yield indicator"
+        },
+        {
+          "ticker": "^TYX",
+          "display_name": "30-Year Treasury",
+          "image_path": "images/raw_tickers/INDEX_TYX_historical.png",
+          "description": "Historical price data for 30-Year Treasury"
+        },
+        {
+          "ticker": "^FVX",
+          "display_name": "^FVX",
+          "image_path": "images/raw_tickers/INDEX_FVX_historical.png",
+          "description": "Historical price data for ^FVX"
+        },
+        {
+          "ticker": "^IRX",
+          "display_name": "^IRX",
+          "image_path": "images/raw_tickers/INDEX_IRX_historical.png",
+          "description": "Historical price data for ^IRX"
+        },
+        {
+          "ticker": "TLT",
+          "display_name": "Long-Term Treasury ETF",
+          "image_path": "images/raw_tickers/TLT_historical.png",
+          "description": "Historical price data for Long-Term Treasury ETF"
+        },
+        {
+          "ticker": "IEF",
+          "display_name": "7-10 Year Treasury ETF",
+          "image_path": "images/raw_tickers/IEF_historical.png",
+          "description": "Historical price data for 7-10 Year Treasury ETF"
+        },
+        {
+          "ticker": "SHY",
+          "display_name": "SHY",
+          "image_path": "images/raw_tickers/SHY_historical.png",
+          "description": "Historical price data for SHY"
+        },
+        {
+          "ticker": "AGG",
+          "display_name": "AGG",
+          "image_path": "images/raw_tickers/AGG_historical.png",
+          "description": "Historical price data for AGG"
+        },
+        {
+          "ticker": "HYG",
+          "display_name": "HYG",
+          "image_path": "images/raw_tickers/HYG_historical.png",
+          "description": "Historical price data for HYG"
+        },
+        {
+          "ticker": "LQD",
+          "display_name": "LQD",
+          "image_path": "images/raw_tickers/LQD_historical.png",
+          "description": "Historical price data for LQD"
+        }
+      ]
+    }
+  },
+  "metadata": {
+    "total_tickers": 70,
+    "generated_at": "2025-09-25T01:56:32.807168",
+    "description": "Raw ticker historical data for portfolio analysis evidence"
+  }
+}

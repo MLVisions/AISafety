@@ -84,3 +84,16 @@ coverage.xml
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# Project-specific temporary files
+src/data/*summary*.txt
+src/data/*.log
+economic_model_plan.md
+*.md.tmp
+
+# Keep generated website assets (needed for deployment)
+!docs/images/*.png
+!docs/data/*.json
+!docs/*.html
+!docs/*.css
+!docs/*.js

@@ -2,9 +2,10 @@
 Tests for the plot generator module - Core functionality only
 """
 
+from pathlib import Path
+
 import matplotlib
 import pytest
-from pathlib import Path
 
 matplotlib.use('Agg')  # Use non-interactive backend for testing
 

@@ -27,6 +27,10 @@ Investors face a complex landscape. Combining equities, high‑yield cash, real 
 
 Interactive charts comparing the S&P 500, Bitcoin, Ether and XLP will be available here. They will draw data directly from a stock‑fetching agent (see below) and illustrate how assets respond to policy changes, inflation and technological booms. Simulations will show hypothetical wealth outcomes for different portfolios through 2030.
 
+<div class="ticker-dropdown-container"></div>
+
+*The dropdown above provides access to historical data for all 65+ assets tracked in our portfolio analysis. This raw data serves as evidence for the investment strategies and economic modeling discussed throughout this section.*
+
 ## Strategic Recommendations
 
 Patterns emerge across these themes: stock and crypto rallies often coincide when liquidity is abundant, emphasising the importance of diversification and risk management. Government adoption of BTC legitimises digital assets but centralisation raises concerns about manipulation. High inflation argues for exposure to real assets and high‑yield savings to preserve purchasing power. Policies like the AI Action Plan and OBBBA bill point to opportunities in semiconductors, cloud and robotics.

@@ -68,6 +68,18 @@ class SiteBuilder:
                 data_dir=str(self.data_dir),
                 output_dir=str(images_dir)
             )
+            
+            # Generate comprehensive raw ticker analysis plots
+            from .plot_generator import create_raw_ticker_plots, create_category_comparison_plots, create_ticker_dropdown_data
+            print("📈 Creating raw ticker analysis plots...")
+            create_raw_ticker_plots(output_dir=str(images_dir / "raw_tickers"))
+            create_category_comparison_plots(output_dir=str(images_dir / "category_comparisons"))
+            
+            # Create ticker dropdown data for website
+            print("📋 Creating ticker dropdown data...")
+            data_dir = self.output_dir / "data"
+            data_dir.mkdir(exist_ok=True)
+            create_ticker_dropdown_data(output_file=str(data_dir / "ticker_dropdown.json"))
         finally:
             os.chdir(original_cwd)
 

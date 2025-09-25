@@ -40,7 +40,14 @@ AISafety/
 │   │   ├── society.md     # Social impact analysis
 │   │   ├── privacy.md     # Privacy & Security
 │   │   ├── action.md      # Actionable recommendations
-│   │   └── llm.md         # LLM-specific content
+│   │   ├── llm.md         # LLM-specific content
+│   │   └── references.md  # Research citations and sources
+│   ├── agents/            # AI agent network for content updates
+│   │   ├── agents.yaml    # Agent configurations
+│   │   ├── tasks.yaml     # Task definitions
+│   │   ├── agent_network.py    # Main agent orchestration
+│   │   ├── reference_sync.py   # Reference synchronization
+│   │   └── utils/         # Utility functions for agents
 │   ├── templates/         # Jinja2 HTML templates
 │   │   ├── base.html      # Base template with navigation
 │   │   ├── index.html     # Homepage template
@@ -103,14 +110,100 @@ def create_your_plot():
     plt.savefig('docs/images/your_plot.png', dpi=300, bbox_inches='tight')
 ```
 
-## 🤖 AI Agent Integration
+## 🤖 AI Agent Network
 
-The project includes CrewAI agents for automated content updates:
+The project includes a sophisticated CrewAI agent network for automated content updates and investment analysis:
 
-- **SummarizerAgent**: Processes new data files
-- **ResearcherAgent**: Finds authoritative sources  
-- **DataFetcherAgent**: Retrieves market data
-- **ForecastAgent**: Generates predictions
+### Current Status: Unified Agent Network (Complete)
+✅ **Basic Framework**: Unified YAML-based configuration system operational  
+✅ **Reference Synchronization**: Automated citation management working  
+✅ **Core Research Agents**: Market, technology, policy, and social research functional  
+✅ **Build Integration**: Agent → content → build → deploy pipeline complete
+
+### Completed: Advanced Investment Strategy Pipeline
+✅ **Investment Analysis**: Complex multi-agent system for portfolio strategies operational  
+✅ **Economic Modeling**: Monte Carlo simulation with Geometric Brownian Motion implemented  
+✅ **Historical Data**: 100+ year analysis across 65+ assets (S&P 500 back to 1927, Bitcoin to 2014)  
+✅ **Portfolio Simulation**: AI-driven investment strategy backtesting with confidence intervals  
+✅ **Data Integration**: Automated CSV generation and website plot updates
+
+### In Development: Enhanced Features  
+🚧 **Page-Specific Networks**: Specialized agent teams for each website section  
+🚧 **Interactive Dropdowns**: Website evidence charts with historical data selection  
+🚧 **Multiple Economic Models**: CAPM, Fama-French integration for model comparison
+
+### Agent Architecture
+
+**Current Research Agents:**
+- **Market Researcher**: Economic indicators, AI investment trends, market data
+- **Technology Researcher**: AI developments, capabilities, industry adoption  
+- **Policy Researcher**: Government regulations, legislative changes, policy impacts
+- **Social Researcher**: Employment effects, mental health, social equity issues
+
+**Current Content Agents:**
+- **Content Validator**: Fact-checking, citation verification, link validation
+- **Content Updater**: Integrates research findings, maintains editorial quality
+- **Reference Manager**: Synchronizes references.md with content citations
+
+**Current Infrastructure Agents:**
+- **Market Data Fetcher**: Updates financial data for visualizations
+- **Build Orchestrator**: Coordinates website builds and deployment
+
+**Planned Investment Strategy Agents:**
+- **Historical Data Analyst**: Fetches 100+ years of market data across all asset classes
+- **Trend Visualization Agent**: Creates interactive charts with dropdown evidence
+- **Economic Model Agent**: Implements well-documented financial models (CAPM, Black-Scholes, etc.)
+- **Portfolio Simulation Agent**: Generates PersonA/B/C investment scenarios using combined analysis
+- **Strategy Validation Agent**: Backtests and validates investment recommendations
+
+### Investment Strategy Pipeline (Under Development)
+
+The most complex part of the system is the investment strategy analysis for the three investor personas (PersonA, PersonB, PersonC). This requires:
+
+1. **Comprehensive Data Collection**:
+   - Stocks, crypto, bonds, REITs, commodities
+   - Historical data: 100+ years for gold, back to 2011 for Bitcoin, maximum available for each asset
+   - International markets and indices for diversification
+
+2. **Multi-Modal Analysis**:
+   - **Visual Analysis**: Plot all tickers over time, store in website dropdowns as evidence
+   - **Economic Modeling**: Research and implement established models (Monte Carlo, CAPM, Fama-French)
+   - **Trend Analysis**: AI agents analyze individual assets and overall market patterns
+
+3. **Portfolio Simulation**:
+   - Takes trend analysis + economic model outputs + investment allocation splits
+   - Simulates portfolio performance over model-appropriate timeframes (3-10+ years)
+   - Generates CSV data in current format (PersonA/B/C columns with confidence intervals)
+   - Connects to existing plot generation system for seamless website integration
+
+4. **Interactive Features**:
+   - Website dropdowns for different economic models (if multiple viable)
+   - Evidence charts showing historical data supporting recommendations
+   - Dynamic portfolio allocation testing
+
+### Running Agent Updates
+
+```bash
+# Run full website update workflow
+uv run python -c "from src.agents.agent_network import run_website_update; run_website_update()"
+
+# Run just reference synchronization  
+uv run python -c "from src.agents.reference_sync import sync_website_references; sync_website_references()"
+
+# Run investment strategy analysis (when implemented)
+uv run python src/agents/investment_pipeline.py
+
+# Run master update script
+uv run python src/agents/master_update.py
+```
+
+### Agent Configuration
+
+Agents are configured via YAML files:
+- `src/agents/agents.yaml`: Agent roles, goals, backstories, and tools
+- `src/agents/tasks.yaml`: Task definitions and expected outputs
+
+The system ensures content accuracy while maintaining the website's focus on individual preparation for AI-driven changes.
 - **EvaluatorAgent**: Assesses content quality
 - **DeveloperAgent**: Creates Markdown drafts
 - **ValidatorAgent**: Ensures accuracy

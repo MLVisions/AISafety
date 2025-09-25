@@ -21,6 +21,11 @@ dependencies = [
     "numpy>=1.24.0",
     "pillow>=10.0.0",
     "pyyaml>=6.0.0",
+    "crewai>=0.193.2",
+    "crewai-tools>=0.73.1",
+    "yfinance>=0.2.66",
+    "openai>=1.109.1",
+    "scipy>=1.15.3",
 ]
 
 [project.optional-dependencies]

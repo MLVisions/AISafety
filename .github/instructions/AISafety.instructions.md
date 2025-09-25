@@ -64,10 +64,13 @@ The project follows a clean separation of concerns with modular, scalable design
 - **Build verification**: Always verify `uv run python build.py` succeeds after changes
 
 ### AI Agent Integration
-- **Agents location**: `src/agents/` with data in `src/agents/local_data/`
-- **Weekly updates**: Agents update markdown content and data files, trigger rebuilds
-- **Content validation**: Verify factual accuracy and maintain citation links
-- **Deployment automation**: Agents commit changes that trigger automatic deployment
+- **Architecture**: `src/agents/simple_agents/` (single-file) vs `src/agents/complex_agents/` (YAML configs)
+- **CrewAI patterns**: Use Agent/Task/Crew classes with proper tool integration - consult online docs
+- **Configuration**: YAML configs for complex agents, direct Python for simple ones
+- **Tools**: SerperDevTool, WebsiteSearchTool, FileReadTool - install via `crewai-tools`
+- **Error handling**: Graceful failures with output to designated directories
+- **Data sources**: Local files in `src/agents/local_data/`, utilities in `src/agents/utils/`
+- **Weekly automation**: Agents update content, trigger rebuilds, commit changes
 
 ### Design Preservation
 - **Glass-morphism styling**: Maintain translucent elements and current visual design
