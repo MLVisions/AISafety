@@ -88,7 +88,7 @@ market_data_fetcher:
   backstory: >
     You are a financial data specialist who maintains accurate, current market
     data for analysis and visualization. You understand data quality requirements.
-  tools: []
+  tools: [FileReadTool, DirectoryReadTool]
 
 build_orchestrator:
   role: Website Build Coordinator
@@ -98,4 +98,4 @@ build_orchestrator:
   backstory: >
     You are a technical coordinator who ensures smooth website deployment.
     You validate builds and coordinate the technical pipeline.
-  tools: []
+  tools: [DirectoryReadTool, FileReadTool]

@@ -46,9 +46,11 @@ The project follows a clean separation of concerns with modular, scalable design
 
 ### Documentation Requirements
 - **README.md**: Keep project overview, setup, and usage instructions current
+- **agent_network.md**: **CRITICAL** - Update this when modifying agents, workflows, or automation
 - **Function documentation**: Document all core business logic with clear docstrings
 - **pyproject.toml**: Maintain accurate dependencies and project metadata
 - **Tests**: Update test expectations when functionality changes
+- **Workflow changes**: Always update `agent_network.md` when adding/modifying automation components
 
 ### Build & Content System
 - **Single build command**: `uv run python build.py` handles complete site generation
@@ -64,13 +66,23 @@ The project follows a clean separation of concerns with modular, scalable design
 - **Build verification**: Always verify `uv run python build.py` succeeds after changes
 
 ### AI Agent Integration
-- **Architecture**: `src/agents/simple_agents/` (single-file) vs `src/agents/complex_agents/` (YAML configs)
+- **Always consult `agent_network.md`** before making ANY changes to the agent system
+- **Architecture**: YAML-based agents (`agents.yaml`, `tasks.yaml`) with utility classes for direct access
+- **Agent Network Reference**: `agent_network.md` contains complete workflow documentation, missing components, and integration points
 - **CrewAI patterns**: Use Agent/Task/Crew classes with proper tool integration - consult online docs
-- **Configuration**: YAML configs for complex agents, direct Python for simple ones
-- **Tools**: SerperDevTool, WebsiteSearchTool, FileReadTool - install via `crewai-tools`
+- **Tools**: SerperDevTool, WebsiteSearchTool, FileReadTool, DirectoryReadTool - install via `crewai-tools`
+- **Utility Classes**: MarketDataUtils, ContentValidationUtils, BuildOrchestratorUtils for programmatic access
 - **Error handling**: Graceful failures with output to designated directories
 - **Data sources**: Local files in `src/agents/local_data/`, utilities in `src/agents/utils/`
-- **Weekly automation**: Agents update content, trigger rebuilds, commit changes
+
+
+### Content Update Philosophy
+- **Goal**: Website becomes more detailed and accurate over time through AI-driven updates
+- **AI-Driven**: Let AI make intelligent updates; avoid hardcoded regex patterns
+- **Validation**: Ensure updates only improve accuracy/detail, not unnecessary rewording
+- **References**: Build up trusted reference collection with each automation run
+- **Generalization**: Most logic should work for all pages; only system instructions differ per-page
+
 
 ### Design Preservation
 - **Glass-morphism styling**: Maintain translucent elements and current visual design

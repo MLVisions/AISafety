@@ -249,12 +249,6 @@
           "display_name": "Ondo Finance",
           "image_path": "images/raw_tickers/ONDO_USD_historical.png",
           "description": "Historical price data for Ondo Finance"
-        },
-        {
-          "ticker": "WFLI-USD",
-          "display_name": "WFLI-USD",
-          "image_path": "images/raw_tickers/WFLI_USD_historical.png",
-          "description": "Historical price data for WFLI-USD"
         }
       ]
     },
@@ -458,8 +452,8 @@
     }
   },
   "metadata": {
-    "total_tickers": 70,
-    "generated_at": "2025-09-25T01:56:32.807168",
+    "total_tickers": 69,
+    "generated_at": "2025-10-07T12:47:53.733997",
     "description": "Raw ticker historical data for portfolio analysis evidence"
   }
 }

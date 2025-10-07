@@ -9,7 +9,12 @@ from typing import Any
 
 import yaml
 from crewai import Agent, Crew, Task
-from crewai_tools import FileReadTool, SerperDevTool, WebsiteSearchTool
+from crewai_tools import (  # type: ignore[import-untyped]
+    DirectoryReadTool,
+    FileReadTool,
+    SerperDevTool,
+    WebsiteSearchTool,
+)
 
 from .utils import get_openai_api_key, safe_write_file
 
@@ -23,6 +28,9 @@ class AISafetyAgentNetwork:
         self.content_dir = self.project_root / "src" / "content"
         self.data_dir = self.project_root / "src" / "data"
 
+        # Ensure OpenAI API key is available
+        get_openai_api_key()
+
         # Load configurations
         self.agents_config = self._load_yaml_config("agents.yaml")
         self.tasks_config = self._load_yaml_config("tasks.yaml")
@@ -31,11 +39,9 @@ class AISafetyAgentNetwork:
         self.tools = {
             'serper': SerperDevTool(),
             'website': WebsiteSearchTool(),
-            'file_reader': FileReadTool()
+            'file_reader': FileReadTool(),
+            'directory_reader': DirectoryReadTool()
         }
-
-        # Ensure OpenAI API key is available
-        get_openai_api_key()
 
     def _load_yaml_config(self, filename: str) -> dict[str, Any]:
         """Load YAML configuration file"""
@@ -127,6 +133,8 @@ class AISafetyAgentNetwork:
             agent_tools.append(self.tools['website'])
         if 'FileReadTool' in config.get('tools', []):
             agent_tools.append(self.tools['file_reader'])
+        if 'DirectoryReadTool' in config.get('tools', []):
+            agent_tools.append(self.tools['directory_reader'])
 
         return Agent(
             role=config['role'],

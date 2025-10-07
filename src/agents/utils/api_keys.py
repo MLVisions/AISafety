@@ -9,7 +9,8 @@ from pathlib import Path
 
 def get_openai_api_key() -> str:
     """
-    Read OpenAI API key from standard locations in order of preference:
+    Read OpenAI API key from standard locations and set environment variable.
+    Locations checked in order of preference:
     1. Environment variable OPENAI_API_KEY
     2. ~/.config/personal_gpt/api_key.txt
 
@@ -35,6 +36,8 @@ def get_openai_api_key() -> str:
                 with open(path, encoding='utf-8') as f:
                     api_key = f.read().strip()
                     if api_key:
+                        # Set environment variable for agents to use
+                        os.environ['OPENAI_API_KEY'] = api_key
                         return api_key
             except OSError:
                 # Continue to next path if this one fails
@@ -51,7 +54,7 @@ def get_api_key(service: str) -> str | None:
     Generic API key getter for various services
 
     Args:
-        service: Service name (e.g., 'serper', 'alpha_vantage', 'polygon')
+        service: Service name (e.g., 'openai', 'gemini', 'polygon')
 
     Returns:
         API key if found, None otherwise
@@ -60,15 +63,20 @@ def get_api_key(service: str) -> str | None:
     return os.getenv(env_var)
 
 
-def set_openai_key_env() -> None:
+def setup_agent_environment() -> None:
     """
-    Set OpenAI API key as environment variable if not already set
-    Useful for agents that need the key in environment
+    Setup environment for CrewAI agents
+    Call this before initializing any agents to ensure proper API key setup
     """
-    if not os.getenv('OPENAI_API_KEY'):
-        try:
-            api_key = get_openai_api_key()
-            os.environ['OPENAI_API_KEY'] = api_key
-        except ValueError:
-            # Key not found, let the calling code handle it
-            pass
+    # Get OpenAI API key (this will set the environment variable)
+    try:
+        get_openai_api_key()
+    except ValueError:
+        # Key not found, let the calling code handle it
+        pass
+
+    # Set any other environment variables needed for agents
+    if not os.getenv('SERPER_API_KEY'):
+        serper_key = get_api_key('serper')
+        if serper_key:
+            os.environ['SERPER_API_KEY'] = serper_key

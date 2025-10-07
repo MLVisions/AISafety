@@ -3,9 +3,9 @@ Test suite for AI Safety Agent Network
 Tests agent functionality while minimizing API calls
 """
 
-import json
 import tempfile
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -17,7 +17,7 @@ from src.agents.reference_sync import ReferenceSynchronizer, sync_website_refere
 class TestAISafetyAgentNetwork:
     """Test the main agent network functionality"""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test environment"""
         self.temp_dir = Path(tempfile.mkdtemp())
         self.test_project_root = self.temp_dir / "test_project"
@@ -32,7 +32,7 @@ class TestAISafetyAgentNetwork:
         self._create_test_configs()
         self._create_test_content()
 
-    def _create_test_configs(self):
+    def _create_test_configs(self) -> None:
         """Create test YAML configuration files"""
         agents_config = {
             'market_researcher': {
@@ -70,7 +70,7 @@ class TestAISafetyAgentNetwork:
         with open(tasks_file, 'w') as f:
             yaml.dump(tasks_config, f)
 
-    def _create_test_content(self):
+    def _create_test_content(self) -> None:
         """Create test content files"""
         test_content = """---
 title: "Test Economy Page"
@@ -90,7 +90,7 @@ The [Federal Reserve](https://fed.gov/report) indicates economic stability.
             f.write(test_content)
 
     @patch.dict('os.environ', {'OPENAI_API_KEY': 'test-key'})
-    def test_agent_network_initialization(self):
+    def test_agent_network_initialization(self) -> None:
         """Test that agent network initializes correctly"""
         network = AISafetyAgentNetwork(str(self.test_project_root))
 
@@ -101,14 +101,14 @@ The [Federal Reserve](https://fed.gov/report) indicates economic stability.
         assert 'content_validator' in network.agents_config
 
     @patch.dict('os.environ', {'OPENAI_API_KEY': 'test-key'})
-    def test_create_agent_from_config(self):
+    def test_create_agent_from_config(self) -> None:
         """Test agent creation from configuration"""
         network = AISafetyAgentNetwork(str(self.test_project_root))
 
         # Mock the CrewAI Agent to avoid actual initialization
         with patch('src.agents.agent_network.Agent') as mock_agent:
             mock_agent.return_value = MagicMock()
-            agent = network._create_agent('market_researcher')
+            network._create_agent('market_researcher')
 
             mock_agent.assert_called_once()
             call_args = mock_agent.call_args
@@ -116,7 +116,7 @@ The [Federal Reserve](https://fed.gov/report) indicates economic stability.
             assert call_args[1]['goal'] == 'Test market research'
 
     @patch.dict('os.environ', {'OPENAI_API_KEY': 'test-key'})
-    def test_create_task_from_config(self):
+    def test_create_task_from_config(self) -> None:
         """Test task creation from configuration"""
         network = AISafetyAgentNetwork(str(self.test_project_root))
 
@@ -126,22 +126,22 @@ The [Federal Reserve](https://fed.gov/report) indicates economic stability.
             mock_agent_instance = MagicMock()
             mock_agent.return_value = mock_agent_instance
             mock_task.return_value = MagicMock()
-            
+
             agent = network._create_agent('market_researcher')
-            task = network._create_task('market_research_task', agent)
+            network._create_task('market_research_task', agent)
 
             mock_task.assert_called_once()
             call_args = mock_task.call_args
             assert call_args[1]['description'] == 'Test market research task'
             assert call_args[1]['expected_output'] == 'Test market research output'
 
-    def test_factory_function(self):
+    def test_factory_function(self) -> None:
         """Test the factory function"""
         with patch.dict('os.environ', {'OPENAI_API_KEY': 'test-key'}):
             network = create_agent_network(project_root=str(self.test_project_root))
             assert isinstance(network, AISafetyAgentNetwork)
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         """Clean up test environment"""
         import shutil
         shutil.rmtree(self.temp_dir)
@@ -150,7 +150,7 @@ The [Federal Reserve](https://fed.gov/report) indicates economic stability.
 class TestReferenceSynchronizer:
     """Test the reference synchronization system"""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test environment"""
         self.temp_dir = Path(tempfile.mkdtemp())
         self.test_content_dir = self.temp_dir / "content"
@@ -159,7 +159,7 @@ class TestReferenceSynchronizer:
         # Create test content files
         self._create_test_content_files()
 
-    def _create_test_content_files(self):
+    def _create_test_content_files(self) -> None:
         """Create test content files with citations"""
         economy_content = """---
 title: "Economy Analysis"
@@ -187,7 +187,7 @@ The latest [OpenAI report](https://openai.com/research-2024) demonstrates signif
         (self.test_content_dir / "economy.md").write_text(economy_content)
         (self.test_content_dir / "technology.md").write_text(technology_content)
 
-    def test_citation_extraction(self):
+    def test_citation_extraction(self) -> None:
         """Test citation extraction from content files"""
         synchronizer = ReferenceSynchronizer(str(self.test_content_dir))
         citations = synchronizer.extract_citations_from_content()
@@ -206,7 +206,7 @@ The latest [OpenAI report](https://openai.com/research-2024) demonstrates signif
             assert 'url' in citation
             assert 'type' in citation
 
-    def test_citation_type_classification(self):
+    def test_citation_type_classification(self) -> None:
         """Test citation type classification"""
         synchronizer = ReferenceSynchronizer(str(self.test_content_dir))
 
@@ -226,27 +226,27 @@ The latest [OpenAI report](https://openai.com/research-2024) demonstrates signif
         academic_type = synchronizer._classify_citation_type("MIT Study", "https://mit.edu/research")
         assert academic_type == 'academic'
 
-    def test_reference_sync(self):
+    def test_reference_sync(self) -> None:
         """Test reference file synchronization"""
         synchronizer = ReferenceSynchronizer(str(self.test_content_dir))
-        
+
         # Mock the write_markdown_file function to avoid actual file writing
         with patch('src.agents.reference_sync.write_markdown_file') as mock_write:
             mock_write.return_value = True
-            
+
             sync_result = synchronizer.sync_references_file()
 
             assert sync_result['success'] is True
             assert sync_result['files_processed'] == 2
             assert sync_result['total_citations'] > 0
-            
+
             # Verify write_markdown_file was called
             mock_write.assert_called_once()
             call_args = mock_write.call_args
             assert 'references.md' in call_args[0][0]  # File path
             assert 'Government & Official Sources' in call_args[0][1]  # Content
 
-    def test_reference_validation(self):
+    def test_reference_validation(self) -> None:
         """Test reference validation"""
         synchronizer = ReferenceSynchronizer(str(self.test_content_dir))
         validation_result = synchronizer.validate_references()
@@ -256,7 +256,7 @@ The latest [OpenAI report](https://openai.com/research-2024) demonstrates signif
         assert isinstance(validation_result['broken_citations'], list)
         assert isinstance(validation_result['validation_errors'], list)
 
-    def test_convenience_functions(self):
+    def test_convenience_functions(self) -> None:
         """Test convenience functions"""
         with patch('src.agents.reference_sync.ReferenceSynchronizer') as mock_sync:
             mock_instance = MagicMock()
@@ -271,7 +271,7 @@ The latest [OpenAI report](https://openai.com/research-2024) demonstrates signif
             # Verify synchronizer was created with correct path
             mock_sync.assert_called_with(str(self.test_content_dir))
 
-    def teardown_method(self):
+    def teardown_method(self) -> None:
         """Clean up test environment"""
         import shutil
         shutil.rmtree(self.temp_dir)
@@ -280,18 +280,18 @@ The latest [OpenAI report](https://openai.com/research-2024) demonstrates signif
 class TestReferenceContentIntegrity:
     """Test that references stay in sync with content"""
 
-    def setup_method(self):
+    def setup_method(self) -> None:
         """Set up test environment with real content structure"""
         self.content_dir = Path("src/content")
         if not self.content_dir.exists():
             pytest.skip("Content directory not found - skipping integration tests")
 
-    def test_references_md_exists(self):
+    def test_references_md_exists(self) -> None:
         """Test that references.md exists"""
         references_file = self.content_dir / "references.md"
         assert references_file.exists(), "references.md should exist"
 
-    def test_all_content_citations_have_references(self):
+    def test_all_content_citations_have_references(self) -> None:
         """Test that all citations in content files have corresponding references"""
         if not self.content_dir.exists():
             pytest.skip("Content directory not found")
@@ -308,8 +308,8 @@ class TestReferenceContentIntegrity:
         # Read current references file
         references_file = self.content_dir / "references.md"
         if references_file.exists():
-            references_content = references_file.read_text()
-            
+            references_file.read_text()
+
             # Check that major URLs are referenced
             # This is a basic check - in practice you'd want more sophisticated parsing
             for url in list(all_urls)[:5]:  # Check first 5 URLs as sample
@@ -317,7 +317,7 @@ class TestReferenceContentIntegrity:
                     # Note: This is a basic check. Real implementation would parse references properly
                     pass
 
-    def test_no_broken_internal_links(self):
+    def test_no_broken_internal_links(self) -> None:
         """Test that there are no broken internal links between content files"""
         if not self.content_dir.exists():
             pytest.skip("Content directory not found")
@@ -333,7 +333,7 @@ class TestReferenceContentIntegrity:
             content = file_path.read_text()
             internal_links = re.findall(internal_link_pattern, content)
 
-            for link_text, link_url in internal_links:
+            for _link_text, link_url in internal_links:
                 # Check if internal link points to existing file
                 if link_url.endswith('.md'):
                     target_file = link_url.split('/')[-1]
@@ -342,7 +342,7 @@ class TestReferenceContentIntegrity:
 
 
 @pytest.fixture
-def mock_openai_key():
+def mock_openai_key() -> Any:
     """Mock OpenAI API key for tests"""
     with patch.dict('os.environ', {'OPENAI_API_KEY': 'test-key'}):
         yield
@@ -352,10 +352,10 @@ def mock_openai_key():
 class TestAgentWorkflowIntegration:
     """Integration tests for the full agent workflow"""
 
-    def test_workflow_stages_defined(self, mock_openai_key):
+    def test_workflow_stages_defined(self, mock_openai_key: Any) -> None:
         """Test that all workflow stages are properly defined"""
         # This test verifies the workflow structure without running actual agents
-        
+
         temp_dir = Path(tempfile.mkdtemp())
         try:
             # Create minimal test structure

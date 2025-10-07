@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from typing import Any
 
 import pandas as pd
-import yfinance as yf
+import yfinance as yf  # type: ignore[import-untyped]
 
 # Comprehensive tickers for AI Safety investment analysis
 DEFAULT_TICKERS = {
@@ -249,7 +249,7 @@ def fetch_maximum_history(ticker: str) -> pd.DataFrame | None:
     try:
         stock = yf.Ticker(ticker)
         data = stock.history(period="max")
-        
+
         if not data.empty:
             data = data.reset_index()
             data.columns = [col.title() if col != 'Date' else col for col in data.columns]
@@ -257,7 +257,7 @@ def fetch_maximum_history(ticker: str) -> pd.DataFrame | None:
         else:
             print(f"Warning: No data found for ticker {ticker}")
             return None
-            
+
     except Exception as e:
         print(f"Error fetching maximum history for {ticker}: {e}")
         return None
@@ -276,9 +276,9 @@ def get_asset_class_data(asset_class: str, max_history: bool = False) -> dict[st
     """
     if asset_class not in DEFAULT_TICKERS:
         raise ValueError(f"Unknown asset class: {asset_class}")
-    
+
     tickers = DEFAULT_TICKERS[asset_class]
-    
+
     if max_history:
         results = {}
         for ticker in tickers:
@@ -301,11 +301,11 @@ def get_all_asset_data(max_history: bool = False) -> dict[str, dict[str, pd.Data
         Nested dictionary: asset_class -> ticker -> DataFrame
     """
     all_data = {}
-    
+
     for asset_class in DEFAULT_TICKERS.keys():
         print(f"Fetching {asset_class} data...")
         all_data[asset_class] = get_asset_class_data(asset_class, max_history)
-    
+
     return all_data
 
 
@@ -322,15 +322,15 @@ def analyze_data_availability(ticker: str) -> dict[str, Any]:
     try:
         stock = yf.Ticker(ticker)
         data = stock.history(period="max")
-        
+
         if data.empty:
             return {"ticker": ticker, "available": False, "error": "No data found"}
-        
+
         start_date = data.index.min()
         end_date = data.index.max()
         total_days = (end_date - start_date).days
         data_points = len(data)
-        
+
         return {
             "ticker": ticker,
             "available": True,
@@ -341,7 +341,7 @@ def analyze_data_availability(ticker: str) -> dict[str, Any]:
             "data_points": data_points,
             "frequency": "daily" if data_points > total_days * 0.8 else "irregular"
         }
-        
+
     except Exception as e:
         return {"ticker": ticker, "available": False, "error": str(e)}
 
@@ -354,11 +354,11 @@ def get_all_data_availability() -> pd.DataFrame:
         DataFrame with availability information for all tickers
     """
     all_info = []
-    
+
     for asset_class, tickers in DEFAULT_TICKERS.items():
         for ticker in tickers:
             info = analyze_data_availability(ticker)
             info["asset_class"] = asset_class
             all_info.append(info)
-    
+
     return pd.DataFrame(all_info)

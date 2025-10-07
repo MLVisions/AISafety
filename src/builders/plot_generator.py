@@ -7,13 +7,14 @@ import matplotlib
 
 matplotlib.use('Agg')  # Use non-interactive backend to prevent popups
 import os
+from datetime import datetime
+from typing import Any
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 import numpy as np
 import pandas as pd
-from datetime import datetime
 import seaborn as sns
 
 # Website color scheme - cohesive blue theme with complementary accents
@@ -298,75 +299,75 @@ def create_raw_ticker_plots(output_dir: str = 'docs/images/raw_tickers') -> None
     Create individual plots for all raw ticker data and save them for website integration
     """
     from ..agents.utils.data_sources import DEFAULT_TICKERS, fetch_maximum_history
-    
+
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
-    
+
     setup_plot_style()
-    
+
     # Define colors for different categories
     category_colors = {
         'equity': COLORS['primary_blue'],
-        'international': COLORS['accent_blue'], 
+        'international': COLORS['accent_blue'],
         'crypto': COLORS['warm_amber'],
         'commodities': COLORS['mint_green'],
         'real_estate': COLORS['coral_pink'],
         'bonds': COLORS['soft_purple']
     }
-    
+
     print("Creating raw ticker plots...")
-    
+
     for category, tickers in DEFAULT_TICKERS.items():
         print(f"Processing {category} category...")
-        
-        for ticker in tickers:
+
+        for ticker_symbol in tickers:
             try:
                 # Fetch maximum available historical data
-                data = fetch_maximum_history(ticker)
-                
+                data = fetch_maximum_history(ticker_symbol)
+
                 if data is None or data.empty:
-                    print(f"Warning: No data available for {ticker}")
+                    print(f"Warning: No data available for {ticker_symbol}")
                     continue
-                
+
                 # Create plot
                 fig, ax = plt.subplots(figsize=(12, 8))
                 fig.patch.set_facecolor('white')
-                
+
                 # Plot closing price over time
-                ax.plot(data.index, data['Close'], 
+                ax.plot(data.index, data['Close'],
                        color=category_colors[category], linewidth=2, alpha=0.8)
-                
+
                 # Add moving averages for context
                 if len(data) > 50:
                     ma_50 = data['Close'].rolling(window=50).mean()
-                    ax.plot(data.index, ma_50, 
-                           color=COLORS['light_gray'], linewidth=1, alpha=0.7, 
+                    ax.plot(data.index, ma_50,
+                           color=COLORS['light_gray'], linewidth=1, alpha=0.7,
                            linestyle='--', label='50-day MA')
-                
+
                 if len(data) > 200:
                     ma_200 = data['Close'].rolling(window=200).mean()
-                    ax.plot(data.index, ma_200, 
-                           color=COLORS['text_light'], linewidth=1, alpha=0.7, 
+                    ax.plot(data.index, ma_200,
+                           color=COLORS['text_light'], linewidth=1, alpha=0.7,
                            linestyle=':', label='200-day MA')
-                
+
                 # Formatting
-                clean_ticker = ticker.replace('^', '').replace('-USD', '').replace('=F', '')
+                clean_ticker = ticker_symbol.replace('^', '').replace('-USD', '').replace('=F', '')
                 ax.set_title(f'{clean_ticker} - Historical Price Data ({category.title()})',
                            fontsize=16, fontweight='bold', color=COLORS['text_dark'], pad=20)
-                
+
                 ax.set_xlabel('Date', fontweight='bold')
                 ax.set_ylabel('Price ($)', fontweight='bold')
-                
+
                 # Format dates on x-axis
                 ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
                 ax.xaxis.set_major_locator(mdates.YearLocator(base=max(1, len(data) // (252 * 5))))
                 plt.setp(ax.xaxis.get_majorticklabels(), rotation=45)
-                
+
                 # Grid and legend
                 ax.grid(True, alpha=0.3)
                 if len(data) > 200:
                     ax.legend(frameon=True, fancybox=True, shadow=True, framealpha=0.9)
-                
+
                 # Add data range info
                 try:
                     start_date = data.index[0].strftime('%Y-%m-%d')
@@ -375,24 +376,24 @@ def create_raw_ticker_plots(output_dir: str = 'docs/images/raw_tickers') -> None
                 except (AttributeError, TypeError):
                     # Handle case where index is not datetime
                     data_range = f"Data: {len(data)} trading days"
-                ax.text(0.02, 0.98, data_range, transform=ax.transAxes, 
-                       fontsize=10, verticalalignment='top', 
-                       bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
-                
+                ax.text(0.02, 0.98, data_range, transform=ax.transAxes,
+                       fontsize=10, verticalalignment='top',
+                       bbox={'boxstyle': 'round', 'facecolor': 'white', 'alpha': 0.8})
+
                 # Save plot
-                safe_filename = ticker.replace('^', 'INDEX_').replace('-', '_').replace('=', '_')
+                safe_filename = ticker_symbol.replace('^', 'INDEX_').replace('-', '_').replace('=', '_')
                 save_path = os.path.join(output_dir, f'{safe_filename}_historical.png')
-                
+
                 plt.tight_layout()
                 plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
                 plt.close()
-                
-                print(f"✓ Created plot for {ticker}")
-                
+
+                print(f"✓ Created plot for {ticker_symbol}")
+
             except Exception as e:
                 print(f"Error creating plot for {ticker}: {e}")
                 continue
-    
+
     print(f"Raw ticker plots saved to: {output_dir}")
 
 
@@ -401,86 +402,86 @@ def create_category_comparison_plots(output_dir: str = 'docs/images/category_com
     Create comparison plots showing multiple tickers from each category
     """
     from ..agents.utils.data_sources import DEFAULT_TICKERS, fetch_maximum_history
-    
+
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
-    
+
     setup_plot_style()
-    
+
     category_colors = {
         'equity': [COLORS['primary_blue'], COLORS['medium_blue'], COLORS['accent_blue']],
-        'international': [COLORS['light_blue'], COLORS['bright_blue'], COLORS['soft_cyan']], 
+        'international': [COLORS['light_blue'], COLORS['bright_blue'], COLORS['soft_cyan']],
         'crypto': [COLORS['warm_amber'], COLORS['coral_pink'], COLORS['soft_purple']],
         'commodities': [COLORS['mint_green'], COLORS['accent_blue'], COLORS['light_blue']],
         'real_estate': [COLORS['coral_pink'], COLORS['warm_amber'], COLORS['soft_purple']],
         'bonds': [COLORS['soft_purple'], COLORS['medium_blue'], COLORS['accent_blue']]
     }
-    
+
     print("Creating category comparison plots...")
-    
+
     for category, tickers in DEFAULT_TICKERS.items():
         # Take first 3-5 tickers for comparison to avoid clutter
         comparison_tickers = tickers[:min(5, len(tickers))]
-        
+
         fig, ax = plt.subplots(figsize=(14, 10))
         fig.patch.set_facecolor('white')
-        
+
         colors = category_colors[category]
         successful_plots = 0
-        
-        for i, ticker in enumerate(comparison_tickers):
+
+        for i, ticker_sym in enumerate(comparison_tickers):
             try:
-                data = fetch_maximum_history(ticker)
-                
+                data = fetch_maximum_history(ticker_sym)
+
                 if data is None or data.empty:
                     continue
-                
+
                 # Normalize to starting value for comparison
                 normalized = (data['Close'] / data['Close'].iloc[0]) * 100
-                
+
                 color = colors[i % len(colors)]
-                clean_name = ticker.replace('^', '').replace('-USD', '').replace('=F', '')
-                
-                ax.plot(normalized.index, normalized.values, 
+                clean_name = ticker_sym.replace('^', '').replace('-USD', '').replace('=F', '')
+
+                ax.plot(normalized.index, normalized.values,
                        color=color, linewidth=2, alpha=0.8, label=clean_name)
-                
+
                 successful_plots += 1
-                
+
             except Exception as e:
                 print(f"Error plotting {ticker} in category comparison: {e}")
                 continue
-        
+
         if successful_plots > 0:
             # Formatting
             ax.set_title(f'{category.title()} Assets - Normalized Performance Comparison',
                        fontsize=18, fontweight='bold', color=COLORS['text_dark'], pad=20)
-            
+
             ax.set_xlabel('Date', fontweight='bold')
             ax.set_ylabel('Normalized Price (Starting Value = 100)', fontweight='bold')
-            
+
             # Format dates
             ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
             plt.setp(ax.xaxis.get_majorticklabels(), rotation=45)
-            
+
             # Grid and legend
             ax.grid(True, alpha=0.3)
             ax.legend(loc='best', frameon=True, fancybox=True, shadow=True, framealpha=0.9)
-            
+
             # Horizontal line at 100 for reference
             ax.axhline(y=100, color=COLORS['text_light'], linestyle='--', alpha=0.5)
-            
+
             # Save
             save_path = os.path.join(output_dir, f'{category}_comparison.png')
             plt.tight_layout()
             plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
             plt.close()
-            
+
             print(f"✓ Created comparison plot for {category}")
-        
+
         else:
             plt.close()
             print(f"⚠ No data available for {category} comparison")
-    
+
     print(f"Category comparison plots saved to: {output_dir}")
 
 
@@ -489,12 +490,13 @@ def create_ticker_dropdown_data(output_file: str = 'docs/data/ticker_dropdown.js
     Create JSON data structure for ticker dropdown functionality
     """
     import json
+
     from ..agents.utils.data_sources import DEFAULT_TICKERS
-    
+
     # Ensure output directory exists
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    
-    dropdown_data = {
+
+    dropdown_data: dict[str, Any] = {
         "categories": {},
         "metadata": {
             "total_tickers": 0,
@@ -502,36 +504,36 @@ def create_ticker_dropdown_data(output_file: str = 'docs/data/ticker_dropdown.js
             "description": "Raw ticker historical data for portfolio analysis evidence"
         }
     }
-    
+
     total_count = 0
-    
+
     for category, tickers in DEFAULT_TICKERS.items():
         dropdown_data["categories"][category] = {
             "display_name": category.replace('_', ' ').title(),
             "description": get_category_description(category),
             "tickers": []
         }
-        
-        for ticker in tickers:
+
+        for ticker_name in tickers:
             # Create safe filename for lookup
-            safe_filename = ticker.replace('^', 'INDEX_').replace('-', '_').replace('=', '_')
-            
+            safe_filename = ticker_name.replace('^', 'INDEX_').replace('-', '_').replace('=', '_')
+
             ticker_info = {
-                "ticker": ticker,
-                "display_name": get_ticker_display_name(ticker),
+                "ticker": ticker_name,
+                "display_name": get_ticker_display_name(ticker_name),
                 "image_path": f"images/raw_tickers/{safe_filename}_historical.png",
-                "description": get_ticker_description(ticker)
+                "description": get_ticker_description(ticker_name)
             }
-            
+
             dropdown_data["categories"][category]["tickers"].append(ticker_info)
             total_count += 1
-    
+
     dropdown_data["metadata"]["total_tickers"] = total_count
-    
+
     # Save JSON file
     with open(output_file, 'w') as f:
         json.dump(dropdown_data, f, indent=2)
-    
+
     print(f"✓ Created ticker dropdown data: {output_file}")
     return dropdown_data
 
