@@ -4,7 +4,6 @@ Defines page-specific metadata WITHOUT hardcoded update logic
 AI agents handle intelligent updates based on system instructions
 """
 
-from typing import Any
 
 
 class PageConfig:

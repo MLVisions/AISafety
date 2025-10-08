@@ -37,6 +37,9 @@ class AutomationController:
 
         # Initialize page-specific automation bridges
         self.action_bridge = PageAutomationBridge("action", self)
+        self.technology_bridge = PageAutomationBridge("technology", self)
+        self.society_bridge = PageAutomationBridge("society", self)
+        self.privacy_bridge = PageAutomationBridge("privacy", self)
 
     def setup_logging(self) -> None:
         """Setup logging for automation runs"""
@@ -264,6 +267,78 @@ class AutomationController:
                 'timestamp': datetime.now().isoformat()
             }
 
+    def run_technology_automation(self) -> dict[str, Any]:
+        """Run complete technology.md automation workflow"""
+        self.logger.info("Running technology.md automation workflow")
+        try:
+            results = self.technology_bridge.execute_automation()
+
+            if results['success']:
+                self.logger.info("Technology automation completed successfully")
+                self.logger.info(f"Summary: {results.get('summary', {})}")
+            else:
+                self.logger.error("Technology automation failed")
+                for error in results.get('errors', []):
+                    self.logger.error(f"  - {error}")
+
+            return results
+
+        except Exception as e:
+            self.logger.error(f"Technology automation error: {e}")
+            return {
+                'success': False,
+                'error': str(e),
+                'timestamp': datetime.now().isoformat()
+            }
+
+    def run_society_automation(self) -> dict[str, Any]:
+        """Run complete society.md automation workflow"""
+        self.logger.info("Running society.md automation workflow")
+        try:
+            results = self.society_bridge.execute_automation()
+
+            if results['success']:
+                self.logger.info("Society automation completed successfully")
+                self.logger.info(f"Summary: {results.get('summary', {})}")
+            else:
+                self.logger.error("Society automation failed")
+                for error in results.get('errors', []):
+                    self.logger.error(f"  - {error}")
+
+            return results
+
+        except Exception as e:
+            self.logger.error(f"Society automation error: {e}")
+            return {
+                'success': False,
+                'error': str(e),
+                'timestamp': datetime.now().isoformat()
+            }
+
+    def run_privacy_automation(self) -> dict[str, Any]:
+        """Run complete privacy.md automation workflow"""
+        self.logger.info("Running privacy.md automation workflow")
+        try:
+            results = self.privacy_bridge.execute_automation()
+
+            if results['success']:
+                self.logger.info("Privacy automation completed successfully")
+                self.logger.info(f"Summary: {results.get('summary', {})}")
+            else:
+                self.logger.error("Privacy automation failed")
+                for error in results.get('errors', []):
+                    self.logger.error(f"  - {error}")
+
+            return results
+
+        except Exception as e:
+            self.logger.error(f"Privacy automation error: {e}")
+            return {
+                'success': False,
+                'error': str(e),
+                'timestamp': datetime.now().isoformat()
+            }
+
     def build_site(self) -> dict[str, Any]:
         """
         Public method to build the website
@@ -276,7 +351,9 @@ def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(description="AI Safety Website Automation Controller")
-    parser.add_argument("--mode", choices=["full", "market-data", "content", "action"], default="full",
+    parser.add_argument("--mode", 
+                       choices=["full", "market-data", "content", "action", "technology", "society", "privacy"], 
+                       default="full",
                        help="Automation mode to run")
     parser.add_argument("--no-market-data", action="store_true",
                        help="Skip market data updates")
@@ -299,6 +376,12 @@ def main() -> None:
         results = controller.run_content_research_only()
     elif args.mode == "action":
         results = controller.run_action_automation()
+    elif args.mode == "technology":
+        results = controller.run_technology_automation()
+    elif args.mode == "society":
+        results = controller.run_society_automation()
+    elif args.mode == "privacy":
+        results = controller.run_privacy_automation()
     else:
         # Full automation cycle
         results = controller.run_full_automation_cycle(

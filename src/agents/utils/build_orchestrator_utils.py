@@ -9,6 +9,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from .page_config import PAGE_CONFIGS
+
 
 class BuildOrchestratorUtils:
     """Utility class for direct build operations"""
@@ -176,19 +178,9 @@ class BuildOrchestratorUtils:
             'issues': []
         }
 
-        # Expected files
-        expected_files = [
-            'index.html',
-            'economy.html',
-            'technology.html',
-            'llm.html',
-            'privacy.html',
-            'society.html',
-            'action.html',
-            'references.html',
-            'style.css',
-            'script.js'
-        ]
+        # Expected files - dynamically built from page configs
+        expected_files: list[str] = [f"{page}.html" for page in PAGE_CONFIGS.keys()]
+        expected_files.extend(['style.css', 'script.js'])
 
         # Check for generated files
         for filename in expected_files:

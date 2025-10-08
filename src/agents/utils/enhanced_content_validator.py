@@ -1,6 +1,14 @@
 """
+LEGACY CODE - NOT USED IN PRODUCTION
+
 Enhanced Content Validator Agent - Uses ContentComparator for intelligent validation
 Compares old vs new content to ensure meaningful updates while preserving quality
+
+NOTE: This is legacy code kept only for backward compatibility with existing tests.
+The production system uses the YAML-based agent configuration (agents.yaml) with
+the content_validator agent defined there. This class-based agent approach is deprecated.
+
+The ContentComparator utility class it uses is also legacy and not part of the main workflow.
 """
 
 import json

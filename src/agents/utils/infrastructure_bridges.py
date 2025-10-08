@@ -86,15 +86,13 @@ class PageAutomationBridge:
         research_files = []
 
         for agent_name in self.page_config.research_agents:
-            # Map agent names to output directories
-            agent_dir_map = {
-                "social_researcher": "social_research",
-                "technology_researcher": "technology_research",
-                "market_researcher": "market_research",
-                "policy_researcher": "policy_research"
-            }
+            # Convention: agent name "xxx_researcher" maps to "xxx_research" output directory
+            # This makes it easy to add new agents without code changes
+            if agent_name.endswith("_researcher"):
+                output_dir = agent_name.replace("_researcher", "_research")
+            else:
+                output_dir = agent_name
 
-            output_dir = agent_dir_map.get(agent_name, agent_name)
             research_path = Path(f"src/agents/outputs/{output_dir}")
 
             if research_path.exists():
@@ -110,24 +108,93 @@ class PageAutomationBridge:
     def _apply_content_updates(self, research_results: list[dict[str, Any]]) -> dict[str, Any]:
         """
         Apply research findings to page content
-        SIMPLIFIED: AI agents will provide structured updates, no keyword matching
-        TODO: Update to read structured output format from agents
+        SIMPLIFIED: Reads structured JSON output from agents and applies updates
         """
+        import json
+
         content_path = Path(f"src/content/{self.page_config.content_file}")
 
         if not content_path.exists():
             raise FileNotFoundError(f"Content file not found: {content_path}")
 
-        # TEMPORARY: Just log that updates would be applied
-        # Will be replaced with structured update application
-        logger.info(f"Would apply {len(research_results)} research results to {content_path}")
-        logger.info("TODO: Implement structured update application from agent outputs")
+        # Look for structured update output from content_updater agent
+        automation_output_dir = Path("automation_outputs")
+        update_file = automation_output_dir / f"{self.page_name}_updates.json"
 
-        return {
-            "success": True,
-            "updates_applied": 0,
-            "message": "Update application pending - agents need to output structured format"
-        }
+        if not update_file.exists():
+            # Fall back to looking in research results for JSON
+            logger.warning(f"No structured update file found at {update_file}")
+            logger.info("Attempting to parse JSON from research results...")
+
+            structured_updates = []
+            for result in research_results:
+                content = result.get("content", "")
+                # Try to extract JSON from markdown code blocks
+                json_match = self._extract_json_from_markdown(content)
+                if json_match:
+                    try:
+                        update_data = json.loads(json_match)
+                        if "updates" in update_data and update_data.get("page") == self.page_name:
+                            structured_updates.extend(update_data["updates"])
+                    except json.JSONDecodeError as e:
+                        logger.warning(f"Failed to parse JSON from research: {e}")
+
+            if not structured_updates:
+                logger.warning("No structured updates found in research results")
+                return {
+                    "success": True,
+                    "updates_applied": 0,
+                    "message": "No structured updates found - agents may not have produced JSON output yet"
+                }
+        else:
+            # Read structured update file
+            try:
+                with open(update_file) as f:
+                    update_data = json.load(f)
+                structured_updates = update_data.get("updates", [])
+                logger.info(f"Loaded {len(structured_updates)} structured updates from {update_file}")
+            except (json.JSONDecodeError, OSError) as e:
+                logger.error(f"Failed to load update file {update_file}: {e}")
+                return {
+                    "success": False,
+                    "error": f"Failed to parse update file: {e}",
+                    "updates_applied": 0
+                }
+
+        # Apply the structured updates using ContentUpdateApplier
+        if structured_updates:
+            result = self.content_applier.apply_updates(
+                str(content_path),
+                structured_updates
+            )
+            logger.info(f"Applied {result.get('updates_applied', 0)} updates to {content_path}")
+            return result
+        else:
+            return {
+                "success": True,
+                "updates_applied": 0,
+                "message": "No updates to apply"
+            }
+
+    def _extract_json_from_markdown(self, content: str) -> str | None:
+        """Extract JSON from markdown code blocks"""
+        import re
+
+        # Look for JSON code blocks
+        json_pattern = r'```(?:json)?\s*(\{[\s\S]*?\})\s*```'
+        matches: list[Any] = re.findall(json_pattern, content)
+
+        if matches:
+            return str(matches[0])
+
+        # Try to find JSON without code blocks
+        json_pattern2 = r'(\{[\s\S]*?"updates"[\s\S]*?\})'
+        matches2: list[Any] = re.findall(json_pattern2, content)
+
+        if matches2:
+            return str(matches2[0])
+
+        return None
 
     def _validate_content(self) -> dict[str, Any]:
         """Validate page content quality"""
@@ -137,11 +204,13 @@ class PageAutomationBridge:
             return {"score": 0.0, "errors": ["Content file not found"]}
 
         content = content_path.read_text()
-        return self.validation_enhancer.validate_content(content)
+        result: dict[str, Any] = self.validation_enhancer.validate_content(content)
+        return result
 
     def _build_site(self) -> dict[str, Any]:
         """Build the complete site"""
-        return self.automation_controller.build_site()
+        result: dict[str, Any] = self.automation_controller.build_site()
+        return result
 
 
 # Legacy wrapper for backward compatibility - WILL BE REMOVED

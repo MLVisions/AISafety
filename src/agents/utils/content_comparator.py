@@ -1,7 +1,14 @@
 """
-Content Comparator - Analyzes differences between old and new content
-Ensures meaningful updates while preserving existing quality content
+LEGACY CODE - NOT USED IN PRODUCTION
+
+Content Comparator for intelligent content validation
+Analyzes changes between old and new content to identify meaningful updates
+
+NOTE: This utility is legacy code kept only for backward compatibility with
+EnhancedContentValidatorAgent tests. The production system uses AI-driven
+structured updates through the YAML-based agent configuration.
 """
+
 
 import re
 from difflib import SequenceMatcher

@@ -153,6 +153,9 @@ def fetch_market_data(
                 # Clean up the data
                 data = data.reset_index()
                 data.columns = [col.title() if col != 'Date' else col for col in data.columns]
+                # Convert timezone-aware datetime to timezone-naive to avoid matplotlib issues
+                if 'Date' in data.columns and pd.api.types.is_datetime64_any_dtype(data['Date']):
+                    data['Date'] = pd.to_datetime(data['Date']).dt.tz_localize(None)
                 results[ticker] = data
             else:
                 print(f"Warning: No data found for ticker {ticker}")
@@ -253,6 +256,9 @@ def fetch_maximum_history(ticker: str) -> pd.DataFrame | None:
         if not data.empty:
             data = data.reset_index()
             data.columns = [col.title() if col != 'Date' else col for col in data.columns]
+            # Convert timezone-aware datetime to timezone-naive to avoid matplotlib issues
+            if 'Date' in data.columns and pd.api.types.is_datetime64_any_dtype(data['Date']):
+                data['Date'] = pd.to_datetime(data['Date']).dt.tz_localize(None)
             return data
         else:
             print(f"Warning: No data found for ticker {ticker}")

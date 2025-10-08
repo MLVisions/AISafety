@@ -147,16 +147,37 @@ content_update_task:
     5. Maintain the site's focus on individual preparation
     6. Preserve existing structure and navigation
     
-    Ensure all updates include proper citations and maintain the
-    professional, actionable tone of the website.
+    CRITICAL: Output MUST be structured JSON format for automated processing:
+    {
+      "page": "action",
+      "updates": [
+        {
+          "section_title": "Reskill & adapt",
+          "update_type": "statistic_update",
+          "original_text": "83 million jobs may be displaced",
+          "updated_text": "85 million jobs may be displaced",
+          "reason": "Updated with 2024 WEF data",
+          "source_url": "https://www.weforum.org/...",
+          "confidence": 0.9
+        },
+        {
+          "section_title": "Build financial resilience",
+          "update_type": "content_addition",
+          "insertion_point": "after paragraph about emergency funds",
+          "new_content": "Recent studies show...",
+          "reason": "Adding 2024 research on AI-driven market volatility",
+          "source_url": "https://...",
+          "confidence": 0.85
+        }
+      ]
+    }
+    
+    Update types: "statistic_update", "content_addition", "content_deletion", "clarification"
+    Confidence: 0.0-1.0 (only include updates with confidence > 0.7)
     
   expected_output: >
-    Updated content files with:
-    - Improved accuracy and currency
-    - New valuable insights integrated
-    - Consistent citation formatting
-    - Maintained editorial quality and structure
-    - Clear documentation of changes made
+    Structured JSON with validated content updates including exact text replacements,
+    additions, and deletions with full citations and confidence scores.
 
 reference_sync_task:
   description: >

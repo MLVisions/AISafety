@@ -265,6 +265,7 @@ class ValidationEnhancerFactory:
             "llm": TechnologyValidationEnhancer(),  # LLM uses same as technology
             "economy": TechnologyValidationEnhancer(),  # Can be specialized later
             "society": ActionValidationEnhancer(),  # Similar to action for now
+            "privacy": TechnologyValidationEnhancer(),  # Use technology enhancer for now
         }
 
         if page_name not in enhancer_map:

@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from .file_operations import read_markdown_file
+from .page_config import PAGE_CONFIGS
 
 
 class ContentValidationUtils:
@@ -34,10 +35,8 @@ class ContentValidationUtils:
             Dictionary with validation results
         """
         if content_files is None:
-            content_files = [
-                "index.md", "economy.md", "technology.md", "llm.md",
-                "privacy.md", "society.md", "action.md", "references.md"
-            ]
+            # Dynamically build from page configs
+            content_files = [f"{page}.md" for page in PAGE_CONFIGS.keys()]
 
         print(f"Validating {len(content_files)} content files...")
 

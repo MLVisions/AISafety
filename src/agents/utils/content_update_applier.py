@@ -9,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from ..utils.file_operations import read_markdown_file, write_markdown_file
+from .file_operations import read_markdown_file, write_markdown_file
 
 logger = logging.getLogger(__name__)
 
@@ -41,13 +41,17 @@ class ContentUpdateApplier:
         SIMPLIFIED: Expects structured updates from AI agents, no strategies needed
 
         Args:
-            file_path: Path to content file to update  
+            file_path: Path to content file to update
             updates: List of structured updates from agents with:
-                - section: Section identifier
-                - original_text: Text to find (optional)
-                - updated_text: New text to insert
-                - type: Update type (statistic, recommendation, etc.)
-                - confidence: Confidence score
+                - section_title: Section identifier
+                - update_type: "statistic_update", "content_addition", "content_deletion", "clarification"
+                - original_text: Text to find (for replacements)
+                - updated_text: New text (for replacements/additions)
+                - insertion_point: Where to add (for additions)
+                - new_content: Content to add (for additions)
+                - reason: Explanation of change
+                - source_url: Citation
+                - confidence: Confidence score (0.0-1.0)
 
         Returns:
             Dictionary with update results and statistics
@@ -56,33 +60,144 @@ class ContentUpdateApplier:
             # Read current content
             frontmatter, current_content = read_markdown_file(file_path)
 
-            # Apply structured updates
-            updated_content = current_content
-            updates_applied = 0
-
-            # TODO: Implement structured update application
-            # For now, just log the updates
-            logger.info(f"Would apply {len(updates)} updates to {file_path}")
-            for update in updates:
-                if update.get("confidence", 0) > 0.7:
-                    logger.info(f"  - {update.get('type')}: {update.get('updated_text', '')[:50]}...")
-
             # Create backup before updating
             self._create_backup(file_path)
 
-            # Write updated content (preserve frontmatter)
-            # write_markdown_file(file_path, updated_content, frontmatter)
+            # Apply structured updates
+            updated_content = current_content
+            updates_applied = 0
+            updates_skipped = 0
+            update_details = []
+
+            # Sort updates by confidence (highest first)
+            sorted_updates = sorted(updates, key=lambda x: x.get("confidence", 0), reverse=True)
+
+            for update in sorted_updates:
+                # Skip low-confidence updates
+                if update.get("confidence", 0) <= 0.7:
+                    updates_skipped += 1
+                    logger.debug(f"Skipped low-confidence update: {update.get('reason', 'No reason provided')}")
+                    continue
+
+                update_type = update.get("update_type", "")
+
+                try:
+                    if update_type == "statistic_update":
+                        # Replace specific text
+                        original = update.get("original_text", "")
+                        replacement = update.get("updated_text", "")
+
+                        if original and original in updated_content:
+                            updated_content = updated_content.replace(original, replacement, 1)
+                            updates_applied += 1
+                            update_details.append({
+                                "type": update_type,
+                                "section": update.get("section_title", ""),
+                                "change": f"{original} → {replacement}"
+                            })
+                            logger.info(f"Applied statistic update in '{update.get('section_title', 'unknown')}': {original[:50]}...")
+                        else:
+                            logger.warning(f"Could not find original text to replace: {original[:50]}...")
+                            updates_skipped += 1
+
+                    elif update_type == "content_addition":
+                        # Add new content at specified insertion point
+                        new_content = update.get("new_content", "")
+                        insertion_point = update.get("insertion_point", "")
+
+                        # Try to find the insertion point and add after it
+                        if insertion_point and insertion_point in updated_content:
+                            # Find the paragraph and add new content after it
+                            parts = updated_content.split(insertion_point, 1)
+                            if len(parts) == 2:
+                                # Find end of paragraph (double newline)
+                                paragraph_end = parts[1].find("\n\n")
+                                if paragraph_end != -1:
+                                    updated_content = (
+                                        parts[0] + insertion_point +
+                                        parts[1][:paragraph_end] +
+                                        "\n\n" + new_content +
+                                        parts[1][paragraph_end:]
+                                    )
+                                    updates_applied += 1
+                                    update_details.append({
+                                        "type": update_type,
+                                        "section": update.get("section_title", ""),
+                                        "change": f"Added content after: {insertion_point[:30]}..."
+                                    })
+                                    logger.info(f"Added content in '{update.get('section_title', 'unknown')}'")
+                                else:
+                                    logger.warning("Could not find paragraph end after insertion point")
+                                    updates_skipped += 1
+                            else:
+                                logger.warning("Could not split at insertion point")
+                                updates_skipped += 1
+                        else:
+                            logger.warning(f"Could not find insertion point: {insertion_point[:50]}...")
+                            updates_skipped += 1
+
+                    elif update_type == "content_deletion":
+                        # Remove specified content
+                        content_to_remove = update.get("original_text", "")
+
+                        if content_to_remove and content_to_remove in updated_content:
+                            updated_content = updated_content.replace(content_to_remove, "", 1)
+                            updates_applied += 1
+                            update_details.append({
+                                "type": update_type,
+                                "section": update.get("section_title", ""),
+                                "change": f"Removed: {content_to_remove[:50]}..."
+                            })
+                            logger.info(f"Deleted content in '{update.get('section_title', 'unknown')}'")
+                        else:
+                            logger.warning(f"Could not find content to delete: {content_to_remove[:50]}...")
+                            updates_skipped += 1
+
+                    elif update_type == "clarification":
+                        # Replace text to improve clarity
+                        original = update.get("original_text", "")
+                        clarified = update.get("updated_text", "")
+
+                        if original and original in updated_content:
+                            updated_content = updated_content.replace(original, clarified, 1)
+                            updates_applied += 1
+                            update_details.append({
+                                "type": update_type,
+                                "section": update.get("section_title", ""),
+                                "change": f"Clarified: {original[:30]}..."
+                            })
+                            logger.info(f"Applied clarification in '{update.get('section_title', 'unknown')}'")
+                        else:
+                            logger.warning(f"Could not find text to clarify: {original[:50]}...")
+                            updates_skipped += 1
+
+                    else:
+                        logger.warning(f"Unknown update type: {update_type}")
+                        updates_skipped += 1
+
+                except Exception as update_error:
+                    logger.error(f"Error applying individual update: {update_error}")
+                    updates_skipped += 1
+
+            # Only write if we actually made changes
+            if updates_applied > 0:
+                write_markdown_file(file_path, updated_content, frontmatter)
+                logger.info(f"Successfully applied {updates_applied} updates to {file_path}")
+            else:
+                logger.info(f"No updates applied to {file_path}")
 
             return {
                 "success": True,
                 "file_path": file_path,
                 "updates_applied": updates_applied,
+                "updates_skipped": updates_skipped,
+                "update_details": update_details,
                 "timestamp": datetime.now().isoformat(),
-                "backup_created": True,
-                "message": "TODO: Implement structured update application"
+                "backup_created": True
             }
 
         except Exception as e:
+            logger.error(f"Error applying updates to {file_path}: {e}")
             return {
                 "success": False,
                 "error": str(e),
