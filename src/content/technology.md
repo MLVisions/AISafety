@@ -6,15 +6,15 @@ description: "Explore AI capabilities, investment trends, agentic systems, and t
 
 ## AI Capabilities Today
 
-Large language models (LLMs) have already reached professional benchmarks. **[GPT‑4 scored around 75% on the U.S. bar exam](references.html#8)** and placed in the 90th percentile *(OpenAI, 2023)*, while **[ChatGPT performed at or near the passing threshold on all three stages of the USMLE](references.html#9)** medical boards *(PLOS Digital Health, 2023)*. Beyond chatbots, foundation models trained on millions of images can diagnose eye disease and even predict systemic conditions like heart failure. LLMs can draft software, contracts and presentations from natural‑language instructions, effectively acting as coding copilots.
+Large language models (LLMs) have already reached professional benchmarks. **[GPT-4 scored around 75% on the U.S. bar exam](references.md#8)** and placed in the 90th percentile *(OpenAI, 2023)*, while **[ChatGPT performed at or near the passing threshold on all three stages of the USMLE](references.md#9)** medical boards *(PLOS Digital Health, 2023)*. Beyond chatbots, foundation models trained on millions of images can diagnose eye disease and even predict systemic conditions like heart failure. LLMs can draft software, contracts and presentations from natural-language instructions, effectively acting as coding copilots.
 
-However, AI also introduces new risks. Voice‑cloning systems can replicate a person's speech from just a few seconds of audio, enabling plausible scams. Malicious actors can spin up realistic chatbots to harvest payment details, and generative AI can doctor politicians' speeches or create deepfakes to undermine elections.
+However, AI also introduces new risks. Voice-cloning systems can replicate a person's speech from just a few seconds of audio, enabling plausible scams. Malicious actors can spin up realistic chatbots to harvest payment details, and generative AI can doctor politicians' speeches or create deepfakes to undermine elections.
 
 ## Investment & Economic Impact
 
-Private AI investment in the United States reached **[$109.1 billion in 2024](references.html#5)**, nearly twelve times China's investment and twenty‑four times the U.K.'s *(Stanford AI Index, 2024)*. **[Hyperscale cloud providers doubled their projected AI capital expenditures](references.html#16)** between March 2024 and May 2025 (from $207 billion to $405 billion for 2026). **[OpenAI's weekly average users skyrocketed from 180 million to over 800 million](references.html#7)**.
+Private AI investment in the United States reached **[$109.1 billion in 2024](references.md#5)**, nearly twelve times China's investment and twenty-four times the U.K.'s *(Stanford AI Index, 2024)*. **[Hyperscale cloud providers doubled their projected AI capital expenditures](references.md#16)** between March 2024 and May 2025 (from $207 billion to $405 billion for 2026). **[OpenAI's weekly average users skyrocketed from 180 million to over 800 million](references.md#7)**.
 
-Projections suggest AI could add **[$15.7 trillion to global GDP by 2030](references.html#6)** *(PwC, 2024)*. In advanced economies, AI may automate around 25% of labour tasks and **[displace up to 83 million jobs by 2027](references.html#3)** while creating **[69 million new roles](references.html#3)** *(World Economic Forum, 2023)*. Productivity gains, combined with increased consumption, drive these forecasts.
+Projections suggest AI could add **[$15.7 trillion to global GDP by 2030](references.md#6)** *(PwC, 2024)*. In advanced economies, AI may automate around 25% of labour tasks and **[displace up to 83 million jobs by 2027](references.md#3)** while creating **[69 million new roles](references.md#3)** *(World Economic Forum, 2023)*. Productivity gains, combined with increased consumption, drive these forecasts.
 
 At the same time, high AI capital ratios can reduce labour demand, increasing unemployment and underemployment. This section invites you to explore the tension between productivity gains and societal impacts.
 
@@ -22,7 +22,7 @@ At the same time, high AI capital ratios can reduce labour demand, increasing un
 
 LLMs do not "reason" like humans; they infer the most likely next word based on statistical patterns. Nevertheless, emergent behaviours arise as models scale, and different agents built on the same base model can behave very differently depending on their training and memory retrieval strategies.
 
-A **single‑agent architecture** integrates memory, retrieval and tools into one workflow, whereas a **multi‑agent architecture** employs an orchestrator to coordinate specialised agents performing concurrent tasks. Key features of multi‑agent systems include autonomy, collaboration, competition and adaptability. Our website's update pipeline uses a swarm of agents to summarise new information, verify context, compare with existing content, develop updates, validate them and deploy changes.
+A **single-agent architecture** integrates memory, retrieval and tools into one workflow, whereas a **multi-agent architecture** employs an orchestrator to coordinate specialised agents performing concurrent tasks. Key features of multi‑agent systems include autonomy, collaboration, competition and adaptability. Our website's update pipeline uses a swarm of agents to summarise new information, verify context, compare with existing content, develop updates, validate them and deploy changes.
 
 <p style="margin-top:12px;">
   <a href="llm.html" style="color:#295da0; text-decoration:underline; font-weight:bold;">
@@ -32,10 +32,10 @@ A **single‑agent architecture** integrates memory, retrieval and tools into on
 
 ## Future Trends & Opportunities
 
-Looking ahead, the **[humanoid robot market could exceed $5 trillion by 2050](references.html#17)** *(Goldman Sachs, 2024)*, and innovations like **[robotaxis and Optimus robots might create a $24 trillion opportunity](references.html#18)** *(Tesla, 2024)*. Investments in semiconductors, cloud and robotics may surge as governments enact AI‑centric action plans.
+Looking ahead, the **[humanoid robot market could exceed $5 trillion by 2050](references.md#17)** *(Goldman Sachs, 2024)*, and innovations like **[robotaxis and Optimus robots might create a $24 trillion opportunity](references.md#18)** *(Tesla, 2024)*. Investments in semiconductors, cloud and robotics may surge as governments enact AI-centric action plans.
 
-However, unsustainable euphoria can precede sharp corrections. The **[S&P 500 and Nasdaq hit record highs](references.html#14)** in mid‑2025 amid AI enthusiasm, but analysts warn that parabolic moves seldom last. Balancing innovation with caution - and embedding strong privacy and security measures - will be essential.
+However, unsustainable euphoria can precede sharp corrections. The **[S&P 500 and Nasdaq hit record highs](references.html#14)** in mid-2025 amid AI enthusiasm, but analysts warn that parabolic moves seldom last. Balancing innovation with caution - and embedding strong privacy and security measures - will be essential.
 
 ---
 
-*For detailed sources and research citations, see our [References page](references.html)*
+*For detailed sources and research citations, see our [References page](references.md)*

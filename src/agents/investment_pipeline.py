@@ -158,7 +158,7 @@ def run_complete_investment_pipeline(
                 print("Updating comparative wealth plot...")
                 create_comparative_wealth_plot(
                     data_dir=output_dir,
-                    save_path="docs/images/comparative_wealth.png"
+                    save_path="src/static/images/comparative_wealth.png"
                 )
 
                 results['pipeline_steps']['plot_generation'] = {
@@ -166,7 +166,7 @@ def run_complete_investment_pipeline(
                     'plots_updated': ['comparative_wealth.png']
                 }
 
-                results['files_generated']['comparative_wealth_plot'] = "docs/images/comparative_wealth.png"
+                results['files_generated']['comparative_wealth_plot'] = "src/static/images/comparative_wealth.png"
 
                 print("✓ Updated comparative wealth plot")
             else:

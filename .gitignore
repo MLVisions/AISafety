@@ -90,6 +90,7 @@ src/data/*summary*.txt
 src/data/*.log
 economic_model_plan.md
 *.md.tmp
+.plot_cache.json
 
 # Keep generated website assets (needed for deployment)
 !docs/images/*.png

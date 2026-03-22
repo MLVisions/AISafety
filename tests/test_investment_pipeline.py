@@ -132,7 +132,7 @@ class TestHistoricalDataVisualization:
         """Test ticker display name mapping"""
         agent = HistoricalDataVisualizationAgent()
 
-        assert agent._get_display_name('^GSPC') == 'S&P 500'
+        assert agent._get_display_name('^GSPC') == 'S&P 500 Index'
         assert agent._get_display_name('BTC-USD') == 'Bitcoin'
         assert agent._get_display_name('UNKNOWN') == 'UNKNOWN'
 

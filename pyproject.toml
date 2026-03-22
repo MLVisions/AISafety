@@ -21,10 +21,8 @@ dependencies = [
     "numpy>=1.24.0",
     "pillow>=10.0.0",
     "pyyaml>=6.0.0",
-    "crewai>=0.193.2",
-    "crewai-tools>=0.73.1",
+    "litellm>=1.40.0",
     "yfinance>=0.2.66",
-    "openai>=1.109.1",
     "scipy>=1.15.3",
 ]
 
@@ -42,7 +40,7 @@ Repository = "https://github.com/MLVisions/AISafety.git"
 Documentation = "https://github.com/MLVisions/AISafety/blob/main/README.md"
 
 [project.scripts]
-build-website = "src.builders.site_builder:main"
+aisafety = "build:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src"]
@@ -92,7 +90,7 @@ module = [
     "seaborn.*",
     "pandas.*",
     "numpy.*",
-    "crewai.*",
+    "litellm.*",
 ]
 ignore_missing_imports = true
 

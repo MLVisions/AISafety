@@ -1,6 +1,6 @@
 """
-File operation utilities for CrewAI agents
-Provides safe file handling, backup, and markdown processing functions
+File operation utilities for the agent system.
+Provides safe file handling, backup, and markdown processing functions.
 """
 
 import shutil
@@ -52,7 +52,7 @@ def safe_write_file(
 
 def backup_file(filepath: str | Path) -> str | None:
     """
-    Create a backup of a file with timestamp
+    Create a backup of a file in the project-level backups/ directory.
 
     Args:
         filepath: Path to the file to backup
@@ -66,9 +66,12 @@ def backup_file(filepath: str | Path) -> str | None:
         return None
 
     try:
+        backup_dir = Path("backups")
+        backup_dir.mkdir(parents=True, exist_ok=True)
+
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         backup_name = f"{original_path.stem}_{timestamp}{original_path.suffix}"
-        backup_path = original_path.parent / backup_name
+        backup_path = backup_dir / backup_name
 
         shutil.copy2(original_path, backup_path)
         return str(backup_path)
@@ -168,7 +171,10 @@ def ensure_directory(dirpath: str | Path) -> bool:
 
 def list_content_files(content_dir: str | Path = "src/content") -> list[str]:
     """
-    List all markdown files in the content directory
+    List canonical markdown files in the content directory.
+
+    Excludes timestamped backup files (e.g. references_20260310_004056.md)
+    that may linger in the content directory.
 
     Args:
         content_dir: Path to content directory
@@ -176,12 +182,20 @@ def list_content_files(content_dir: str | Path = "src/content") -> list[str]:
     Returns:
         List of markdown file paths
     """
+    import re
+
     content_path = Path(content_dir)
 
     if not content_path.exists():
         return []
 
-    return [str(f) for f in content_path.glob("*.md")]
+    # Exclude files with timestamp suffixes like _20260310_004056
+    timestamp_pattern = re.compile(r"_\d{8}_\d{6}$")
+    return [
+        str(f)
+        for f in content_path.glob("*.md")
+        if not timestamp_pattern.search(f.stem)
+    ]
 
 
 def get_file_info(filepath: str | Path) -> dict[str, Any]:

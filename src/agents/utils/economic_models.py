@@ -398,23 +398,27 @@ def create_default_investment_scenarios() -> dict[str, dict[str, float]]:
             'AGG': 0.25,    # Bonds
             'VNQ': 0.15,    # REITs
             'GLD': 0.10,    # Gold
-            'BTC-USD': 0.05, # Crypto
+            'XRP-USD': 0.05, # Utility crypto
             'SHY': 0.15     # Short-term bonds (cash equivalent)
         },
         'PersonB': {  # Moderate
-            '^GSPC': 0.40,  # S&P 500
+            '^GSPC': 0.35,  # S&P 500
             'QQQ': 0.15,    # Tech/Growth
             'VNQ': 0.15,    # REITs
             'AGG': 0.15,    # Bonds
             'GLD': 0.10,    # Gold
-            'BTC-USD': 0.05 # Crypto
+            'XRP-USD': 0.05, # Utility crypto
+            'ETH-USD': 0.05  # Smart-contract platform
         },
         'PersonC': {  # Aggressive
-            '^GSPC': 0.30,  # S&P 500
+            '^GSPC': 0.25,  # S&P 500
             'QQQ': 0.20,    # Tech/Growth
-            'VTI': 0.15,    # Total market
+            'VTI': 0.10,    # Total market
             'VNQ': 0.10,    # REITs
-            'BTC-USD': 0.15, # Crypto
+            'XRP-USD': 0.10, # Utility crypto
+            'ETH-USD': 0.05, # Smart-contract platform
+            'LINK-USD': 0.05, # DeFi oracle
+            'BTC-USD': 0.05, # Store of value
             'GLD': 0.10     # Gold
         }
     }

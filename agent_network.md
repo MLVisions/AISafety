@@ -4,424 +4,315 @@
 
 This document defines the complete automation workflow for the AI Safety website, showing how agents, tools, and utility functions work together to maintain and update content. **This is the authoritative reference for the agent network architecture - consult this document before making any changes to the automation system.**
 
-Last Updated: September 27, 2025
+Last Updated: March 2026
 
 ## Architecture Principles
+
+### Section-Level Agent Design
+Every page section (H2 heading) that requires research has its own dedicated `(agent, task)` pair defined in `page_config.py`. The **agent** (from `agents.yaml`) provides domain expertise; the **task** (from `tasks.yaml`) provides section-specific research instructions. This ensures each section gets focused, domain-appropriate updates instead of one generic agent trying to cover everything.
 
 ### Agent vs Function Design
 - **Agents**: Complex decision-making, research, analysis, multi-step workflows with external APIs
 - **Functions/Tools**: Data processing, file operations, calculations, simple transformations
-- **Utility Classes**: Direct method access for programmatic automation without CrewAI overhead
+- **Utility Classes**: Direct method access for programmatic automation
 
-### Current Implementation Status
-- ✅ **YAML Agents**: All research and content agents implemented in `agents.yaml`
-- ✅ **Utility Classes**: MarketDataUtils, ContentValidationUtils, BuildOrchestratorUtils
-- ❌ **Missing Bridges**: Content update application, infrastructure execution bridges
-- ⚠️ **Partial Integration**: Agents produce reports but don't modify actual files
+### Content Pipeline
+Content flows from `src/content/*.md` (source of truth) through Jinja2 templates to `docs/*.html` (deployment output). All content edits target the markdown files; the build system regenerates HTML.
+
+### Reference Pipeline
+Research agents return a `references` list alongside their `updates`. The orchestrator tags each reference with `originating_page` and `originating_section` so the reference manager can organize `references.md` by page and section. Citation extraction also scans content files line-by-line, tracking which H2 section each inline link belongs to. The resulting `references.md` is a generated file (never manually edited) and is rebuilt on every automation cycle.
+
+### Backup Strategy
+All file backups are written to the project-level `backups/` directory, never alongside source files in `src/content/`. The `references.md` file is generated (not authored) so it is not backed up.
+
+### Centralized Constants
+All shared display names, color palettes, ticker descriptions, and category metadata live in `src/agents/utils/constants.py`. No module should duplicate these values.
+
+### Writing Style
+All writing agents incorporate rules from `src/agents/writing_guidelines.yaml` into their prompts. Key rules: no em dashes, Oxford comma always, professional tone, every claim needs citation.
+
+### LLM Configuration
+LLM access is provider-agnostic via `litellm`. Default model: `openai/gpt-5-mini`. Configuration managed through `src/agents/utils/llm_config.py` with environment variable overrides.
+
+## Current Implementation Status
+
+### Working Components
+- **YAML Agent Network**: Research agents in `agents.yaml`, section-specific tasks in `tasks.yaml`
+- **Section-Level Config**: `page_config.py` maps each H2 section to an `(agent, task)` pair via `SectionAgentConfig`
+- **Orchestrator**: `src/agents/orchestrator.py` coordinates section-level research, content updates, and full-cycle workflows
+- **Research Agents**: `src/agents/research_agents.py` performs section-targeted research with writing guidelines
+- **Reference Manager**: `src/agents/reference_manager.py` manages citation synchronization
+- **Investment Pipeline**: `src/agents/investment_pipeline.py` fetches data, runs models, generates plots
+- **Content Update Applier**: `src/agents/utils/content_update_applier.py` applies structured updates to markdown
+- **Content Validation**: `src/agents/utils/content_validation_utils.py` validates content quality
+- **Build System**: `build.py` + `src/builders/` generates full site from markdown to HTML
+- **Plot Generation**: Market trends, portfolio projections, raw ticker charts, category comparisons
+- **Centralized Constants**: `src/agents/utils/constants.py` for all shared display names, colors, descriptions
+
+### Gaps
+- Agents produce research reports but do not yet auto-apply all updates to content files
+- Domain-specific validation enhancers (tech, policy) not yet implemented
+- Homepage synthesis from cross-page research not yet implemented
 
 ## Page-Specific Automation Workflows
 
 ### 1. ECONOMY.MD - Most Complex Workflow
 
-**Complexity**: Highest (involves data fetching, economic modeling, plot generation, content updates)
+**Complexity**: Highest (section-level research, data fetching, economic modeling, plot generation)
+
+Section agents (each targets one H2 heading):
+
+| Section | Agent | Task |
+|---------|-------|------|
+| Macroeconomic Landscape | market_researcher | economy_macro_task |
+| Geopolitical & Market Risks | geopolitics_researcher | economy_geopolitics_task |
+| Policy & Regulation | policy_researcher | economy_policy_task |
+| Financial System Evolution | digital_assets_researcher | economy_financial_infra_task |
+| Strategic Recommendations | market_researcher | economy_strategy_task |
+| Portfolio & Simulations | *(data pipeline, no LLM agent)* | |
+| Portfolio Projections: Persons A, B & C | *(data pipeline, no LLM agent)* | |
 
 ```
-📄 economy.md (Starting Document)
-    ↓
-📊 [market_researcher] ✅ IMPLEMENTED
-    ├── Location: agents.yaml
-    ├── Tools: SerperDevTool, WebsiteSearchTool, FileReadTool
-    ├── Task: market_research_task (tasks.yaml)
-    ├── Output: research_results.md → automation_outputs/
-    ├── Focus: Market trends, economic indicators, financial developments
-    └── Status: ✅ Working - produces research reports
-    ↓
-💰 [market_data_fetcher] ✅ AGENT / ❌ BRIDGE MISSING
-    ├── Location: agents.yaml
-    ├── Tools: FileReadTool, DirectoryReadTool
-    ├── Task: market_data_update_task (tasks.yaml)
-    ├── ❌ MISSING: MarketDataExecutionBridge
-    │   ├── Should call: MarketDataUtils.fetch_data_direct()
-    │   ├── Should trigger: Ticker data updates
-    │   └── Should update: src/data/*.csv files
-    ├── Expected Output: Updated market data CSV files
-    └── Status: ⚠️ Partial - generates reports but doesn't execute data fetching
-    ↓
-🧮 [❌ MISSING: EconomicModelingBridge] - NEW COMPONENT NEEDED
-    ├── Purpose: Execute investment pipeline with new market data
-    ├── Should call: run_complete_investment_pipeline()
-    ├── Should update: Portfolio CSVs (personA/B/C_portfolio.csv, comparative_wealth.csv)
-    ├── Should generate: Economic projections, risk analysis
-    ├── Integration point: investment_pipeline.py
-    └── Status: ❌ Not implemented - critical gap for economy automation
-    ↓
-📊 [❌ MISSING: PlotUpdateTrigger] - NEW COMPONENT NEEDED
-    ├── Purpose: Regenerate economic plots when data changes
-    ├── Should call: PlotGenerator methods for economy-specific plots
-    │   ├── market_trends.png
-    │   ├── personA/B/C.png (portfolio projections)
-    │   └── comparative_wealth.png
-    ├── Should verify: Plot generation success and file placement
-    ├── Integration point: src/builders/plot_generator.py
-    └── Status: ❌ Not implemented - plots not auto-updated
-    ↓
-🔍 [content_validator] ✅ AGENT / ⚠️ PARTIAL INTEGRATION
-    ├── Location: agents.yaml
-    ├── Tools: FileReadTool, WebsiteSearchTool
-    ├── Task: content_validation_task (tasks.yaml)
-    ├── Utility: ContentValidationUtils.validate_content_direct()
-    ├── ⚠️ PARTIAL: Validation doesn't use research context
-    ├── ❌ MISSING: Research-aware validation
-    │   ├── Should incorporate: Market research findings
-    │   ├── Should verify: Economic data accuracy against research
-    │   └── Should check: Citation alignment with new sources
-    └── Status: ⚠️ Works independently but not research-integrated
-    ↓
-✏️ [content_updater] ✅ AGENT / ❌ EXECUTION MISSING
-    ├── Location: agents.yaml
-    ├── Tools: FileReadTool
-    ├── Task: content_update_task (tasks.yaml)
-    ├── Output: content_updates.md → automation_outputs/
-    ├── ❌ MISSING: ContentUpdateApplier
-    │   ├── Should parse: Agent research reports
-    │   ├── Should extract: Specific update recommendations
-    │   ├── Should apply: Changes to src/content/economy.md
-    │   ├── Should integrate: New economic data, statistics, projections
-    │   └── Should preserve: Existing structure, tone, navigation
-    └── Status: ❌ Critical gap - produces recommendations but doesn't update files
-    ↓
-📚 [reference_manager] ✅ AGENT / ❌ EXECUTION MISSING
-    ├── Location: agents.yaml
-    ├── Tools: FileReadTool, WebsiteSearchTool
-    ├── Task: reference_sync_task (tasks.yaml)
-    ├── Output: Reference recommendations → automation_outputs/
-    ├── ❌ MISSING: ReferenceUpdateApplier
-    │   ├── Should parse: Reference recommendations
-    │   ├── Should update: src/content/references.md
-    │   ├── Should format: Academic citation standards
-    │   └── Should verify: Source accessibility
-    └── Status: ❌ Produces recommendations but doesn't update references.md
-    ↓
-🏗️ [build_orchestrator] ✅ AGENT / ❌ BRIDGE MISSING
-    ├── Location: agents.yaml
-    ├── Tools: DirectoryReadTool, FileReadTool
-    ├── Task: website_build_task (tasks.yaml)
-    ├── Utility: BuildOrchestratorUtils.build_website_direct()
-    ├── ❌ MISSING: BuildExecutionBridge
-    │   ├── Should call: BuildOrchestratorUtils.build_website_direct()
-    │   ├── Should verify: Build success
-    │   ├── Should handle: Build errors and recovery
-    │   └── Should validate: Output completeness
-    └── Status: ❌ Generates reports but doesn't execute builds
+src/content/economy.md
+    |
+[section-level research agents]  (5 agents in parallel)
+    market_researcher       -> economy_macro_task
+    geopolitics_researcher  -> economy_geopolitics_task
+    policy_researcher       -> economy_policy_task
+    digital_assets_researcher -> economy_financial_infra_task
+    market_researcher       -> economy_strategy_task
+    |
+[content_updater] - content_update_applier.py
+    Apply section-specific structured updates to economy.md
+    |
+[content_validator] - content_validation_utils.py
+    |
+[market_data_fetcher] - investment_pipeline.py
+    Fetch ticker data via yfinance, update src/data/*.csv
+    Tickers: 70+ across equity, international, crypto, commodities, real_estate, bonds
+    |
+[economic_modeling] - economic_models.py
+    Monte Carlo simulations for 3 portfolio personas (A, B, C)
+    |
+[plot_generation] - plot_generator.py
+    |
+[reference_manager] - reference_manager.py
+    |
+[build] - build.py -> site_builder.py -> docs/economy.html
 ```
 
 ### 2. TECHNOLOGY.MD & LLM.MD - Tech Research Workflow
 
 **Complexity**: Medium (research-heavy, technical validation)
 
+Technology section agents:
+
+| Section | Agent | Task |
+|---------|-------|------|
+| AI Capabilities Today | technology_researcher | technology_capabilities_task |
+| Investment & Economic Impact | technology_researcher | technology_investment_task |
+| Agentic AI & Swarm Architecture | technology_researcher | technology_agents_task |
+| Future Trends & Opportunities | technology_researcher | technology_trends_task |
+
+LLM section agents:
+
+| Section | Agent | Task |
+|---------|-------|------|
+| How Large Language Models Work | technology_researcher | llm_foundations_task |
+| AI Agent Architectures: From Monolithic to Distributed Systems | technology_researcher | llm_agents_task |
+
 ```
-📄 technology.md / llm.md
-    ↓
-🔬 [technology_researcher] ✅ IMPLEMENTED
-    ├── Location: agents.yaml
-    ├── Tools: SerperDevTool, WebsiteSearchTool, FileReadTool
-    ├── Task: technology_research_task (tasks.yaml)
-    ├── Focus: AI developments, model releases, capabilities, benchmarks
-    ├── Output: Technology research findings → automation_outputs/
-    └── Status: ✅ Working - produces comprehensive tech research
-    ↓
-🔍 [content_validator] ✅ AGENT / ❌ TECH-SPECIFIC VALIDATION MISSING
-    ├── Same base agent as economy workflow
-    ├── ❌ MISSING: Technology-specific validation
-    │   ├── Should verify: Model capability claims
-    │   ├── Should check: Performance benchmark accuracy
-    │   ├── Should validate: Technical terminology
-    │   └── Should confirm: Release date accuracy
-    └── Status: ⚠️ Generic validation only
-    ↓
-✏️ [content_updater] ✅ AGENT / ❌ EXECUTION MISSING
-    ├── Same ContentUpdateApplier gap as economy workflow
-    ├── Focus areas for tech content:
-    │   ├── AI model capabilities and limitations
-    │   ├── New model releases and benchmarks
-    │   ├── Technical implementation details
-    │   └── Future technology projections
-    └── Status: ❌ Same execution gap
-    ↓
-[Same reference_manager and build_orchestrator gaps as economy workflow]
+src/content/technology.md / llm.md
+    |
+[section-level research agents]
+    technology_researcher -> technology_*_task / llm_*_task
+    |
+[content_updater] -> apply section updates
+    |
+[content_validator]
+    |
+[reference_manager] -> references.md
+    |
+[build] -> docs/technology.html, docs/llm.html
 ```
 
-### 3. PRIVACY.MD & SOCIETY.MD - Policy/Social Workflow
+### 3. SOCIETY.MD & PRIVACY.MD - Social/Policy Workflow
 
 **Complexity**: Medium (multi-domain research, policy accuracy critical)
 
+Society section agents:
+
+| Section | Agent | Task |
+|---------|-------|------|
+| Mental Health & Labour Disruption | social_researcher | society_mental_health_task |
+| Economic Uncertainty & Resilience | social_researcher | society_resilience_task |
+| AI Misinformation & Reality Distortion | social_researcher | society_misinformation_task |
+| Community & Support | social_researcher | society_community_task |
+
+Privacy section agents:
+
+| Section | Agent | Task |
+|---------|-------|------|
+| Threats & Misinformation | policy_researcher | privacy_threats_task |
+| Security Best Practices | technology_researcher | privacy_security_task |
+| Data Privacy & Ethics | policy_researcher | privacy_ethics_task |
+
 ```
-📄 privacy.md / society.md
-    ↓
-📜 [policy_researcher] ✅ IMPLEMENTED
-    ├── Location: agents.yaml
-    ├── Tools: SerperDevTool, WebsiteSearchTool, FileReadTool
-    ├── Task: policy_research_task (tasks.yaml)
-    ├── Focus: AI regulation, privacy laws, government initiatives
-    └── Status: ✅ Working - tracks policy developments
-    ↓
-👥 [social_researcher] ✅ IMPLEMENTED
-    ├── Location: agents.yaml
-    ├── Tools: SerperDevTool, WebsiteSearchTool, FileReadTool
-    ├── Task: social_research_task (tasks.yaml)
-    ├── Focus: Employment effects, mental health, social equity
-    └── Status: ✅ Working - researches social implications
-    ↓
-🔍 [content_validator] ✅ AGENT / ❌ POLICY-SPECIFIC VALIDATION MISSING
-    ├── ❌ MISSING: Policy-specific validation
-    │   ├── Should verify: Legal accuracy and current status
-    │   ├── Should check: Regulation effective dates
-    │   ├── Should validate: Official source citations
-    │   └── Should confirm: Jurisdiction applicability
-    └── Status: ⚠️ Generic validation only
-    ↓
-[Same content_updater, reference_manager, build_orchestrator gaps]
+src/content/society.md / privacy.md
+    |
+[section-level research agents]
+    social_researcher   -> society_*_task
+    policy_researcher   -> privacy_threats_task, privacy_ethics_task
+    technology_researcher -> privacy_security_task
+    |
+[content_updater] -> apply section updates
+    |
+[content_validator]
+    |
+[reference_manager] -> references.md
+    |
+[build] -> docs/society.html, docs/privacy.html
 ```
 
-### 4. ACTION.MD - Action-Oriented Workflow ✅ COMPLETED
+### 4. ACTION.MD - Action-Oriented Workflow
 
 **Complexity**: Low-Medium (strategy-focused, practicality validation)
 
-```
-📄 action.md
-    ↓
-👥 [social_researcher] ✅ IMPLEMENTED
-    ├── Focus: Individual preparation strategies, actionable guidance
-    └── Status: ✅ Working for action-oriented research
-    ↓
-🔍 [content_validator] ✅ IMPLEMENTED
-    ├── Base validation: ContentValidationUtils.validate_content_direct()
-    ├── ✅ IMPLEMENTED: ActionValidationEnhancer
-    │   ├── ✅ Verifies: Strategy feasibility (0.75 avg score)
-    │   ├── ✅ Checks: Resource accessibility (0.70 avg score)
-    │   ├── ✅ Validates: Step-by-step clarity (0.85 avg score)
-    │   └── ✅ Confirms: Individual applicability (0.93 avg score)
-    └── Status: ✅ Action-specific validation implemented
-    ↓
-✏️ [content_updater] ✅ IMPLEMENTED
-    ├── Location: ContentUpdateApplier
-    ├── ✅ IMPLEMENTED: Research findings parsing
-    │   ├── ✅ Extracts: Statistics, trends, strategies, recommendations
-    │   ├── ✅ Applies: High-confidence updates (>0.7 confidence)
-    │   ├── ✅ Preserves: Document structure and formatting
-    │   └── ✅ Creates: Automatic backups before changes
-    ├── Integration: ActionAutomationBridge
-    └── Status: ✅ Full content update automation working
-    ↓
-📚 [reference_manager] ✅ AGENT / ✅ IMPLEMENTED
-    ├── Location: agents.yaml
-    ├── Task: reference_sync_task (tasks.yaml)
-    ├── ✅ IMPLEMENTED: Reference update parsing and application
-    └── Status: ✅ Working - integrated with content updates
-    ↓
-🏗️ [build_orchestrator] ✅ IMPLEMENTED
-    ├── Location: BuildOrchestratorUtils.build_website_direct()
-    ├── ✅ IMPLEMENTED: Full website rebuild integration
-    │   ├── ✅ Triggers: Automatic rebuild after content updates
-    │   ├── ✅ Validates: Build success and completeness
-    │   └── ✅ Reports: Build time and statistics
-    └── Status: ✅ Complete automation working (36s avg build time)
-```
-
-**✅ ACTION.MD AUTOMATION STATUS: FULLY OPERATIONAL**
-- **Research Processing**: ✅ Processes social research findings
-- **Enhanced Validation**: ✅ Action-specific validation with 0.94 avg score
-- **Content Updates**: ✅ Applies 28 avg updates per automation run
-- **Website Rebuild**: ✅ Full build integration with success monitoring
-- **Success Rate**: ✅ 100% automation success rate in testing
-
-### 5. INDEX.MD - Homepage Synthesis Workflow
-
-**Complexity**: Medium-High (cross-page synthesis, overview coordination)
+| Section | Agent | Task |
+|---------|-------|------|
+| Take Practical Steps (+ all H3 subsections) | social_researcher | action_steps_task |
 
 ```
-📄 index.md
-    ↓
-🔄 [❌ MISSING: HomepageSynthesizer] - NEW COMPONENT NEEDED
-    ├── Purpose: Synthesize updates from all domain research
-    ├── Input: Research outputs from all other agents
-    │   ├── Market research findings
-    │   ├── Technology developments
-    │   ├── Policy changes
-    │   └── Social trends
-    ├── Processing: Extract high-level themes and key highlights
-    ├── Output: Homepage update recommendations
-    └── Status: ❌ Not implemented - homepage not auto-updated
-    ↓
-🔍 [content_validator] ✅ AGENT / ❌ CROSS-PAGE VALIDATION MISSING
-    ├── ❌ MISSING: Cross-page consistency validation
-    │   ├── Should verify: Navigation accuracy
-    │   ├── Should check: Cross-references between pages
-    │   ├── Should validate: Overview accuracy vs detailed pages
-    │   └── Should confirm: Tone consistency
-    └── Status: ⚠️ Single-page validation only
-    ↓
-[Same content_updater, reference_manager, build_orchestrator gaps]
+src/content/action.md
+    |
+[social_researcher] -> action_steps_task
+    |
+[content_updater] -> apply section updates
+    |
+[content_validator]
+    |
+[reference_manager] -> references.md
+    |
+[build] -> docs/action.html
 ```
 
-## Critical Missing Components
+### 5. INDEX.MD - Homepage
 
-### Phase 1: Core Execution Bridges (Critical)
+**Complexity**: Low (manually curated overview; future: cross-page synthesis)
 
-### Phase 1: Core Execution Bridges (Critical)
-
-#### 1. ContentUpdateApplier
-**Status**: ✅ IMPLEMENTED (for action.md)  
-**Priority**: Critical  
-**Purpose**: Parse agent reports and apply updates to actual markdown files
-
-```python
-# Implemented interface
-class ContentUpdateApplier:
-    def apply_research_updates(
-        self, 
-        file_path: str,
-        research_findings: str,
-        validation_results: dict[str, Any],
-        preserve_structure: bool = True
-    ) -> dict[str, Any]:
-        """Apply research findings to content file"""
-        # ✅ WORKING: Parses research, applies updates, creates backups
+```
+src/content/index.md
+    |
+[build] -> docs/index.html
 ```
 
-#### 2. Infrastructure Execution Bridges
-**Status**: ✅ IMPLEMENTED (ActionAutomationBridge)  
-**Priority**: Critical  
-**Components**:
-- ✅ ActionAutomationBridge: Complete action.md workflow
-- ❌ MarketDataExecutionBridge: market_data_fetcher → MarketDataUtils
-- ❌ BuildExecutionBridge: build_orchestrator → BuildOrchestratorUtils (partially implemented in ActionAutomationBridge)
+### 6. REFERENCES.MD - Citation Database
 
-#### 2. Infrastructure Execution Bridges
-**Status**: ❌ Not Implemented  
-**Priority**: Critical  
-**Components**:
-- MarketDataExecutionBridge: market_data_fetcher → MarketDataUtils
-- BuildExecutionBridge: build_orchestrator → BuildOrchestratorUtils
+**Complexity**: Low (managed by reference_manager across all workflows)
 
-### Phase 2: Domain-Specific Components (High Impact)
+Organized by originating page and section (not by URL type). Each citation
+is tracked back to the content section it supports.
 
-#### 3. EconomicModelingBridge
-**Status**: ❌ Not Implemented  
-**Priority**: High  
-**Purpose**: Connect market research to economic modeling pipeline
+```
+src/content/references.md
+    |
+[reference_manager] - reference_manager.py
+    1. Extract citations from all content files (tracking H2 section)
+    2. Merge agent-provided references (tagged with originating_section)
+    3. Deduplicate by URL
+    4. Write references.md organized by page -> section
+    |
+[build] -> docs/references.html
+```
 
-#### 4. PlotUpdateTrigger
-**Status**: ❌ Not Implemented  
-**Priority**: High  
-**Purpose**: Regenerate plots when underlying data changes
+## Orchestrator Workflows
 
-#### 5. ReferenceUpdateApplier
-**Status**: ❌ Not Implemented  
-**Priority**: High  
-**Purpose**: Apply reference recommendations to references.md
+The `Orchestrator` class (`src/agents/orchestrator.py`) provides these entry points:
 
-### Phase 3: Enhanced Validation (Medium)
+1. **`run_full_cycle(skip_research, skip_market_data, skip_build)`** - Complete automation: research, validate, update content, build site. Market data is fetched only for pages with `has_data_fetching=True` in page config.
+2. **`run_market_data()`** - Fetch market data and update CSVs only
+3. **`run_build_only()`** - Rebuild site from existing content (no AI, no data fetch)
+4. **`run_references_only()`** - Sync references.md from citations in content files
+5. **`run_page(page_name)`** - Run pipeline for a single page
 
-#### 6. Research-Aware Validation
-**Status**: ✅ IMPLEMENTED (for action.md)  
-**Priority**: Medium  
-**Purpose**: Integrate research context into content validation
+### Build Efficiency
+- **Icons**: Static assets in `src/static/images/` -- not regenerated during build. Use `python -m src.builders.icon_generator` to regenerate when the design changes.
+- **Data plots**: Hash-based caching via `.plot_cache.json`. Plots are skipped if CSV data has not changed.
+- **Market plots**: Raw ticker and category comparison plots require live yfinance data and are only generated when explicitly requested (e.g., `--auto market-data`).
 
-#### 7. Domain-Specific Validators
-**Status**: ⚠️ PARTIALLY IMPLEMENTED  
-**Priority**: Medium  
-**Components**:
-- ❌ TechValidationEnhancer
-- ❌ PolicyValidationEnhancer  
-- ✅ ActionValidationEnhancer (COMPLETED)
+Build entry point (`build.py`) supports:
+- `python build.py` - Basic build (static assets, cached plots, markdown processing)
+- `python build.py --auto` - Full automation cycle (research + build)
+- `python build.py --auto market-data` - Market data update only
+- `python build.py --auto content` - Content research only (no build)
+- `python build.py --auto content --page economy` - Research one page only
+- `python build.py --auto page --page economy` - Full pipeline for one page
 
-### Phase 4: Advanced Features (Low)
+## File Locations Reference
 
-#### 8. HomepageSynthesizer
-**Status**: ❌ Not Implemented  
-**Priority**: Low  
-**Purpose**: Synthesize cross-domain research for homepage updates
+### Configuration
+- `agents.yaml` - Agent definitions and tool configurations
+- `tasks.yaml` - Task descriptions and expected outputs
+- `src/agents/writing_guidelines.yaml` - Writing style rules for all agents
 
-## Current System State
+### Core Modules
+- `build.py` - CLI entry point for building and automation
+- `src/agents/orchestrator.py` - Workflow orchestrator
+- `src/agents/research_agents.py` - LLM-powered page research
+- `src/agents/reference_manager.py` - Citation management
+- `src/agents/investment_pipeline.py` - Market data and economic modeling
+- `src/agents/base_agent.py` - Base agent class
 
-### Working Components ✅
-- **YAML Agent Network**: All 9 agents properly configured
-- **Utility Classes**: MarketDataUtils, ContentValidationUtils, BuildOrchestratorUtils
-- **Research Pipeline**: Agents produce comprehensive reports
-- **Validation System**: Basic content validation working
-- **Build System**: Manual builds working perfectly
+### Utilities (`src/agents/utils/`)
+- `constants.py` - Centralized colors, palettes, display names, descriptions
+- `llm_config.py` - LLM provider configuration (litellm)
+- `page_config.py` - Per-page automation settings
+- `content_update_applier.py` - Structured content update application
+- `content_validation_utils.py` - Content quality validation
+- `data_sources.py` - Ticker definitions and data availability
+- `economic_models.py` - Monte Carlo simulation and portfolio modeling
+- `historical_visualization.py` - Raw ticker and category comparison plots
+- `portfolio_simulation.py` - Portfolio projection engine
+- `file_operations.py` - File I/O helpers
 
-### Major Gaps ❌
-- **Agent Reports Don't Update Files**: Critical execution gap
-- **No Infrastructure Bridges**: Agents don't trigger utility functions
-- **No Economic Modeling Integration**: Economy automation incomplete
-- **No Plot Updates**: Visualizations not auto-updated
-- **No Research-Aware Validation**: Validation ignores research context
+### Builders (`src/builders/`)
+- `site_builder.py` - Main site build orchestrator
+- `markdown_processor.py` - Markdown to HTML with frontmatter and shortcodes
+- `template_engine.py` - Jinja2 template rendering
+- `plot_generator.py` - Financial chart generation
+- `icon_generator.py` - Navigation icon generation (one-time use; icons are static assets)
 
-### Integration Points ⚠️  
-- **AutomationController**: Orchestrates workflow but has execution gaps
-- **Agent Network**: Produces reports but needs execution bridges
-- **Utility Classes**: Work independently but not agent-integrated
+### Content (`src/content/`)
+- `index.md`, `economy.md`, `technology.md`, `llm.md`, `society.md`, `privacy.md`, `action.md`, `references.md`
 
-## Testing Strategy
+### Output (`docs/`)
+- Generated HTML pages, CSS, JS, images, plot PNGs, data JSON
 
-### Current Test Coverage ✅
-- Agent network initialization and configuration
-- Utility class functionality 
-- Individual component testing
-- Build system validation
-
-### Missing Test Coverage ❌
-- End-to-end automation workflows
-- Agent output → file update integration
-- Cross-component integration testing
-- Error handling and recovery
+### Tests (`tests/`)
+- `test_investment_pipeline.py` - Economic models, data sources, portfolio simulation, visualization
+- `test_markdown_processor.py` - Markdown processing and frontmatter
+- `test_plot_generator.py` - Plot generation
+- `test_page_config.py` - Page configuration factory
+- `test_content_update_applier.py` - Content update application
 
 ## Development Guidelines
 
 ### Before Making Changes
-1. **Read this document** to understand current architecture
-2. **Identify integration points** between your changes and existing components
-3. **Consider workflow impact** on all affected pages
-4. **Plan testing strategy** for new components
+1. Read this document to understand current architecture
+2. Identify integration points between your changes and existing components
+3. Consider workflow impact on all affected pages
 
 ### When Adding New Components
-1. **Document the workflow** in this file
-2. **Update the architecture diagrams** 
-3. **Add integration tests** for the complete workflow
-4. **Update utility class interfaces** if needed
+1. Update this document with the new workflow
+2. Add tests for the new component
+3. Use centralized constants from `constants.py`
+4. Follow writing guidelines in `writing_guidelines.yaml`
 
 ### When Modifying Existing Agents
-1. **Check all affected workflows** in this document
-2. **Verify tool configurations** remain consistent
-3. **Test agent network initialization** 
-4. **Update task descriptions** if needed
-
-### Change Approval Process
-1. **Architecture review** against this document
-2. **Integration impact assessment**  
-3. **Test coverage verification**
-4. **Documentation updates**
-
-## File Locations Reference
-
-### Configuration Files
-- **agents.yaml**: Agent definitions and tool configurations
-- **tasks.yaml**: Task descriptions and expected outputs
-- **agent_network.py**: Agent network orchestration logic
-
-### Implementation Files
-- **automation_controller.py**: Main automation orchestrator
-- **utils/**: Utility classes for direct method access
-- **investment_pipeline.py**: Economic modeling pipeline
-- **builders/**: Plot generation and site building
-
-### Output Locations
-- **automation_outputs/**: Agent research reports and findings
-- **src/content/**: Website content files (update targets)
-- **src/data/**: Market data CSVs and economic model outputs
-- **docs/**: Built website files
+1. Check all affected workflows in this document
+2. Verify tool configurations remain consistent
+3. Run `uv run python -m pytest tests/ -v` to validate
+4. Run `uv run python build.py` to verify site generation
 
 ---
 

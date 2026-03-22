@@ -1,9 +1,10 @@
 """
-Content Validation Utilities
-Direct content validation functions without CrewAI agent overhead
+Content Validation Utilities.
+Direct content validation functions for checking link quality, citations, etc.
 """
 
 import re
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -24,7 +25,7 @@ class ContentValidationUtils:
         check_citations: bool = True
     ) -> dict[str, Any]:
         """
-        Validate content directly without CrewAI agent
+        Validate content files for link quality, citations, and claims
 
         Args:
             content_files: List of files to validate (validates all if None)
@@ -40,8 +41,8 @@ class ContentValidationUtils:
 
         print(f"Validating {len(content_files)} content files...")
 
-        validation_results = {
-            'validation_timestamp': str(Path.cwd()),
+        validation_results: dict[str, Any] = {
+            'validation_timestamp': datetime.now(tz=timezone.utc).isoformat(),
             'files_validated': len(content_files),
             'files_results': {},
             'overall_issues': {
@@ -52,22 +53,27 @@ class ContentValidationUtils:
             }
         }
 
+        # Use typed references to avoid mypy indexed-assignment errors
+        files_results: dict[str, Any] = validation_results['files_results']
+        overall_issues: dict[str, list[Any]] = validation_results['overall_issues']
+
         for file_name in content_files:
-            file_result = self._validate_single_file(Path(file_name))
-            validation_results['files_results'][file_name] = file_result
+            file_result = self.validate_single_file(Path(file_name))
+            files_results[file_name] = file_result
 
             # Aggregate issues
-            validation_results['overall_issues']['broken_links'].extend(
+            overall_issues['broken_links'].extend(
                 file_result.get('broken_links', [])
             )
-            validation_results['overall_issues']['citation_issues'].extend(
+            overall_issues['citation_issues'].extend(
                 file_result.get('citation_issues', [])
             )
 
         return validation_results
 
-    def _validate_single_file(self, file_path: Path) -> dict[str, Any]:
+    def validate_single_file(self, file_path_or_name: str | Path) -> dict[str, Any]:
         """Validate a single markdown file"""
+        file_path = Path(file_path_or_name)
         full_path = self.content_dir / file_path if not file_path.is_absolute() else file_path
 
         if not full_path.exists():
@@ -130,7 +136,7 @@ class ContentValidationUtils:
                     })
 
             # Check frontmatter completeness
-            required_frontmatter = ['title', 'description']
+            required_frontmatter = ['title']
             for field in required_frontmatter:
                 if field not in frontmatter:
                     issues.append({

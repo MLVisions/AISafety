@@ -14,39 +14,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from .data_sources import (
-    get_all_asset_data,
-)
-
-# Import plot utilities - handle relative imports
-try:
-    from ...builders.plot_generator import COLORS, setup_plot_style
-except ImportError:
-    try:
-        from src.builders.plot_generator import COLORS, setup_plot_style
-    except ImportError:
-        # Fallback color scheme if import fails
-        COLORS = {
-            'primary_blue': '#0a1f44',
-            'accent_blue': '#1e4a80',
-            'light_blue': '#4da3d8',
-            'bright_blue': '#66c2ff',
-            'mint_green': '#10b981',
-            'warm_amber': '#f59e0b',
-            'soft_purple': '#8b5cf6',
-            'coral_pink': '#f97316',
-            'background': '#f5f8fc'
-        }
-
-        def setup_plot_style() -> None:
-            """Fallback plot style setup"""
-            plt.rcParams.update({
-                'figure.facecolor': 'white',
-                'axes.facecolor': 'white',
-                'axes.spines.top': False,
-                'axes.spines.right': False,
-                'grid.alpha': 0.3
-            })
+from .constants import COLORS, PALETTE, get_ticker_display_name, setup_plot_style
+from .data_sources import get_all_asset_data
 
 
 class HistoricalDataVisualizationAgent:
@@ -187,9 +156,7 @@ class HistoricalDataVisualizationAgent:
         if len(asset_data) > 1:
             fig, ax = plt.subplots(figsize=(16, 10))
 
-            colors = [COLORS['primary_blue'], COLORS['accent_blue'], COLORS['light_blue'],
-                     COLORS['bright_blue'], COLORS['mint_green'], COLORS['warm_amber'],
-                     COLORS['soft_purple'], COLORS['coral_pink']]
+            colors = PALETTE
 
             for i, (ticker, df) in enumerate(asset_data.items()):
                 if df.empty:
@@ -324,34 +291,8 @@ class HistoricalDataVisualizationAgent:
         return dropdown_data
 
     def _get_display_name(self, ticker: str) -> str:
-        """
-        Get human-readable display name for ticker
-
-        Args:
-            ticker: Ticker symbol
-
-        Returns:
-            Human-readable name
-        """
-        display_names = {
-            '^GSPC': 'S&P 500',
-            '^DJI': 'Dow Jones',
-            '^IXIC': 'NASDAQ',
-            '^RUT': 'Russell 2000',
-            'BTC-USD': 'Bitcoin',
-            'ETH-USD': 'Ethereum',
-            'GC=F': 'Gold Futures',
-            'CL=F': 'Crude Oil',
-            'SI=F': 'Silver Futures',
-            'GLD': 'Gold ETF',
-            'SPY': 'S&P 500 ETF',
-            'QQQ': 'NASDAQ 100 ETF',
-            'VNQ': 'Real Estate ETF',
-            'AGG': 'Bond ETF',
-            'TLT': '20+ Year Treasury ETF'
-        }
-
-        return display_names.get(ticker, ticker)
+        """Get human-readable display name for ticker."""
+        return get_ticker_display_name(ticker)
 
     def save_dropdown_data(self, filename: str = "historical_data_dropdown.json") -> str:
         """

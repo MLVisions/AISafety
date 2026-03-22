@@ -1,0 +1,62 @@
+# AI Safety Website - Writing Style Guidelines
+# All writing agents MUST follow these rules to ensure consistent voice across pages.
+
+voice:
+  tone: professional
+  perspective: third-person informational with occasional second-person ("you") for actionable advice
+  audience: general public seeking to understand and prepare for AI-driven change
+  register: accessible but authoritative; avoid jargon unless defined in context
+
+punctuation:
+  em_dashes: never  # Do NOT use em dashes (—). Use commas, semicolons, colons, or rewrite.
+  en_dashes: only for numeric ranges (e.g., 2024-2025, 10-15%)
+  hyphens: standard compound modifiers (e.g., AI-driven, long-term)
+  oxford_comma: always  # Use the serial comma before "and"/"or" in lists
+  exclamation_marks: avoid  # Reserve for rare, genuinely surprising data points
+
+formatting:
+  headings: sentence case (e.g., "Understanding the economic cycle")
+  bold: use sparingly for key statistics, names of acts/policies, and critical findings
+  italics: source attributions (e.g., *(Goldman Sachs, 2023)*) and figure captions
+  lists: prefer bullet lists for 3+ items; keep items parallel in structure
+  numbers: spell out one through nine; use numerals for 10+, percentages, and dollar amounts
+
+citations:
+  inline_format: >
+    Bold the claim, link directly to the authoritative source URL,
+    then add an italic source tag.
+    Example: **[83 million jobs may be displaced by 2027](https://www.weforum.org/reports/the-future-of-jobs-report-2023/)** *(WEF, 2023)*
+    NEVER link to references.md or references.html with anchors.
+    Always use the direct https:// URL of the source.
+    The references page is auto-generated from these direct links.
+  every_claim: true  # Every statistical or factual claim MUST include a citation
+  preferred_sources:
+    - government (e.g., BLS, Fed, SEC, EU Commission)
+    - academic (e.g., peer-reviewed journals, university research)
+    - financial (e.g., Bloomberg, Reuters, S&P)
+    - tech_industry (e.g., OpenAI, Google DeepMind, Anthropic official publications)
+  avoid: blog posts, opinion columns, anonymous sources, unverified social media
+
+content_rules:
+  no_financial_advice: >
+    Always include a disclaimer when discussing investment strategies.
+    Use language like "These recommendations are not financial advice but provide
+    a framework for discussion."
+  balance: present risks alongside opportunities; avoid hype or fear-mongering
+  temporal_coverage: >
+    Content should feel current and informative. Always lead with the most recent
+    data and developments, then provide historical context spanning the last 5-10
+    years for perspective. A reader should see current-year dates prominently
+    alongside any historical narrative. Flag older claims with their publication
+    year. Never let a section feel like it was written years ago.
+  structure_preservation: >
+    Do not remove or rename existing sections. Add detail within existing structure.
+    New subsections may be added only when they clearly belong under an existing heading.
+  length: prefer concise paragraphs (3-5 sentences); break long blocks into subsections
+
+prohibited:
+  - em dashes (—)
+  - first-person plural ("we believe", "our view") except in mission statements
+  - superlatives without evidence ("the best", "the worst", "unprecedented" unless cited)
+  - clickbait phrasing ("you won't believe", "shocking")
+  - gendered language when gender-neutral alternatives exist

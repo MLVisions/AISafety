@@ -10,13 +10,12 @@ from src.agents.utils.content_update_applier import ContentUpdateApplier
 class TestStructuredUpdates:
     """Test structured update functionality"""
 
-    def test_apply_statistic_update(self):
+    def test_apply_statistic_update(self) -> None:
         """Test applying a statistic update"""
         applier = ContentUpdateApplier()
 
         with patch('src.agents.utils.content_update_applier.read_markdown_file') as mock_read, \
-             patch('src.agents.utils.content_update_applier.write_markdown_file') as mock_write, \
-             patch.object(applier, '_create_backup'):
+             patch('src.agents.utils.content_update_applier.write_markdown_file'):
 
             original_content = "Test content with 50 million jobs affected by AI."
             mock_read.return_value = ({"title": "Test"}, original_content)
@@ -38,13 +37,12 @@ class TestStructuredUpdates:
             assert result["success"] is True
             assert result["updates_applied"] == 1
 
-    def test_confidence_filtering(self):
+    def test_confidence_filtering(self) -> None:
         """Test that low-confidence updates are skipped"""
         applier = ContentUpdateApplier()
 
         with patch('src.agents.utils.content_update_applier.read_markdown_file') as mock_read, \
-             patch('src.agents.utils.content_update_applier.write_markdown_file') as mock_write, \
-             patch.object(applier, '_create_backup'):
+             patch('src.agents.utils.content_update_applier.write_markdown_file') as mock_write:
 
             original_content = "Test content."
             mock_read.return_value = ({"title": "Test"}, original_content)

@@ -61,6 +61,27 @@ class MarkdownProcessor:
 
         return content
 
+    def process_internal_links(self, content: str) -> str:
+        """Convert internal markdown links (e.g. references.md) to .html for build output.
+
+        This only rewrites relative links (not starting with http:// or https://).
+        Example: [References](references.md#1) -> [References](references.html#1)
+        """
+
+        def _repl(m: re.Match[str]) -> str:
+            path = m.group(1)
+            anchor = m.group(2) or ""
+            # change trailing .md to .html
+            if path.lower().endswith(".md"):
+                new_path = path[:-3] + ".html"
+            else:
+                new_path = path
+            return f"({new_path}{anchor})"
+
+        # Match markdown link targets that are relative .md files, with optional anchor
+        pattern = r"\((?!https?://)([^)#]+\.md)(#[^)]*)?\)"
+        return re.sub(pattern, _repl, content)
+
     def _process_tabs(self, match: re.Match[str]) -> str:
         """Convert tabs shortcode to HTML"""
         tabs_content = match.group(1)
@@ -121,6 +142,9 @@ class MarkdownProcessor:
 
         # Parse frontmatter
         frontmatter, markdown_content = self.parse_frontmatter(content)
+
+        # Rewrite internal .md links to .html so built HTML links are correct
+        markdown_content = self.process_internal_links(markdown_content)
 
         # Process custom shortcodes
         markdown_content = self.process_custom_shortcodes(markdown_content)

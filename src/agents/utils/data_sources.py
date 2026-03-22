@@ -49,18 +49,22 @@ DEFAULT_TICKERS = {
         'EEM',      # iShares MSCI Emerging Markets ETF
     ],
     'crypto': [
-        'BTC-USD',  # Bitcoin
+        # Utility & payment tokens first
+        'XRP-USD',  # Ripple (cross-border payments)
+        'XLM-USD',  # Stellar (low-cost transactions)
+        'HBAR-USD', # Hedera Hashgraph (enterprise DLT)
+        'ALGO-USD', # Algorand (scalable dApps)
+        'LINK-USD', # Chainlink (oracle network)
+        'ONDO-USD', # Ondo Finance (tokenized real-world assets)
+        # Platform & smart-contract tokens
         'ETH-USD',  # Ethereum
-        'ADA-USD',  # Cardano
-        'DOT-USD',  # Polkadot
         'SOL-USD',  # Solana
-        'AVAX-USD', # Avalanche
-        'MATIC-USD',# Polygon
-        'LINK-USD', # Chainlink
         'SUI-USD',  # Sui
-        'XRP-USD',  # Ripple
-        'XLM-USD',  # Stellar
-        'ONDO-USD', # Ondo Finance
+        'ADA-USD',  # Cardano
+        'AVAX-USD', # Avalanche
+        # Store-of-value
+        'BTC-USD',  # Bitcoin
+        'DOT-USD',  # Polkadot
     ],
     'commodities': [
         # Precious Metals

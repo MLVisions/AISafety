@@ -17,57 +17,20 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-# Website color scheme - cohesive blue theme with complementary accents
-COLORS = {
-    'primary_blue': '#0a1f44',
-    'medium_blue': '#1e4a80',
-    'accent_blue': '#295da0',
-    'light_blue': '#4da3d8',
-    'bright_blue': '#66c2ff',
-    'soft_cyan': '#7dd3fc',
-    'mint_green': '#10b981',
-    'warm_amber': '#f59e0b',
-    'soft_purple': '#8b5cf6',
-    'coral_pink': '#f97316',
-    'background': '#f5f8fc',
-    'text_dark': '#2c3e50',
-    'text_light': '#6a7aa2',
-    'white': '#ffffff',
-    'light_gray': '#e2e8f0'
-}
+from src.agents.utils.constants import (
+    ASSET_COLORS,
+    CATEGORY_COLORS,
+    CATEGORY_PALETTE,
+    COLORS,
+    PALETTE,
+    get_category_description,
+    get_ticker_description,
+    get_ticker_display_name,
+    setup_plot_style,
+)
 
 # Set the seaborn palette with cohesive theme colors
-sns.set_palette([COLORS['primary_blue'], COLORS['accent_blue'], COLORS['light_blue'],
-                COLORS['bright_blue'], COLORS['soft_cyan'], COLORS['mint_green'],
-                COLORS['warm_amber'], COLORS['soft_purple'], COLORS['coral_pink']])
-
-def setup_plot_style() -> None:
-    """Configure matplotlib for professional styling matching website theme"""
-    plt.rcParams.update({
-        'figure.facecolor': 'white',
-        'axes.facecolor': 'white',
-        'axes.spines.top': False,
-        'axes.spines.right': False,
-        'axes.spines.left': True,
-        'axes.spines.bottom': True,
-        'axes.edgecolor': COLORS['text_light'],
-        'axes.linewidth': 1.2,
-        'grid.color': '#e8f2fe',
-        'grid.linestyle': '-',
-        'grid.linewidth': 0.8,
-        'grid.alpha': 0.7,
-        'font.family': ['Arial', 'Helvetica', 'sans-serif'],
-        'font.size': 12,
-        'axes.titlesize': 16,
-        'axes.labelsize': 13,
-        'xtick.labelsize': 11,
-        'ytick.labelsize': 11,
-        'legend.fontsize': 11,
-        'text.color': COLORS['text_dark'],
-        'axes.labelcolor': COLORS['text_dark'],
-        'xtick.color': COLORS['text_light'],
-        'ytick.color': COLORS['text_light']
-    })
+sns.set_palette(PALETTE)
 
 def create_market_trends_plot(csv_path: str = 'data/market_trends.csv', save_path: str = 'website/images/market_trends_new.png') -> None:
     """Create S&P 500 and Bitcoin market trends plot"""
@@ -131,15 +94,8 @@ def create_portfolio_projection_plot(person: str = 'A', csv_path: str | None = N
     fig, ax = plt.subplots(figsize=(12, 8))
     fig.patch.set_facecolor('white')
 
-    # Define colors for different asset types - cohesive theme
-    colors = {
-        'Savings': COLORS['light_blue'],
-        '401k': COLORS['accent_blue'],
-        'TechStocks': COLORS['soft_cyan'],
-        'RealEstate': COLORS['mint_green'],
-        'Crypto': COLORS['warm_amber'],
-        'House': COLORS['coral_pink']
-    }
+    # Define colors for different asset types from centralized constants
+    colors = ASSET_COLORS
 
     # Create stacked area plot for asset allocation
     bottom = np.zeros(len(df))
@@ -268,33 +224,27 @@ def generate_all_plots(data_dir: str = 'data', output_dir: str = 'images') -> No
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
 
-    # Generate market trends plot
-    print("📈 Creating market trends plot...")
     create_market_trends_plot(
         csv_path=f'{data_dir}/market_trends.csv',
         save_path=f'{output_dir}/market_trends.png'
     )
 
-    # Generate individual portfolio plots
     for person in ['A', 'B', 'C']:
-        print(f"💰 Creating Person {person} portfolio projection...")
         create_portfolio_projection_plot(
             person=person,
             csv_path=f'{data_dir}/person{person}_portfolio.csv',
             save_path=f'{output_dir}/person{person}.png'
         )
 
-    # Generate comparative wealth plot
-    print("📊 Creating comparative wealth analysis...")
     create_comparative_wealth_plot(
         data_dir=data_dir,
         save_path=f'{output_dir}/comparative_wealth.png'
     )
 
-    print("✅ All plots generated successfully!")
+    print("  Generated 5 data plots.")
 
 
-def create_raw_ticker_plots(output_dir: str = 'docs/images/raw_tickers') -> None:
+def create_raw_ticker_plots(output_dir: str = 'src/static/images/raw_tickers') -> None:
     """
     Create individual plots for all raw ticker data and save them for website integration
     """
@@ -305,20 +255,9 @@ def create_raw_ticker_plots(output_dir: str = 'docs/images/raw_tickers') -> None
 
     setup_plot_style()
 
-    # Define colors for different categories
-    category_colors = {
-        'equity': COLORS['primary_blue'],
-        'international': COLORS['accent_blue'],
-        'crypto': COLORS['warm_amber'],
-        'commodities': COLORS['mint_green'],
-        'real_estate': COLORS['coral_pink'],
-        'bonds': COLORS['soft_purple']
-    }
-
-    print("Creating raw ticker plots...")
+    total_created = 0
 
     for category, tickers in DEFAULT_TICKERS.items():
-        print(f"Processing {category} category...")
 
         for ticker_symbol in tickers:
             try:
@@ -326,7 +265,6 @@ def create_raw_ticker_plots(output_dir: str = 'docs/images/raw_tickers') -> None
                 data = fetch_maximum_history(ticker_symbol)
 
                 if data is None or data.empty:
-                    print(f"Warning: No data available for {ticker_symbol}")
                     continue
 
                 # Create plot
@@ -334,19 +272,19 @@ def create_raw_ticker_plots(output_dir: str = 'docs/images/raw_tickers') -> None
                 fig.patch.set_facecolor('white')
 
                 # Plot closing price over time
-                ax.plot(data.index, data['Close'],
-                       color=category_colors[category], linewidth=2, alpha=0.8)
+                ax.plot(data['Date'], data['Close'],
+                       color=CATEGORY_COLORS[category], linewidth=2, alpha=0.8)
 
                 # Add moving averages for context
                 if len(data) > 50:
                     ma_50 = data['Close'].rolling(window=50).mean()
-                    ax.plot(data.index, ma_50,
+                    ax.plot(data['Date'], ma_50,
                            color=COLORS['light_gray'], linewidth=1, alpha=0.7,
                            linestyle='--', label='50-day MA')
 
                 if len(data) > 200:
                     ma_200 = data['Close'].rolling(window=200).mean()
-                    ax.plot(data.index, ma_200,
+                    ax.plot(data['Date'], ma_200,
                            color=COLORS['text_light'], linewidth=1, alpha=0.7,
                            linestyle=':', label='200-day MA')
 
@@ -369,13 +307,9 @@ def create_raw_ticker_plots(output_dir: str = 'docs/images/raw_tickers') -> None
                     ax.legend(frameon=True, fancybox=True, shadow=True, framealpha=0.9)
 
                 # Add data range info
-                try:
-                    start_date = data.index[0].strftime('%Y-%m-%d')
-                    end_date = data.index[-1].strftime('%Y-%m-%d')
-                    data_range = f"Data: {start_date} to {end_date} ({len(data)} days)"
-                except (AttributeError, TypeError):
-                    # Handle case where index is not datetime
-                    data_range = f"Data: {len(data)} trading days"
+                start_date = data['Date'].iloc[0].strftime('%Y-%m-%d')
+                end_date = data['Date'].iloc[-1].strftime('%Y-%m-%d')
+                data_range = f"Data: {start_date} to {end_date} ({len(data)} days)"
                 ax.text(0.02, 0.98, data_range, transform=ax.transAxes,
                        fontsize=10, verticalalignment='top',
                        bbox={'boxstyle': 'round', 'facecolor': 'white', 'alpha': 0.8})
@@ -388,16 +322,16 @@ def create_raw_ticker_plots(output_dir: str = 'docs/images/raw_tickers') -> None
                 plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
                 plt.close()
 
-                print(f"✓ Created plot for {ticker_symbol}")
+                total_created += 1
 
             except Exception as e:
-                print(f"Error creating plot for {ticker}: {e}")
+                print(f"  Warning: No data for {ticker_symbol}: {e}")
                 continue
 
-    print(f"Raw ticker plots saved to: {output_dir}")
+    print(f"  Generated {total_created} raw ticker plots.")
 
 
-def create_category_comparison_plots(output_dir: str = 'docs/images/category_comparisons') -> None:
+def create_category_comparison_plots(output_dir: str = 'src/static/images/category_comparisons') -> None:
     """
     Create comparison plots showing multiple tickers from each category
     """
@@ -408,16 +342,7 @@ def create_category_comparison_plots(output_dir: str = 'docs/images/category_com
 
     setup_plot_style()
 
-    category_colors = {
-        'equity': [COLORS['primary_blue'], COLORS['medium_blue'], COLORS['accent_blue']],
-        'international': [COLORS['light_blue'], COLORS['bright_blue'], COLORS['soft_cyan']],
-        'crypto': [COLORS['warm_amber'], COLORS['coral_pink'], COLORS['soft_purple']],
-        'commodities': [COLORS['mint_green'], COLORS['accent_blue'], COLORS['light_blue']],
-        'real_estate': [COLORS['coral_pink'], COLORS['warm_amber'], COLORS['soft_purple']],
-        'bonds': [COLORS['soft_purple'], COLORS['medium_blue'], COLORS['accent_blue']]
-    }
-
-    print("Creating category comparison plots...")
+    total_created = 0
 
     for category, tickers in DEFAULT_TICKERS.items():
         # Take first 3-5 tickers for comparison to avoid clutter
@@ -426,7 +351,7 @@ def create_category_comparison_plots(output_dir: str = 'docs/images/category_com
         fig, ax = plt.subplots(figsize=(14, 10))
         fig.patch.set_facecolor('white')
 
-        colors = category_colors[category]
+        colors = CATEGORY_PALETTE[category]
         successful_plots = 0
 
         for i, ticker_sym in enumerate(comparison_tickers):
@@ -442,13 +367,13 @@ def create_category_comparison_plots(output_dir: str = 'docs/images/category_com
                 color = colors[i % len(colors)]
                 clean_name = ticker_sym.replace('^', '').replace('-USD', '').replace('=F', '')
 
-                ax.plot(normalized.index, normalized.values,
+                ax.plot(data['Date'], normalized.values,
                        color=color, linewidth=2, alpha=0.8, label=clean_name)
 
                 successful_plots += 1
 
             except Exception as e:
-                print(f"Error plotting {ticker} in category comparison: {e}")
+                print(f"Error plotting {ticker_sym} in category comparison: {e}")
                 continue
 
         if successful_plots > 0:
@@ -476,16 +401,15 @@ def create_category_comparison_plots(output_dir: str = 'docs/images/category_com
             plt.savefig(save_path, dpi=300, bbox_inches='tight', facecolor='white')
             plt.close()
 
-            print(f"✓ Created comparison plot for {category}")
+            total_created += 1
 
         else:
             plt.close()
-            print(f"⚠ No data available for {category} comparison")
 
-    print(f"Category comparison plots saved to: {output_dir}")
+    print(f"  Generated {total_created} category comparison plots.")
 
 
-def create_ticker_dropdown_data(output_file: str = 'docs/data/ticker_dropdown.json') -> dict:
+def create_ticker_dropdown_data(output_file: str = 'src/static/data/ticker_dropdown.json') -> dict:
     """
     Create JSON data structure for ticker dropdown functionality
     """
@@ -522,8 +446,7 @@ def create_ticker_dropdown_data(output_file: str = 'docs/data/ticker_dropdown.js
                 "ticker": ticker_name,
                 "display_name": get_ticker_display_name(ticker_name),
                 "image_path": f"images/raw_tickers/{safe_filename}_historical.png",
-                "description": get_ticker_description(ticker_name)
-            }
+                "description": get_ticker_description(ticker_name)            }
 
             dropdown_data["categories"][category]["tickers"].append(ticker_info)
             total_count += 1
@@ -534,83 +457,8 @@ def create_ticker_dropdown_data(output_file: str = 'docs/data/ticker_dropdown.js
     with open(output_file, 'w') as f:
         json.dump(dropdown_data, f, indent=2)
 
-    print(f"✓ Created ticker dropdown data: {output_file}")
+    print(f"  Created ticker dropdown data: {os.path.basename(output_file)}")
     return dropdown_data
-
-
-def get_category_description(category: str) -> str:
-    """Get human-readable description for each category"""
-    descriptions = {
-        'equity': 'US stocks, indices, and equity ETFs for domestic market exposure',
-        'international': 'Global markets and international equity exposure',
-        'crypto': 'Digital assets and cryptocurrency investments',
-        'commodities': 'Raw materials, precious metals, energy, and agricultural products',
-        'real_estate': 'REITs and real estate investment trusts',
-        'bonds': 'Fixed income securities, treasury bonds, and bond ETFs'
-    }
-    return descriptions.get(category, f'{category.title()} investments')
-
-
-def get_ticker_display_name(ticker: str) -> str:
-    """Convert ticker symbols to human-readable names"""
-    display_names = {
-        # Equity
-        '^GSPC': 'S&P 500 Index',
-        '^DJI': 'Dow Jones',
-        '^IXIC': 'NASDAQ',
-        '^RUT': 'Russell 2000',
-        'SPY': 'S&P 500 ETF',
-        'QQQ': 'NASDAQ 100 ETF',
-        'AAPL': 'Apple Inc.',
-        'MSFT': 'Microsoft',
-        'GOOGL': 'Alphabet/Google',
-        'AMZN': 'Amazon',
-        'NVDA': 'NVIDIA',
-        'TSLA': 'Tesla',
-        'META': 'Meta/Facebook',
-        # Crypto
-        'BTC-USD': 'Bitcoin',
-        'ETH-USD': 'Ethereum',
-        'ADA-USD': 'Cardano',
-        'DOT-USD': 'Polkadot',
-        'SOL-USD': 'Solana',
-        'AVAX-USD': 'Avalanche',
-        'LINK-USD': 'Chainlink',
-        'SUI-USD': 'Sui',
-        'XRP-USD': 'Ripple',
-        'XLM-USD': 'Stellar',
-        'ONDO-USD': 'Ondo Finance',
-        # Commodities
-        'GC=F': 'Gold Futures',
-        'SI=F': 'Silver Futures',
-        'CL=F': 'Crude Oil',
-        'GLD': 'Gold ETF',
-        'SLV': 'Silver ETF',
-        # International
-        '^FTSE': 'FTSE 100 (UK)',
-        '^N225': 'Nikkei 225 (Japan)',
-        '^HSI': 'Hang Seng (HK)',
-        '^GDAXI': 'DAX (Germany)',
-        # Bonds
-        '^TNX': '10-Year Treasury',
-        '^TYX': '30-Year Treasury',
-        'TLT': 'Long-Term Treasury ETF',
-        'IEF': '7-10 Year Treasury ETF'
-    }
-    return display_names.get(ticker, ticker)
-
-
-def get_ticker_description(ticker: str) -> str:
-    """Get detailed description for each ticker"""
-    descriptions = {
-        '^GSPC': 'Broad US market index tracking 500 largest companies',
-        'BTC-USD': 'Leading cryptocurrency and digital store of value',
-        'GC=F': 'Precious metal commodity futures for inflation hedge',
-        'VNQ': 'Real estate investment trust ETF for property exposure',
-        '^TNX': 'US government 10-year bond yield indicator',
-        # Add more as needed...
-    }
-    return descriptions.get(ticker, f'Historical price data for {get_ticker_display_name(ticker)}')
 
 
 if __name__ == "__main__":
