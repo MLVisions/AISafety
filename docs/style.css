@@ -1102,3 +1102,206 @@ header h1 {
    animation: fadeInUp 0.6s ease-out;
    animation-delay: 0.6s;
  }
+
+/* Ticker picker styles — compact select-style dropdown */
+.ticker-dropdown-container {
+  margin: 2rem 0;
+  position: relative;
+}
+
+.ticker-picker {
+  position: relative;
+}
+
+.ticker-picker-toggle {
+  background: rgba(10, 31, 68, 0.06);
+  border: 1px solid rgba(41, 93, 160, 0.25);
+  border-radius: 10px;
+  color: #0a1f44;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.ticker-picker-toggle:hover {
+  background: rgba(10, 31, 68, 0.10);
+  border-color: rgba(41, 93, 160, 0.45);
+}
+
+.ticker-picker-arrow {
+  font-size: 1rem;
+  color: #295da0;
+}
+
+.ticker-picker-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid rgba(41, 93, 160, 0.2);
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.ticker-picker-search {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e8f2fe;
+}
+
+.ticker-search-input {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 0.9rem;
+  color: #0a1f44;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.ticker-search-input:focus {
+  border-color: #4da3d8;
+  box-shadow: 0 0 0 2px rgba(77, 163, 216, 0.15);
+}
+
+.ticker-picker-options {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.picker-optgroup-label {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #295da0;
+  background: #f5f8fc;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.picker-option {
+  padding: 7px 12px;
+  font-size: 0.88rem;
+  color: #0a1f44;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.15s ease;
+}
+
+.picker-option:hover {
+  background: rgba(77, 163, 216, 0.10);
+}
+
+.picker-option-ticker {
+  font-size: 0.78rem;
+  color: #6a7aa2;
+  font-family: monospace;
+}
+
+.picker-no-results {
+  padding: 16px 12px;
+  text-align: center;
+  color: #6a7aa2;
+  font-size: 0.88rem;
+}
+
+.ticker-picker-footer {
+  padding: 6px 12px;
+  text-align: center;
+  border-top: 1px solid #e8f2fe;
+  background: #f5f8fc;
+}
+
+.ticker-picker-footer small {
+  color: #6a7aa2;
+  font-size: 0.78rem;
+}
+
+/* Chart display area */
+.ticker-chart-area {
+  background: #ffffff;
+  border: 1px solid rgba(41, 93, 160, 0.15);
+  border-radius: 12px;
+  margin-top: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.ticker-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e8f2fe;
+}
+
+.ticker-chart-title {
+  margin: 0;
+  color: #0a1f44;
+  font-size: 1.1rem;
+}
+
+.ticker-chart-desc {
+  margin: 2px 0 0;
+  color: #6a7aa2;
+  font-size: 0.85rem;
+}
+
+.ticker-chart-close {
+  background: rgba(255, 0, 0, 0.08);
+  border: 1px solid rgba(255, 0, 0, 0.2);
+  border-radius: 50%;
+  color: #cc0000;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.ticker-chart-close:hover {
+  background: rgba(255, 0, 0, 0.15);
+  transform: scale(1.1);
+}
+
+.ticker-chart-frame {
+  width: 100%;
+  height: 520px;
+  border: none;
+  display: block;
+}
+
+/* Mobile responsiveness for ticker picker */
+@media (max-width: 768px) {
+  .ticker-picker-options {
+    max-height: 220px;
+  }
+
+  .ticker-chart-frame {
+    height: 400px;
+  }
+
+  .ticker-chart-header {
+    padding: 10px 12px;
+  }
+}

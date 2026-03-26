@@ -21,6 +21,10 @@ dependencies = [
     "numpy>=1.24.0",
     "pillow>=10.0.0",
     "pyyaml>=6.0.0",
+    "litellm>=1.40.0",
+    "yfinance>=0.2.66",
+    "scipy>=1.15.3",
+    "plotly>=5.18.0",
 ]
 
 [project.optional-dependencies]
@@ -37,10 +41,10 @@ Repository = "https://github.com/MLVisions/AISafety.git"
 Documentation = "https://github.com/MLVisions/AISafety/blob/main/README.md"
 
 [project.scripts]
-build-website = "src.builders.site_builder:main"
+aisafety = "agents.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src"]
+packages = ["src/agents", "src/builders", "src/market"]
 
 [tool.ruff]
 line-length = 88
@@ -87,7 +91,7 @@ module = [
     "seaborn.*",
     "pandas.*",
     "numpy.*",
-    "crewai.*",
+    "litellm.*",
 ]
 ignore_missing_imports = true
 

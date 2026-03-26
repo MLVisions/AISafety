@@ -1,0 +1,510 @@
+# AI Safety Website Task Configuration
+# Section-specific task definitions -- each task targets a single H2 section
+# on a single page so the research agent has a narrow, well-defined scope.
+
+# =========================================================================
+# ECONOMY PAGE  (economy.md)
+# =========================================================================
+
+economy_macro_task:
+  description: >
+    TARGET SECTION: "## Macroeconomic Landscape"
+
+    Research the current macroeconomic environment as it affects
+    individuals and households.  Lead with the most recent data,
+    then provide enough historical context (2-3 years) to show the
+    trajectory.  Do NOT dwell on 2020-2021 pandemic-era data.
+
+    Topics to cover (each with current figures and trend direction):
+    - Inflation: CPI/PCE trends, categories driving inflation (housing,
+      food, energy, services), how purchasing power is eroding.
+    - Federal Reserve policy: current fed funds rate, forward guidance,
+      rate-cut timeline and market expectations.
+    - Labor market: unemployment rate, job openings, hiring trends by
+      sector, wage growth vs inflation, AI-driven displacement signals.
+    - Housing: mortgage rates, home prices, affordability metrics,
+      rental market pressures.
+    - Equity markets: S&P 500 and Nasdaq performance, market breadth
+      and concentration risk in AI/tech mega-caps, valuations.
+    - Consumer sentiment and spending: savings rates, credit card
+      delinquencies, consumer confidence indices.
+    - Recession indicators: yield curve, leading economic indicators,
+      GDP growth trajectory.
+
+    For EVERY claim provide a direct source URL and date.
+    Use section_rewrite if the section is substantially outdated.
+
+  expected_output: >
+    Structured JSON updating "Macroeconomic Landscape" with current
+    economic data affecting households and individuals.  Every fact
+    must link to its authoritative source.
+
+economy_geopolitics_task:
+  description: >
+    TARGET SECTION: "## Geopolitical & Market Risks"
+
+    Research geopolitical developments and systemic market risks that
+    threaten economic stability.  This section should help readers
+    understand risks they may not see in mainstream financial coverage.
+    Lead with current and imminent risks.
+
+    Topics to cover:
+    - Oil and energy: current oil prices, OPEC+ decisions, supply
+      disruptions from conflicts or sanctions, energy cost pass-through
+      to consumers and businesses.
+    - Yen carry trade: current state of USD/JPY carry trade, Bank of
+      Japan rate normalization, risk of forced unwind and contagion to
+      global equity and credit markets.  Reference the mid-2024 episode.
+    - Trade wars and tariffs: current tariff schedules, retaliatory
+      measures, impact on supply chains and consumer prices.
+    - Sanctions and financial fragmentation: Russia/China sanctions
+      regime, BRICS de-dollarization efforts, SWIFT alternatives.
+    - Emerging market stress: currency crises, capital flight, sovereign
+      debt concerns.
+    - Black swan indicators: geopolitical flashpoints, financial system
+      leverage, liquidity conditions.
+
+    For EVERY claim provide a direct source URL and date.
+    Use section_rewrite if the section is substantially outdated.
+
+  expected_output: >
+    Structured JSON updating "Geopolitical & Market Risks" with current
+    risk assessments and geopolitical developments.  Source every claim.
+
+economy_policy_task:
+  description: >
+    TARGET SECTION: "## Policy & Regulation"
+
+    Research legislative, executive, and regulatory actions that shape
+    markets, technology adoption, and the financial system.  Flag
+    anything in the current section described as pending that has since
+    been enacted (or defeated), and add any new major policies.
+
+    Topics to cover:
+    - AI policy: executive orders, the AI Action Plan, OBBBA bill, and
+      any new federal AI legislation or agency guidance.
+    - Digital asset regulation: GENIUS Act status, CLARITY Act,
+      stablecoin rules, Strategic Bitcoin Reserve updates, SEC/CFTC
+      enforcement and guidance.
+    - Trade policy: tariff schedules, reciprocal duties, trade deals
+      and their inflation / supply-chain impact.
+    - Fiscal policy: budget negotiations, deficit and debt ceiling
+      concerns, spending priorities.
+    - Monetary policy: Fed communications, rate path, balance sheet.
+    - International frameworks: EU AI Act milestones, MiCA regulation,
+      UK, China, and other national strategies.
+
+    For EVERY claim provide a direct source URL, bill/order number where
+    applicable, and date.  Use section_rewrite when materially aged.
+
+  expected_output: >
+    Structured JSON updating "Policy & Regulation" with current
+    legislative and regulatory developments.  Source every claim.
+
+economy_financial_infra_task:
+  description: >
+    TARGET SECTION: "## Financial System Evolution"
+
+    Research how blockchain and digital-asset protocols are becoming
+    financial infrastructure ("the plumbing").  This is NOT about price
+    speculation or investment hype.  Frame everything as educational
+    background about the structural transition occurring in finance.
+
+    Topics to cover:
+    - Cross-border payments: XRP/Ripple institutional adoption, RLUSD
+      stablecoin, partnerships with banks and payment providers,
+      Stellar (XLM) remittance and CBDC pilot programs.
+    - Real-world asset tokenization: Ondo Finance (ONDO) tokenizing
+      Treasuries and money market funds, broader RWA tokenization
+      market size and growth projections, institutional platforms.
+    - Data oracles and interoperability: Chainlink (LINK) connecting
+      smart contracts to real-world data and bank APIs, Hedera (HBAR)
+      enterprise use cases in supply chain and tokenization.
+    - Stablecoin infrastructure: combined market cap, usage in global
+      payments, regulatory frameworks (GENIUS Act, MiCA).
+    - CBDCs: global development status, U.S. Anti-CBDC Act, interplay
+      between private stablecoins and government digital currencies.
+    - Traditional finance integration: bank custody services, tokenized
+      securities platforms, institutional DeFi adoption.
+
+    IMPORTANT: Do NOT frame this as investment advice.  Frame it as
+    "here is how the financial system is evolving" educational content.
+    Mention Bitcoin only where factually relevant (e.g. Strategic
+    Reserve, ETF infrastructure) but do not center the section on it.
+
+    For EVERY claim provide a direct source URL and date.
+    Use section_rewrite when materially aged.
+
+  expected_output: >
+    Structured JSON updating "Financial System Evolution" with current
+    financial infrastructure developments.  Source every claim.
+
+economy_strategy_task:
+  description: >
+    TARGET SECTION: "## Strategic Recommendations"
+
+    Synthesize the macroeconomic landscape, geopolitical risks, policy
+    developments, and financial system evolution into updated guidance.
+    This section helps readers think through preparation, risk
+    management, and financial awareness.  It is NOT financial advice;
+    frame it as a discussion framework.
+
+    Topics to cover:
+    - Risk assessment: what are the biggest near-term threats to
+      household financial stability (inflation erosion, job displacement,
+      market correction, geopolitical shock).
+    - Diversification principles: why concentration in any single asset
+      class or sector is risky in the current environment.
+    - Inflation protection: real assets, high-yield savings, TIPS,
+      commodities as purchasing-power preservers.
+    - Career and skills: how macro trends and AI adoption affect job
+      markets and what sectors offer resilience.
+    - Geopolitical awareness: why oil prices, carry trades, and tariffs
+      matter for everyday financial decisions.
+    - Financial infrastructure literacy: understanding the digital
+      transition not as speculation but as context for where finance
+      is heading.
+    - Short / medium / long-term outlook (3 / 12 / 36 months).
+
+    For EVERY claim provide a direct source URL and date.
+    Use section_rewrite when materially aged.
+
+  expected_output: >
+    Structured JSON updating "Strategic Recommendations" with a
+    current preparation-focused discussion framework.  Source every claim.
+
+# =========================================================================
+# TECHNOLOGY PAGE  (technology.md)
+# =========================================================================
+
+technology_capabilities_task:
+  description: >
+    TARGET SECTION: "## AI Capabilities Today"
+
+    Research the latest AI model capabilities, benchmarks, and real-
+    world deployments.  Lead with recent milestones and trace how
+    capabilities have evolved over the past several years.
+
+    Topics to cover:
+    - Frontier model releases and key benchmarks (MMLU, HumanEval,
+      SWE-bench, medical/legal exams).
+    - Real-world deployment examples (healthcare, legal, coding, etc.).
+    - Multimodal capabilities: vision, audio, video generation.
+    - Risks from capabilities: deepfakes, voice cloning, autonomous
+      scam agents.
+    - Open-source vs closed-source landscape.
+
+    For EVERY claim provide a direct source URL and date.
+    Use section_rewrite when materially aged.
+
+  expected_output: >
+    Structured JSON updating "AI Capabilities Today" with current
+    model benchmarks and deployment examples.  Source every claim.
+
+technology_investment_task:
+  description: >
+    TARGET SECTION: "## Investment & Economic Impact"
+
+    Research AI investment trends, capital expenditure, and labor-market
+    impact projections.  Lead with the most recent data.
+
+    Topics to cover:
+    - Private AI investment figures by country/region.
+    - Hyperscaler CapEx projections and cloud infrastructure buildout.
+    - AI adoption metrics (enterprise adoption rates, user growth).
+    - GDP impact projections (PwC, McKinsey, IMF forecasts).
+    - Job displacement and creation estimates (WEF, OECD, ILO).
+    - Productivity studies and measured economic effects.
+
+    For EVERY claim provide a direct source URL and date.
+    Use section_rewrite when materially aged.
+
+  expected_output: >
+    Structured JSON updating "Investment & Economic Impact" with
+    current investment and labor data.  Source every claim.
+
+technology_agents_task:
+  description: >
+    TARGET SECTION: "## Agentic AI & Swarm Architecture"
+
+    Research developments in AI agent frameworks, multi-agent systems,
+    and real-world agentic deployments.  This section is partly
+    educational but should reference current frameworks and examples.
+
+    Topics to cover:
+    - Agent framework developments (LangGraph, CrewAI, AutoGen, etc.).
+    - Real-world agentic deployments and use cases.
+    - Tool-use and code-execution capabilities.
+    - Multi-agent orchestration research and patterns.
+    - Safety and alignment challenges specific to agentic systems.
+
+    For EVERY claim provide a direct source URL and date.
+    Use section_rewrite when materially aged.
+
+  expected_output: >
+    Structured JSON updating "Agentic AI & Swarm Architecture" with
+    current agent framework and deployment data.  Source every claim.
+
+technology_trends_task:
+  description: >
+    TARGET SECTION: "## Future Trends & Opportunities"
+
+    Research emerging AI trends, market opportunities, and potential
+    risks from hype cycles.  Lead with near-term developments and
+    extend to longer-term projections.
+
+    Topics to cover:
+    - Robotics and embodied AI (humanoid robots, autonomous vehicles).
+    - Semiconductor and compute supply chain developments.
+    - Emerging paradigms: reasoning models, world models, neurosymbolic.
+    - Market bubble / correction risk indicators.
+    - Government-driven opportunities (AI Action Plans, CHIPS Act).
+
+    For EVERY claim provide a direct source URL and date.
+    Use section_rewrite when materially aged.
+
+  expected_output: >
+    Structured JSON updating "Future Trends & Opportunities" with
+    current trend data and forward projections.  Source every claim.
+
+# =========================================================================
+# SOCIETY PAGE  (society.md)
+# =========================================================================
+
+society_mental_health_task:
+  description: >
+    TARGET SECTION: "## Mental Health & Labour Disruption"
+
+    Research the latest data on AI-driven job displacement and its
+    mental health consequences.  Lead with recent studies and trace
+    how projections have evolved.
+
+    Topics to cover:
+    - Updated job-displacement forecasts (WEF, Goldman Sachs, OECD).
+    - Sectors most affected by current automation wave.
+    - Mental health research: anxiety, depression, identity disruption
+      linked to economic uncertainty and AI fears.
+    - Demographic vulnerability (age, education, geography).
+    - Case studies of communities already affected.
+
+    For EVERY claim provide a direct source URL and date.
+    Use section_rewrite when materially aged.
+
+  expected_output: >
+    Structured JSON updating "Mental Health & Labour Disruption" with
+    current displacement and mental health research.  Source every claim.
+
+society_resilience_task:
+  description: >
+    TARGET SECTION: "## Economic Uncertainty & Resilience"
+
+    Research community and societal resilience strategies in the face
+    of AI-driven economic change.
+
+    Topics to cover:
+    - Government reskilling and social safety-net programs.
+    - Universal basic income experiments and results.
+    - Community economic resilience models.
+    - Corporate transition support and workforce planning.
+    - Equitable-access initiatives and digital-divide mitigation.
+
+    For EVERY claim provide a direct source URL and date.
+    Use section_rewrite when materially aged.
+
+  expected_output: >
+    Structured JSON updating "Economic Uncertainty & Resilience" with
+    current resilience strategy research.  Source every claim.
+
+society_misinformation_task:
+  description: >
+    TARGET SECTION: "## AI Misinformation & Reality Distortion"
+
+    Research the latest developments in AI-generated misinformation,
+    deepfakes, and information integrity.  This section has multiple
+    H3 subsections; updates should target the appropriate subsection.
+
+    Topics to cover:
+    - Deepfake technology evolution and detection capabilities.
+    - Platform policy changes for AI-generated content.
+    - Election interference and political manipulation cases.
+    - Psychological research on misinformation susceptibility.
+    - Regulatory responses to synthetic media.
+    - "Firehose of falsehood" and information warfare tactics.
+
+    For EVERY claim provide a direct source URL and date.
+    Use section_rewrite when materially aged.
+
+  expected_output: >
+    Structured JSON updating "AI Misinformation & Reality Distortion"
+    with current misinformation and deepfake research.  Source every claim.
+
+society_community_task:
+  description: >
+    TARGET SECTION: "## Community & Support"
+
+    Research community-building and peer-support strategies for
+    navigating AI-driven societal changes.
+
+    Topics to cover:
+    - Successful community resilience models and case studies.
+    - Mental health resource accessibility and innovations.
+    - Peer-support network frameworks.
+    - Collective action against manipulation and misinformation.
+    - Local organizing toolkits and best practices.
+
+    For EVERY claim provide a direct source URL and date.
+    Use section_rewrite when materially aged.
+
+  expected_output: >
+    Structured JSON updating "Community & Support" with current
+    community-building research and resources.  Source every claim.
+
+# =========================================================================
+# PRIVACY PAGE  (privacy.md)
+# =========================================================================
+
+privacy_threats_task:
+  description: >
+    TARGET SECTION: "## Threats & Misinformation"
+
+    Research emerging AI-powered threats to individual privacy and
+    security.  Lead with the most recent threat landscape.
+
+    Topics to cover:
+    - Voice-cloning and deepfake scam evolution (stats, case studies).
+    - Agentic fraud: autonomous scam bots and social engineering.
+    - Surveillance technology developments and mass data collection.
+    - AI-powered phishing and credential harvesting.
+    - Predictive profiling and behavioral manipulation.
+
+    For EVERY claim provide a direct source URL and date.
+    Use section_rewrite when materially aged.
+
+  expected_output: >
+    Structured JSON updating "Threats & Misinformation" with current
+    AI threat landscape data.  Source every claim.
+
+privacy_security_task:
+  description: >
+    TARGET SECTION: "## Security Best Practices"
+
+    Research current best practices for individuals and organizations
+    to protect against AI-powered threats.
+
+    Topics to cover:
+    - Authentication evolution: passkeys, hardware keys, biometric
+      limitations in the age of deepfakes.
+    - Anti-deepfake detection tools and verification methods.
+    - Privacy-preserving technologies (VPNs, encrypted messaging).
+    - Practical security habits updated for current threat landscape.
+    - Incident response and reporting guidance.
+
+    For EVERY claim provide a direct source URL and date.
+    Use section_rewrite when materially aged.
+
+  expected_output: >
+    Structured JSON updating "Security Best Practices" with current
+    security guidance.  Source every claim.
+
+privacy_ethics_task:
+  description: >
+    TARGET SECTION: "## Data Privacy & Ethics"
+
+    Research privacy regulation developments, data ethics frameworks,
+    and AI governance initiatives.
+
+    Topics to cover:
+    - Privacy regulation updates (GDPR enforcement, US state laws,
+      federal privacy legislation progress).
+    - AI governance frameworks and audit requirements.
+    - Consent mechanisms and data-minimization best practices.
+    - Corporate AI ethics commitments and accountability measures.
+    - International data-transfer rules and adequacy decisions.
+
+    For EVERY claim provide a direct source URL and date.
+    Use section_rewrite when materially aged.
+
+  expected_output: >
+    Structured JSON updating "Data Privacy & Ethics" with current
+    regulatory and governance developments.  Source every claim.
+
+# =========================================================================
+# ACTION PAGE  (action.md)
+# =========================================================================
+
+action_steps_task:
+  description: >
+    TARGET SECTION: "## Take Practical Steps"
+
+    Research up-to-date actionable strategies across ALL subsections
+    (Spot manipulation, Verify & protect, Reskill & adapt, Build
+    community, Diversify investments).  Each subsection is an H3 card.
+
+    Topics to cover:
+    - Latest deepfake-detection tips and tools (Spot manipulation).
+    - Updated scam-prevention guidance (Verify & protect).
+    - In-demand AI-adjacent skills and reskilling resources (Reskill).
+    - Community organizing best practices (Build community).
+    - Current asset-allocation considerations (Diversify investments).
+
+    For EVERY claim provide a direct source URL and date.
+    Use section_rewrite when materially aged.
+
+  expected_output: >
+    Structured JSON updating "Take Practical Steps" and its
+    subsections with current, actionable guidance.  Source every claim.
+
+# =========================================================================
+# LLM PAGE  (llm.md)
+# =========================================================================
+
+llm_foundations_task:
+  description: >
+    TARGET SECTION: "## How Large Language Models Work"
+
+    Research the latest developments in LLM architecture, training
+    methodology, and scaling.  This is an educational section, so
+    updates should add new examples and correct stale claims while
+    preserving the explanatory tone.
+
+    Topics to cover:
+    - Architecture innovations (MoE, state-space models, long context).
+    - Training methodology advances (RLHF, DPO, constitutional AI).
+    - Scaling law developments and efficiency breakthroughs.
+    - RAG and retrieval improvements.
+    - Notable new models and their distinguishing features.
+
+    For EVERY claim provide a direct source URL and date.
+    Prefer granular updates over section_rewrite for educational content.
+
+  expected_output: >
+    Structured JSON updating "How Large Language Models Work" with
+    current architecture and training developments.  Source every claim.
+
+llm_agents_task:
+  description: >
+    TARGET SECTION: "## AI Agent Architectures: From Monolithic to Distributed Systems"
+
+    Research the latest developments in AI agent architectures.  This
+    is an educational section with multiple H3 subsections.  Update
+    with new frameworks, real-world deployments, and architectural
+    patterns while preserving the explanatory structure.
+
+    Topics to cover:
+    - New agent frameworks and their adoption.
+    - Real-world multi-agent deployments and results.
+    - Tool-use, code-execution, and computer-use capabilities.
+    - Orchestration patterns and reliability improvements.
+    - Safety and alignment research for agentic systems.
+
+    For EVERY claim provide a direct source URL and date.
+    Prefer granular updates over section_rewrite for educational content.
+
+  expected_output: >
+    Structured JSON updating "AI Agent Architectures" with current
+    agent framework developments.  Source every claim.
+
+# NOTE: Content updates (applying research to markdown), content validation,
+# reference syncing, market data fetching, and site building are all
+# PROGRAMMATIC — they do not use LLM agents or task definitions.
+# Only the research tasks above are LLM-powered.

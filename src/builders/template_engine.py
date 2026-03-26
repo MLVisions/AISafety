@@ -3,10 +3,13 @@ Template engine for AI Safety website
 Uses Jinja2 to render HTML templates with markdown content
 """
 
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import jinja2
+
+from agents.utils.page_config import get_cta_page, get_nav_pages
 
 
 class TemplateEngine:
@@ -27,21 +30,12 @@ class TemplateEngine:
         return 'current-page' if page_name == current else ''
 
     def get_navigation_context(self, current_page: str = '') -> dict[str, Any]:
-        """Get navigation context with page info"""
-        pages = [
-            {'name': 'index', 'url': 'index.html', 'title': 'Home', 'icon': 'home_icon.png'},
-            {'name': 'economy', 'url': 'economy.html', 'title': 'Economy & Policy', 'icon': 'economy_icon.png'},
-            {'name': 'technology', 'url': 'technology.html', 'title': 'AI & Technology', 'icon': 'ai_icon.png'},
-            {'name': 'society', 'url': 'society.html', 'title': 'Society & Mental Health', 'icon': 'society_icon.png'},
-            {'name': 'privacy', 'url': 'privacy.html', 'title': 'Privacy & Security', 'icon': 'privacy_icon.png'},
-        ]
-
-        action_page = {'name': 'action', 'url': 'action.html', 'title': 'What We Can Do Now', 'icon': 'action_icon.png'}
-
+        """Get navigation context from page_config (single source of truth)."""
         return {
-            'pages': pages,
-            'action_page': action_page,
-            'current_page': current_page
+            'pages': get_nav_pages(),
+            'action_page': get_cta_page(),
+            'current_page': current_page,
+            'build_date': datetime.now(tz=timezone.utc).strftime('%B %Y'),
         }
 
     def render_page(self,
@@ -72,18 +66,3 @@ class TemplateEngine:
     def render_content_page(self, content: str, frontmatter: dict[str, Any], page_name: str) -> str:
         """Render a content page"""
         return self.render_page('page.html', content, frontmatter, page_name)
-
-
-if __name__ == "__main__":
-    # Test the template engine
-    engine = TemplateEngine("../templates")
-
-    test_frontmatter = {
-        'title': 'Test Page',
-        'tagline': 'Test tagline'
-    }
-
-    test_content = "<h1>Test Content</h1><p>This is test content.</p>"
-
-    nav_context = engine.get_navigation_context('economy')
-    print("Navigation context:", nav_context)

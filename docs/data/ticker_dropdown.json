@@ -1,0 +1,465 @@
+{
+  "categories": {
+    "equity": {
+      "display_name": "Equity",
+      "description": "US stocks, indices, and equity ETFs for domestic market exposure",
+      "tickers": [
+        {
+          "ticker": "^GSPC",
+          "display_name": "S&P 500 Index",
+          "chart_path": "images/raw_tickers/INDEX_GSPC_historical.html",
+          "description": "Broad US market index tracking 500 largest companies"
+        },
+        {
+          "ticker": "^DJI",
+          "display_name": "Dow Jones",
+          "chart_path": "images/raw_tickers/INDEX_DJI_historical.html",
+          "description": "Price-weighted index of 30 major US companies"
+        },
+        {
+          "ticker": "^IXIC",
+          "display_name": "NASDAQ",
+          "chart_path": "images/raw_tickers/INDEX_IXIC_historical.html",
+          "description": "Composite index of NASDAQ-listed securities"
+        },
+        {
+          "ticker": "^RUT",
+          "display_name": "Russell 2000",
+          "chart_path": "images/raw_tickers/INDEX_RUT_historical.html",
+          "description": "Historical price data for Russell 2000"
+        },
+        {
+          "ticker": "SPY",
+          "display_name": "S&P 500 ETF",
+          "chart_path": "images/raw_tickers/SPY_historical.html",
+          "description": "Historical price data for S&P 500 ETF"
+        },
+        {
+          "ticker": "QQQ",
+          "display_name": "NASDAQ 100 ETF",
+          "chart_path": "images/raw_tickers/QQQ_historical.html",
+          "description": "Historical price data for NASDAQ 100 ETF"
+        },
+        {
+          "ticker": "IWM",
+          "display_name": "Russell 2000 ETF",
+          "chart_path": "images/raw_tickers/IWM_historical.html",
+          "description": "Historical price data for Russell 2000 ETF"
+        },
+        {
+          "ticker": "VTI",
+          "display_name": "Total Stock Market ETF",
+          "chart_path": "images/raw_tickers/VTI_historical.html",
+          "description": "Historical price data for Total Stock Market ETF"
+        },
+        {
+          "ticker": "XLP",
+          "display_name": "Consumer Staples ETF",
+          "chart_path": "images/raw_tickers/XLP_historical.html",
+          "description": "Historical price data for Consumer Staples ETF"
+        },
+        {
+          "ticker": "XLF",
+          "display_name": "Financial Select ETF",
+          "chart_path": "images/raw_tickers/XLF_historical.html",
+          "description": "Historical price data for Financial Select ETF"
+        },
+        {
+          "ticker": "XLK",
+          "display_name": "Technology Select ETF",
+          "chart_path": "images/raw_tickers/XLK_historical.html",
+          "description": "Historical price data for Technology Select ETF"
+        },
+        {
+          "ticker": "XLE",
+          "display_name": "Energy Select ETF",
+          "chart_path": "images/raw_tickers/XLE_historical.html",
+          "description": "Historical price data for Energy Select ETF"
+        },
+        {
+          "ticker": "AAPL",
+          "display_name": "Apple Inc.",
+          "chart_path": "images/raw_tickers/AAPL_historical.html",
+          "description": "Historical price data for Apple Inc."
+        },
+        {
+          "ticker": "MSFT",
+          "display_name": "Microsoft",
+          "chart_path": "images/raw_tickers/MSFT_historical.html",
+          "description": "Historical price data for Microsoft"
+        },
+        {
+          "ticker": "GOOGL",
+          "display_name": "Alphabet/Google",
+          "chart_path": "images/raw_tickers/GOOGL_historical.html",
+          "description": "Historical price data for Alphabet/Google"
+        },
+        {
+          "ticker": "AMZN",
+          "display_name": "Amazon",
+          "chart_path": "images/raw_tickers/AMZN_historical.html",
+          "description": "Historical price data for Amazon"
+        },
+        {
+          "ticker": "NVDA",
+          "display_name": "NVIDIA",
+          "chart_path": "images/raw_tickers/NVDA_historical.html",
+          "description": "Historical price data for NVIDIA"
+        },
+        {
+          "ticker": "TSLA",
+          "display_name": "Tesla",
+          "chart_path": "images/raw_tickers/TSLA_historical.html",
+          "description": "Historical price data for Tesla"
+        },
+        {
+          "ticker": "META",
+          "display_name": "Meta/Facebook",
+          "chart_path": "images/raw_tickers/META_historical.html",
+          "description": "Historical price data for Meta/Facebook"
+        }
+      ]
+    },
+    "international": {
+      "display_name": "International",
+      "description": "Global markets and international equity exposure",
+      "tickers": [
+        {
+          "ticker": "^FTSE",
+          "display_name": "FTSE 100 (UK)",
+          "chart_path": "images/raw_tickers/INDEX_FTSE_historical.html",
+          "description": "Historical price data for FTSE 100 (UK)"
+        },
+        {
+          "ticker": "^N225",
+          "display_name": "Nikkei 225 (Japan)",
+          "chart_path": "images/raw_tickers/INDEX_N225_historical.html",
+          "description": "Historical price data for Nikkei 225 (Japan)"
+        },
+        {
+          "ticker": "^HSI",
+          "display_name": "Hang Seng (HK)",
+          "chart_path": "images/raw_tickers/INDEX_HSI_historical.html",
+          "description": "Historical price data for Hang Seng (HK)"
+        },
+        {
+          "ticker": "^GDAXI",
+          "display_name": "DAX (Germany)",
+          "chart_path": "images/raw_tickers/INDEX_GDAXI_historical.html",
+          "description": "Historical price data for DAX (Germany)"
+        },
+        {
+          "ticker": "VEA",
+          "display_name": "Developed Markets ETF",
+          "chart_path": "images/raw_tickers/VEA_historical.html",
+          "description": "Historical price data for Developed Markets ETF"
+        },
+        {
+          "ticker": "VWO",
+          "display_name": "Emerging Markets ETF",
+          "chart_path": "images/raw_tickers/VWO_historical.html",
+          "description": "Historical price data for Emerging Markets ETF"
+        },
+        {
+          "ticker": "EFA",
+          "display_name": "MSCI EAFE ETF",
+          "chart_path": "images/raw_tickers/EFA_historical.html",
+          "description": "Historical price data for MSCI EAFE ETF"
+        },
+        {
+          "ticker": "EEM",
+          "display_name": "Emerging Markets ETF (iShares)",
+          "chart_path": "images/raw_tickers/EEM_historical.html",
+          "description": "Historical price data for Emerging Markets ETF (iShares)"
+        }
+      ]
+    },
+    "crypto": {
+      "display_name": "Crypto",
+      "description": "Digital assets, utility tokens, and cryptocurrency investments",
+      "tickers": [
+        {
+          "ticker": "XRP-USD",
+          "display_name": "XRP",
+          "chart_path": "images/raw_tickers/XRP_USD_historical.html",
+          "description": "Utility token for cross-border payments via Ripple network"
+        },
+        {
+          "ticker": "XLM-USD",
+          "display_name": "Stellar (XLM)",
+          "chart_path": "images/raw_tickers/XLM_USD_historical.html",
+          "description": "Stellar network token for low-cost cross-border transactions"
+        },
+        {
+          "ticker": "HBAR-USD",
+          "display_name": "Hedera (HBAR)",
+          "chart_path": "images/raw_tickers/HBAR_USD_historical.html",
+          "description": "Hedera Hashgraph utility token for enterprise DLT"
+        },
+        {
+          "ticker": "ALGO-USD",
+          "display_name": "Algorand (ALGO)",
+          "chart_path": "images/raw_tickers/ALGO_USD_historical.html",
+          "description": "Algorand blockchain token for scalable decentralized apps"
+        },
+        {
+          "ticker": "LINK-USD",
+          "display_name": "Chainlink (LINK)",
+          "chart_path": "images/raw_tickers/LINK_USD_historical.html",
+          "description": "Decentralized oracle network connecting smart contracts to real-world data"
+        },
+        {
+          "ticker": "ONDO-USD",
+          "display_name": "Ondo (ONDO)",
+          "chart_path": "images/raw_tickers/ONDO_USD_historical.html",
+          "description": "Tokenized real-world asset protocol bridging DeFi and traditional finance"
+        },
+        {
+          "ticker": "ETH-USD",
+          "display_name": "Ethereum (ETH)",
+          "chart_path": "images/raw_tickers/ETH_USD_historical.html",
+          "description": "Programmable blockchain platform for smart contracts and DeFi"
+        },
+        {
+          "ticker": "SOL-USD",
+          "display_name": "Solana (SOL)",
+          "chart_path": "images/raw_tickers/SOL_USD_historical.html",
+          "description": "High-throughput blockchain for decentralized applications"
+        },
+        {
+          "ticker": "SUI-USD",
+          "display_name": "Sui (SUI)",
+          "chart_path": "images/raw_tickers/SUI_USD_historical.html",
+          "description": "Historical price data for Sui (SUI)"
+        },
+        {
+          "ticker": "ADA-USD",
+          "display_name": "Cardano (ADA)",
+          "chart_path": "images/raw_tickers/ADA_USD_historical.html",
+          "description": "Historical price data for Cardano (ADA)"
+        },
+        {
+          "ticker": "AVAX-USD",
+          "display_name": "Avalanche (AVAX)",
+          "chart_path": "images/raw_tickers/AVAX_USD_historical.html",
+          "description": "Historical price data for Avalanche (AVAX)"
+        },
+        {
+          "ticker": "BTC-USD",
+          "display_name": "Bitcoin (BTC)",
+          "chart_path": "images/raw_tickers/BTC_USD_historical.html",
+          "description": "Leading cryptocurrency and digital store of value"
+        },
+        {
+          "ticker": "DOT-USD",
+          "display_name": "Polkadot (DOT)",
+          "chart_path": "images/raw_tickers/DOT_USD_historical.html",
+          "description": "Historical price data for Polkadot (DOT)"
+        }
+      ]
+    },
+    "commodities": {
+      "display_name": "Commodities",
+      "description": "Raw materials, precious metals, energy, and agricultural products",
+      "tickers": [
+        {
+          "ticker": "GC=F",
+          "display_name": "Gold Futures",
+          "chart_path": "images/raw_tickers/GC_F_historical.html",
+          "description": "Precious metal commodity futures for inflation hedge"
+        },
+        {
+          "ticker": "SI=F",
+          "display_name": "Silver Futures",
+          "chart_path": "images/raw_tickers/SI_F_historical.html",
+          "description": "Historical price data for Silver Futures"
+        },
+        {
+          "ticker": "PL=F",
+          "display_name": "Platinum Futures",
+          "chart_path": "images/raw_tickers/PL_F_historical.html",
+          "description": "Historical price data for Platinum Futures"
+        },
+        {
+          "ticker": "CL=F",
+          "display_name": "Crude Oil",
+          "chart_path": "images/raw_tickers/CL_F_historical.html",
+          "description": "Historical price data for Crude Oil"
+        },
+        {
+          "ticker": "NG=F",
+          "display_name": "Natural Gas",
+          "chart_path": "images/raw_tickers/NG_F_historical.html",
+          "description": "Historical price data for Natural Gas"
+        },
+        {
+          "ticker": "HG=F",
+          "display_name": "Copper Futures",
+          "chart_path": "images/raw_tickers/HG_F_historical.html",
+          "description": "Historical price data for Copper Futures"
+        },
+        {
+          "ticker": "ZC=F",
+          "display_name": "Corn Futures",
+          "chart_path": "images/raw_tickers/ZC_F_historical.html",
+          "description": "Historical price data for Corn Futures"
+        },
+        {
+          "ticker": "ZW=F",
+          "display_name": "Wheat Futures",
+          "chart_path": "images/raw_tickers/ZW_F_historical.html",
+          "description": "Historical price data for Wheat Futures"
+        },
+        {
+          "ticker": "GLD",
+          "display_name": "Gold ETF",
+          "chart_path": "images/raw_tickers/GLD_historical.html",
+          "description": "Physical gold-backed ETF for inflation protection"
+        },
+        {
+          "ticker": "SLV",
+          "display_name": "Silver ETF",
+          "chart_path": "images/raw_tickers/SLV_historical.html",
+          "description": "Historical price data for Silver ETF"
+        },
+        {
+          "ticker": "USO",
+          "display_name": "US Oil Fund",
+          "chart_path": "images/raw_tickers/USO_historical.html",
+          "description": "Historical price data for US Oil Fund"
+        },
+        {
+          "ticker": "DBA",
+          "display_name": "Agriculture Fund",
+          "chart_path": "images/raw_tickers/DBA_historical.html",
+          "description": "Historical price data for Agriculture Fund"
+        }
+      ]
+    },
+    "real_estate": {
+      "display_name": "Real Estate",
+      "description": "REITs and real estate investment trusts",
+      "tickers": [
+        {
+          "ticker": "VNQ",
+          "display_name": "Real Estate ETF",
+          "chart_path": "images/raw_tickers/VNQ_historical.html",
+          "description": "Real estate investment trust ETF for property exposure"
+        },
+        {
+          "ticker": "IYR",
+          "display_name": "US Real Estate ETF",
+          "chart_path": "images/raw_tickers/IYR_historical.html",
+          "description": "Historical price data for US Real Estate ETF"
+        },
+        {
+          "ticker": "RWR",
+          "display_name": "Dow Jones REIT ETF",
+          "chart_path": "images/raw_tickers/RWR_historical.html",
+          "description": "Historical price data for Dow Jones REIT ETF"
+        },
+        {
+          "ticker": "XLRE",
+          "display_name": "Real Estate Select ETF",
+          "chart_path": "images/raw_tickers/XLRE_historical.html",
+          "description": "Historical price data for Real Estate Select ETF"
+        },
+        {
+          "ticker": "PLD",
+          "display_name": "Prologis (Industrial)",
+          "chart_path": "images/raw_tickers/PLD_historical.html",
+          "description": "Historical price data for Prologis (Industrial)"
+        },
+        {
+          "ticker": "AMT",
+          "display_name": "American Tower",
+          "chart_path": "images/raw_tickers/AMT_historical.html",
+          "description": "Historical price data for American Tower"
+        },
+        {
+          "ticker": "CCI",
+          "display_name": "Crown Castle",
+          "chart_path": "images/raw_tickers/CCI_historical.html",
+          "description": "Historical price data for Crown Castle"
+        },
+        {
+          "ticker": "SPG",
+          "display_name": "Simon Property Group",
+          "chart_path": "images/raw_tickers/SPG_historical.html",
+          "description": "Historical price data for Simon Property Group"
+        }
+      ]
+    },
+    "bonds": {
+      "display_name": "Bonds",
+      "description": "Fixed income securities, treasury bonds, and bond ETFs",
+      "tickers": [
+        {
+          "ticker": "^TNX",
+          "display_name": "10-Year Treasury",
+          "chart_path": "images/raw_tickers/INDEX_TNX_historical.html",
+          "description": "US government 10-year bond yield indicator"
+        },
+        {
+          "ticker": "^TYX",
+          "display_name": "30-Year Treasury",
+          "chart_path": "images/raw_tickers/INDEX_TYX_historical.html",
+          "description": "Historical price data for 30-Year Treasury"
+        },
+        {
+          "ticker": "^FVX",
+          "display_name": "5-Year Treasury",
+          "chart_path": "images/raw_tickers/INDEX_FVX_historical.html",
+          "description": "Historical price data for 5-Year Treasury"
+        },
+        {
+          "ticker": "^IRX",
+          "display_name": "3-Month T-Bill",
+          "chart_path": "images/raw_tickers/INDEX_IRX_historical.html",
+          "description": "Historical price data for 3-Month T-Bill"
+        },
+        {
+          "ticker": "TLT",
+          "display_name": "Long-Term Treasury ETF",
+          "chart_path": "images/raw_tickers/TLT_historical.html",
+          "description": "Historical price data for Long-Term Treasury ETF"
+        },
+        {
+          "ticker": "IEF",
+          "display_name": "7-10 Year Treasury ETF",
+          "chart_path": "images/raw_tickers/IEF_historical.html",
+          "description": "Historical price data for 7-10 Year Treasury ETF"
+        },
+        {
+          "ticker": "SHY",
+          "display_name": "1-3 Year Treasury ETF",
+          "chart_path": "images/raw_tickers/SHY_historical.html",
+          "description": "Historical price data for 1-3 Year Treasury ETF"
+        },
+        {
+          "ticker": "AGG",
+          "display_name": "Aggregate Bond ETF",
+          "chart_path": "images/raw_tickers/AGG_historical.html",
+          "description": "Broad US bond market exposure across investment-grade fixed income"
+        },
+        {
+          "ticker": "HYG",
+          "display_name": "High Yield Bond ETF",
+          "chart_path": "images/raw_tickers/HYG_historical.html",
+          "description": "Historical price data for High Yield Bond ETF"
+        },
+        {
+          "ticker": "LQD",
+          "display_name": "Investment Grade Bond ETF",
+          "chart_path": "images/raw_tickers/LQD_historical.html",
+          "description": "Historical price data for Investment Grade Bond ETF"
+        }
+      ]
+    }
+  },
+  "metadata": {
+    "total_tickers": 70,
+    "generated_at": "2026-03-25T23:20:45.088583",
+    "description": "Raw ticker historical data for portfolio analysis evidence"
+  }
+}

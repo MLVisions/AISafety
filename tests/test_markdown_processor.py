@@ -2,7 +2,7 @@
 Tests for the markdown processor module - Core functionality only
 """
 
-from src.builders.markdown_processor import MarkdownProcessor
+from builders.markdown_processor import MarkdownProcessor
 
 
 class TestMarkdownProcessor:

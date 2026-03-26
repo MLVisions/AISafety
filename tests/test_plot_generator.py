@@ -2,15 +2,17 @@
 Tests for the plot generator module - Core functionality only
 """
 
+from pathlib import Path
+
 import matplotlib
 import pytest
-from pathlib import Path
 
 matplotlib.use('Agg')  # Use non-interactive backend for testing
 
 import matplotlib.pyplot as plt
 
-from src.builders.plot_generator import create_market_trends_plot, setup_plot_style
+from agents.utils.constants import setup_plot_style
+from builders.plot_generator import create_market_trends_plot
 
 
 class TestPlotGenerator:

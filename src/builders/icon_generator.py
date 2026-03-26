@@ -3,6 +3,8 @@ AI Safety Website Icon Generator
 Clean, professional icons for navigation using matplotlib
 """
 
+import os
+
 import matplotlib
 
 matplotlib.use('Agg')  # Use non-interactive backend to prevent popups
@@ -11,21 +13,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Circle, Rectangle
 
-# Website color scheme - cohesive blue theme with complementary accents
-COLORS = {
-    'primary_blue': '#0a1f44',
-    'medium_blue': '#1e4a80',
-    'accent_blue': '#295da0',
-    'light_blue': '#4da3d8',
-    'bright_blue': '#66c2ff',
-    'soft_cyan': '#7dd3fc',
-    'mint_green': '#10b981',
-    'warm_amber': '#f59e0b',
-    'soft_purple': '#8b5cf6',
-    'coral_pink': '#f97316',
-    'white': '#ffffff',
-    'light_gray': '#e2e8f0'
-}
+from agents.utils.constants import COLORS
+
 
 def setup_icon_style() -> None:
     """Configure matplotlib for clean icon generation with transparency"""
@@ -34,8 +23,9 @@ def setup_icon_style() -> None:
         'axes.facecolor': 'none'     # Transparent axes
     })
 
-def generate_page_icons() -> None:
-    """Generate clean, professional icons for each main page"""
+def generate_page_icons(output_dir: str = 'src/static/images') -> None:
+    """Generate clean, professional icons for each main page."""
+    os.makedirs(output_dir, exist_ok=True)
     setup_icon_style()
 
     icons = {
@@ -180,17 +170,17 @@ def generate_page_icons() -> None:
                        linewidth=3, alpha=0.6)
 
         # Save icon with transparent background - higher quality
-        save_path = f'docs/images/{filename}'
+        save_path = os.path.join(output_dir, filename)
         plt.savefig(save_path, dpi=300, bbox_inches='tight',
                    facecolor='none', edgecolor='none', pad_inches=0.1,
                    transparent=True, format='png')
         plt.close()
-        print(f"✅ Generated {filename} - larger size with improved proportions")
+        print(f"  Generated {filename}")
 
-def generate_all_icons() -> None:
-    """Generate all navigation icons"""
-    generate_page_icons()
-    print("✅ All icons generated successfully!")
+def generate_all_icons(output_dir: str = 'src/static/images') -> None:
+    """Generate all navigation icons into the given directory."""
+    generate_page_icons(output_dir=output_dir)
+    print("All icons generated.")
 
 if __name__ == "__main__":
     generate_all_icons()

@@ -38,7 +38,7 @@ jobs:
       run: uv sync
     
     - name: Build website
-      run: uv run python build.py
+      run: uv run aisafety build
     
     - name: Setup Pages
       if: github.ref == 'refs/heads/main'

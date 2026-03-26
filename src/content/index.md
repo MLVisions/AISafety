@@ -10,7 +10,7 @@ layout: "index"
 
 ## Our Mission
 
-We are living through the most significant technological transformation in human history. Artificial Intelligence is not just changing industries—it's reshaping the fundamental nature of work, economics, society, and human potential itself. This website serves as your compass through this unprecedented transition.
+We are living through the most significant technological transformation in human history. Artificial Intelligence is not just changing industries; it's reshaping the fundamental nature of work, economics, society, and human potential itself. This website serves as your compass through this unprecedented transition.
 
 **Our mission is simple**: to help individuals, families, and communities prepare for the AI-driven future that's already arriving.
 
@@ -18,7 +18,7 @@ We are living through the most significant technological transformation in human
 
 ### The Window Is Closing
 
-The AI revolution isn't coming—**it's here**. We're in the critical early stages where preparation makes the difference between thriving and merely surviving. Every month of delay means fewer opportunities to position yourself advantageously.
+The AI revolution isn't coming. **It's here**. We're in the critical early stages where preparation makes the difference between thriving and merely surviving. Every month of delay means fewer opportunities to position yourself advantageously.
 
 ### Economic Disruption Is Accelerating
 
@@ -33,7 +33,7 @@ Society is splitting into two groups: those who understand and adapt to AI-drive
 
 ## What We Provide
 
-This isn't about fear—it's about **informed preparation**. We aggregate economic data, policy developments, technological trends, and social research to give you:
+This isn't about fear. It's about **informed preparation**. We aggregate economic data, policy developments, technological trends, and social research to give you:
 
 • **Clear Analysis** of what's actually happening in AI and automation  
 • **Economic Intelligence** on market trends and investment implications  
