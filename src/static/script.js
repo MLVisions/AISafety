@@ -124,8 +124,8 @@ function addScrollAnimations() {
   // Check if IntersectionObserver is supported (iOS Safari compatibility)
   if ('IntersectionObserver' in window) {
     const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -100px 0px'
+      threshold: 0,
+      rootMargin: '0px 0px -50px 0px'
     };
 
     const observer = new IntersectionObserver((entries) => {
@@ -317,116 +317,119 @@ function addFloatingElements() {
 
 // Ticker dropdown functionality for raw data exploration
 function initializeTickerDropdowns() {
-  // Find all ticker dropdown containers
-  const dropdownContainers = document.querySelectorAll('.ticker-dropdown-container');
-  
-  if (dropdownContainers.length === 0) return;
-  
-  // Load ticker data and initialize dropdowns
+  const containers = document.querySelectorAll('.ticker-dropdown-container');
+  if (containers.length === 0) return;
+
   fetch('data/ticker_dropdown.json')
-    .then(response => response.json())
-    .then(data => {
-      dropdownContainers.forEach(container => {
-        createTickerDropdown(container, data);
-      });
-    })
-    .catch(error => {
-      console.log('Ticker dropdown data not available:', error);
-    });
+    .then(r => r.json())
+    .then(data => containers.forEach(c => createTickerPicker(c, data)))
+    .catch(() => {}); // Silently skip if data not generated yet
 }
 
-function createTickerDropdown(container, tickerData) {
-  // Create dropdown structure
-  const dropdownHTML = `
-    <div class="ticker-dropdown">
-      <button class="ticker-dropdown-toggle" type="button">
-        📊 View Raw Market Data
-        <span class="dropdown-arrow">▼</span>
-      </button>
-      <div class="ticker-dropdown-menu" style="display: none;">
-        <div class="dropdown-header">
-          <h4>Historical Data Evidence</h4>
-          <p>Raw ticker data used in portfolio analysis</p>
+function createTickerPicker(container, tickerData) {
+  // Build flat list of all tickers with their category
+  const allTickers = [];
+  for (const [catKey, cat] of Object.entries(tickerData.categories)) {
+    for (const t of cat.tickers) {
+      allTickers.push({ ...t, category: catKey, categoryName: cat.display_name });
+    }
+  }
+
+  container.innerHTML = `
+    <div class="ticker-picker">
+      <div class="ticker-picker-control">
+        <button class="ticker-picker-toggle" type="button">
+          <span class="ticker-picker-label">📊 Select an asset to view interactive chart</span>
+          <span class="ticker-picker-arrow">▾</span>
+        </button>
+      </div>
+      <div class="ticker-picker-dropdown" style="display:none;">
+        <div class="ticker-picker-search">
+          <input type="text" placeholder="Search tickers..." class="ticker-search-input" />
         </div>
-        ${Object.entries(tickerData.categories).map(([categoryKey, category]) => `
-          <div class="ticker-category">
-            <h5 class="category-title">${category.display_name}</h5>
-            <p class="category-description">${category.description}</p>
-            <div class="ticker-grid">
-              ${category.tickers.map(ticker => `
-                <button class="ticker-button" 
-                        data-image="${ticker.image_path}"
-                        data-description="${ticker.description}"
-                        title="${ticker.description}">
-                  ${ticker.display_name}
-                </button>
-              `).join('')}
-            </div>
-          </div>
-        `).join('')}
-        <div class="dropdown-footer">
-          <small>Total assets tracked: ${tickerData.metadata.total_tickers}</small>
+        <div class="ticker-picker-options"></div>
+        <div class="ticker-picker-footer">
+          <small>${tickerData.metadata.total_tickers} assets tracked</small>
         </div>
       </div>
     </div>
-    <div class="ticker-display-area" style="display: none;">
-      <div class="ticker-display-header">
-        <h4 id="selected-ticker-name"></h4>
-        <button class="close-ticker-display" type="button">✕</button>
+    <div class="ticker-chart-area" style="display:none;">
+      <div class="ticker-chart-header">
+        <div>
+          <h4 class="ticker-chart-title"></h4>
+          <p class="ticker-chart-desc"></p>
+        </div>
+        <button class="ticker-chart-close" type="button">✕</button>
       </div>
-      <img id="selected-ticker-image" src="" alt="" style="max-width: 100%; height: auto;">
-      <p id="selected-ticker-description"></p>
+      <iframe class="ticker-chart-frame" src="" frameborder="0"></iframe>
     </div>
   `;
-  
-  container.innerHTML = dropdownHTML;
-  
-  // Add event listeners
-  const toggle = container.querySelector('.ticker-dropdown-toggle');
-  const menu = container.querySelector('.ticker-dropdown-menu');
-  const displayArea = container.querySelector('.ticker-display-area');
-  const tickerButtons = container.querySelectorAll('.ticker-button');
-  const closeButton = container.querySelector('.close-ticker-display');
-  
-  // Toggle dropdown
-  toggle.addEventListener('click', () => {
-    const isOpen = menu.style.display !== 'none';
-    menu.style.display = isOpen ? 'none' : 'block';
-    toggle.querySelector('.dropdown-arrow').textContent = isOpen ? '▼' : '▲';
-  });
-  
-  // Handle ticker selection
-  tickerButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const imagePath = button.dataset.image;
-      const description = button.dataset.description;
-      const tickerName = button.textContent.trim();
-      
-      // Update display area
-      container.querySelector('#selected-ticker-name').textContent = tickerName;
-      container.querySelector('#selected-ticker-image').src = imagePath;
-      container.querySelector('#selected-ticker-description').textContent = description;
-      
-      // Show display area and hide dropdown
-      displayArea.style.display = 'block';
-      menu.style.display = 'none';
-      toggle.querySelector('.dropdown-arrow').textContent = '▼';
-      
-      // Scroll to display area
-      displayArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  const toggle = container.querySelector('.ticker-picker-toggle');
+  const dropdown = container.querySelector('.ticker-picker-dropdown');
+  const optionsEl = container.querySelector('.ticker-picker-options');
+  const searchInput = container.querySelector('.ticker-search-input');
+  const chartArea = container.querySelector('.ticker-chart-area');
+  const closeBtn = container.querySelector('.ticker-chart-close');
+  const labelSpan = container.querySelector('.ticker-picker-label');
+
+  function renderOptions(filter = '') {
+    const lf = filter.toLowerCase();
+    let html = '';
+    for (const [catKey, cat] of Object.entries(tickerData.categories)) {
+      const matching = cat.tickers.filter(t =>
+        !lf || t.display_name.toLowerCase().includes(lf) ||
+        t.ticker.toLowerCase().includes(lf) ||
+        t.description.toLowerCase().includes(lf)
+      );
+      if (matching.length === 0) continue;
+      html += `<div class="picker-optgroup-label">${cat.display_name}</div>`;
+      for (const t of matching) {
+        html += `<div class="picker-option" data-chart="${t.chart_path}" data-name="${t.display_name}" data-desc="${t.description}">${t.display_name}<span class="picker-option-ticker">${t.ticker}</span></div>`;
+      }
+    }
+    optionsEl.innerHTML = html || '<div class="picker-no-results">No matching assets</div>';
+
+    optionsEl.querySelectorAll('.picker-option').forEach(opt => {
+      opt.addEventListener('click', () => selectTicker(opt));
     });
+  }
+
+  function selectTicker(opt) {
+    const name = opt.dataset.name;
+    const chartPath = opt.dataset.chart;
+    const desc = opt.dataset.desc;
+
+    labelSpan.textContent = `📊 ${name}`;
+    dropdown.style.display = 'none';
+    searchInput.value = '';
+
+    container.querySelector('.ticker-chart-title').textContent = name;
+    container.querySelector('.ticker-chart-desc').textContent = desc;
+    container.querySelector('.ticker-chart-frame').src = chartPath;
+    chartArea.style.display = 'block';
+    chartArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  toggle.addEventListener('click', () => {
+    const open = dropdown.style.display !== 'none';
+    dropdown.style.display = open ? 'none' : 'block';
+    if (!open) { searchInput.focus(); renderOptions(); }
   });
-  
-  // Close display area
-  closeButton.addEventListener('click', () => {
-    displayArea.style.display = 'none';
+
+  searchInput.addEventListener('input', () => renderOptions(searchInput.value));
+
+  closeBtn.addEventListener('click', () => {
+    chartArea.style.display = 'none';
+    container.querySelector('.ticker-chart-frame').src = '';
+    labelSpan.textContent = '📊 Select an asset to view interactive chart';
   });
-  
-  // Close dropdown when clicking outside
-  document.addEventListener('click', (event) => {
-    if (!container.contains(event.target)) {
-      menu.style.display = 'none';
-      toggle.querySelector('.dropdown-arrow').textContent = '▼';
+
+  document.addEventListener('click', e => {
+    if (!container.querySelector('.ticker-picker').contains(e.target)) {
+      dropdown.style.display = 'none';
     }
   });
+
+  renderOptions();
 }

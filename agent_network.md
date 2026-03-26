@@ -11,10 +11,18 @@ Last Updated: March 2026
 ### Section-Level Agent Design
 Every page section (H2 heading) that requires research has its own dedicated `(agent, task)` pair defined in `page_config.py`. The **agent** (from `agents.yaml`) provides domain expertise; the **task** (from `tasks.yaml`) provides section-specific research instructions. This ensures each section gets focused, domain-appropriate updates instead of one generic agent trying to cover everything.
 
-### Agent vs Function Design
-- **Agents**: Complex decision-making, research, analysis, multi-step workflows with external APIs
-- **Functions/Tools**: Data processing, file operations, calculations, simple transformations
-- **Utility Classes**: Direct method access for programmatic automation
+### AI vs Programmatic Boundary
+AI (LLM) is used for exactly two things:
+1. **Research** — LLM agents gather findings per-section using web search and existing content as context
+2. **Validation** — LLM compares old vs new markdown to verify updates improve accuracy/detail
+
+Everything else is **programmatic** (no LLM):
+- Content update application (structured JSON → markdown edits)
+- Reference syncing (extract citations from markdown → rebuild references.md)
+- Market data fetching (yfinance API → CSV)
+- Economic modeling (Monte Carlo simulations)
+- Plot generation (matplotlib/seaborn)
+- Site building (markdown → HTML via Jinja2)
 
 ### Content Pipeline
 Content flows from `src/content/*.md` (source of truth) through Jinja2 templates to `docs/*.html` (deployment output). All content edits target the markdown files; the build system regenerates HTML.
@@ -26,7 +34,7 @@ Research agents return a `references` list alongside their `updates`. The orches
 All file backups are written to the project-level `backups/` directory, never alongside source files in `src/content/`. The `references.md` file is generated (not authored) so it is not backed up.
 
 ### Centralized Constants
-All shared display names, color palettes, ticker descriptions, and category metadata live in `src/agents/utils/constants.py`. No module should duplicate these values.
+Shared color palettes and plot styling live in `src/agents/utils/constants.py`. Market-specific display names, ticker descriptions, and category metadata live in `src/market/ticker_constants.py`. No module should duplicate these values.
 
 ### Writing Style
 All writing agents incorporate rules from `src/agents/writing_guidelines.yaml` into their prompts. Key rules: no em dashes, Oxford comma always, professional tone, every claim needs citation.
@@ -41,13 +49,13 @@ LLM access is provider-agnostic via `litellm`. Default model: `openai/gpt-5-mini
 - **Section-Level Config**: `page_config.py` maps each H2 section to an `(agent, task)` pair via `SectionAgentConfig`
 - **Orchestrator**: `src/agents/orchestrator.py` coordinates section-level research, content updates, and full-cycle workflows
 - **Research Agents**: `src/agents/research_agents.py` performs section-targeted research with writing guidelines
-- **Reference Manager**: `src/agents/reference_manager.py` manages citation synchronization
-- **Investment Pipeline**: `src/agents/investment_pipeline.py` fetches data, runs models, generates plots
+- **Reference Manager**: `src/agents/utils/reference_manager.py` manages citation synchronization
+- **Investment Pipeline**: `src/market/investment_pipeline.py` fetches data, runs models, generates plots
 - **Content Update Applier**: `src/agents/utils/content_update_applier.py` applies structured updates to markdown
 - **Content Validation**: `src/agents/utils/content_validation_utils.py` validates content quality
-- **Build System**: `build.py` + `src/builders/` generates full site from markdown to HTML
+- **Build System**: `src/agents/cli.py` + `src/builders/` generates full site from markdown to HTML
 - **Plot Generation**: Market trends, portfolio projections, raw ticker charts, category comparisons
-- **Centralized Constants**: `src/agents/utils/constants.py` for all shared display names, colors, descriptions
+- **Centralized Constants**: `src/agents/utils/constants.py` for shared colors/palettes; `src/market/ticker_constants.py` for market-specific display names, colors, descriptions
 
 ### Gaps
 - Agents produce research reports but do not yet auto-apply all updates to content files
@@ -92,13 +100,13 @@ src/content/economy.md
     Tickers: 70+ across equity, international, crypto, commodities, real_estate, bonds
     |
 [economic_modeling] - economic_models.py
-    Monte Carlo simulations for 3 portfolio personas (A, B, C)
+    Monte Carlo simulations for portfolio projections
     |
 [plot_generation] - plot_generator.py
     |
 [reference_manager] - reference_manager.py
     |
-[build] - build.py -> site_builder.py -> docs/economy.html
+[build] - cli.py -> site_builder.py -> docs/economy.html
 ```
 
 ### 2. TECHNOLOGY.MD & LLM.MD - Tech Research Workflow
@@ -236,17 +244,17 @@ The `Orchestrator` class (`src/agents/orchestrator.py`) provides these entry poi
 5. **`run_page(page_name)`** - Run pipeline for a single page
 
 ### Build Efficiency
-- **Icons**: Static assets in `src/static/images/` -- not regenerated during build. Use `python -m src.builders.icon_generator` to regenerate when the design changes.
+- **Icons**: Static assets in `src/static/images/` -- not regenerated during build. Use `uv run python -m builders.icon_generator` to regenerate when the design changes.
 - **Data plots**: Hash-based caching via `.plot_cache.json`. Plots are skipped if CSV data has not changed.
 - **Market plots**: Raw ticker and category comparison plots require live yfinance data and are only generated when explicitly requested (e.g., `--auto market-data`).
 
-Build entry point (`build.py`) supports:
-- `python build.py` - Basic build (static assets, cached plots, markdown processing)
-- `python build.py --auto` - Full automation cycle (research + build)
-- `python build.py --auto market-data` - Market data update only
-- `python build.py --auto content` - Content research only (no build)
-- `python build.py --auto content --page economy` - Research one page only
-- `python build.py --auto page --page economy` - Full pipeline for one page
+CLI entry point (`uv run aisafety`) supports:
+- `uv run aisafety build` - Basic build (static assets, cached plots, markdown processing)
+- `uv run aisafety auto` - Full automation cycle (research + build)
+- `uv run aisafety auto market-data` - Market data update only
+- `uv run aisafety auto content` - Content research only (no build)
+- `uv run aisafety auto content --page economy` - Research one page only
+- `uv run aisafety auto page --page economy` - Full pipeline for one page
 
 ## File Locations Reference
 
@@ -256,24 +264,31 @@ Build entry point (`build.py`) supports:
 - `src/agents/writing_guidelines.yaml` - Writing style rules for all agents
 
 ### Core Modules
-- `build.py` - CLI entry point for building and automation
+- `src/agents/cli.py` - CLI entry point for building and automation
+- `src/agents/build.py` - CLI parser definition and helpers
 - `src/agents/orchestrator.py` - Workflow orchestrator
 - `src/agents/research_agents.py` - LLM-powered page research
-- `src/agents/reference_manager.py` - Citation management
-- `src/agents/investment_pipeline.py` - Market data and economic modeling
+- `src/agents/utils/reference_manager.py` - Citation management
+- `src/market/investment_pipeline.py` - Market data and economic modeling
 - `src/agents/base_agent.py` - Base agent class
 
 ### Utilities (`src/agents/utils/`)
-- `constants.py` - Centralized colors, palettes, display names, descriptions
+- `constants.py` - Centralized colors and palettes
 - `llm_config.py` - LLM provider configuration (litellm)
 - `page_config.py` - Per-page automation settings
 - `content_update_applier.py` - Structured content update application
 - `content_validation_utils.py` - Content quality validation
+- `reference_manager.py` - Citation management
+- `file_operations.py` - File I/O helpers
+
+### Market (`src/market/`)
+- `ticker_constants.py` - Ticker display names, colors, descriptions
 - `data_sources.py` - Ticker definitions and data availability
 - `economic_models.py` - Monte Carlo simulation and portfolio modeling
 - `historical_visualization.py` - Raw ticker and category comparison plots
 - `portfolio_simulation.py` - Portfolio projection engine
-- `file_operations.py` - File I/O helpers
+- `investment_pipeline.py` - Market data and economic modeling pipeline
+- `plot_functions.py` - Market-specific plot generation
 
 ### Builders (`src/builders/`)
 - `site_builder.py` - Main site build orchestrator
@@ -312,7 +327,7 @@ Build entry point (`build.py`) supports:
 1. Check all affected workflows in this document
 2. Verify tool configurations remain consistent
 3. Run `uv run python -m pytest tests/ -v` to validate
-4. Run `uv run python build.py` to verify site generation
+4. Run `uv run aisafety build` to verify site generation
 
 ---
 

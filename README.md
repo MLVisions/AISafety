@@ -20,7 +20,7 @@ cd AISafety
 uv sync
 
 # Build the website
-uv run python build.py
+uv run aisafety build
 
 # Start local development server
 uv run python -m http.server 8000 -d docs
@@ -42,33 +42,36 @@ AISafety/
 │   │   ├── action.md      # Actionable recommendations
 │   │   ├── llm.md         # LLM-specific content
 │   │   └── references.md  # Research citations and sources
-│   ├── agents/            # AI agent network for content updates
+│   ├── agents/            # AI agent network and CLI
+│   │   ├── cli.py         # CLI entry point
+│   │   ├── build.py       # CLI parser definition
+│   │   ├── orchestrator.py # Workflow orchestrator
+│   │   ├── research_agents.py # LLM-powered research
 │   │   ├── agents.yaml    # Agent configurations
 │   │   ├── tasks.yaml     # Task definitions
-│   │   ├── agent_network.py    # Main agent orchestration
-│   │   ├── reference_sync.py   # Reference synchronization
-│   │   └── utils/         # Utility functions for agents
+│   │   └── utils/         # Shared utilities and constants
+│   ├── market/            # Market data and economic modeling
+│   │   ├── investment_pipeline.py # Market data pipeline
+│   │   ├── data_sources.py       # Ticker data fetching
+│   │   ├── economic_models.py    # Monte Carlo simulations
+│   │   └── plot_functions.py     # Market-specific plots
+│   ├── builders/          # Python build system
+│   │   ├── site_builder.py       # Main build orchestration
+│   │   ├── markdown_processor.py # Markdown to HTML conversion
+│   │   ├── template_engine.py    # Jinja2 template rendering
+│   │   ├── plot_generator.py     # Data visualization
+│   │   └── icon_generator.py     # Navigation icon creation
 │   ├── templates/         # Jinja2 HTML templates
 │   │   ├── base.html      # Base template with navigation
 │   │   ├── index.html     # Homepage template
 │   │   └── page.html      # Standard page template
-│   ├── static/            # CSS, JavaScript, and images
-│   │   ├── style.css      # Website styling
-│   │   └── script.js      # Interactive functionality
-│   ├── builders/          # Python build system
-│   │   ├── markdown_processor.py  # Markdown to HTML conversion
-│   │   ├── template_engine.py     # Jinja2 template rendering
-│   │   ├── plot_generator.py      # Data visualization
-│   │   ├── icon_generator.py      # Navigation icon creation
-│   │   └── site_builder.py       # Main build orchestration
-│   └── agents/            # AI agents for content automation
-│       ├── crew_agents.py # CrewAI agent definitions
-│       └── local_data/    # Agent data storage
+│   └── static/            # CSS, JavaScript, and images
+│       ├── style.css      # Website styling
+│       └── script.js      # Interactive functionality
 ├── docs/                  # Generated website (GitHub Pages)
 ├── .github/              
 │   └── workflows/
 │       └── deploy.yml     # Automated deployment
-├── build.py              # Main build script
 ├── pyproject.toml        # Dependencies and project config
 └── README.md
 ```
@@ -81,7 +84,7 @@ The website uses a modern Python-based build system with these key features:
 - **Template Engine**: Jinja2 templates preserve the glass-morphism design
 - **Plot Generation**: Matplotlib/Seaborn plots with website color scheme
 - **Icon Generation**: Custom navigation icons created programmatically
-- **Single Command Build**: `uv run python build.py` handles everything
+- **Single Command Build**: `uv run aisafety build` handles everything
 
 ### Content Management
 
@@ -231,7 +234,7 @@ Agents are positioned for future automation but not currently integrated into th
 
 ```bash
 # Build locally
-uv run python build.py
+uv run aisafety build
 
 # Deploy docs/ folder to your hosting provider
 ```
@@ -260,10 +263,10 @@ The website uses a professional glass-morphism design with:
 uv sync
 
 # Start development server with auto-reload
-uv run python build.py && uv run python -m http.server 8000 -d docs
+uv run aisafety build && uv run python -m http.server 8000 -d docs
 
 # Make changes to src/content/ or src/templates/
-# Re-run build.py to see updates
+# Re-run `uv run aisafety build` to see updates
 ```
 
 ### Adding New Features
@@ -293,7 +296,7 @@ uv run python build.py && uv run python -m http.server 8000 -d docs
 ## 🔄 Update Workflow
 
 1. **Content Updates**: Edit Markdown files in `src/content/`
-2. **Build**: Run `uv run python build.py`
+2. **Build**: Run `uv run aisafety build`
 3. **Test**: Start local server and verify changes
 4. **Deploy**: Push to GitHub for automatic deployment
 
@@ -320,9 +323,7 @@ The update process is designed to run manually for the proof‑of‑concept but 
 
 ## Customising Agents
 
-The file `agents/crew_agents.py` contains definitions for eight agents (summariser, researcher, evaluator, developer, validator, deployer, data fetcher and forecaster).  You can adjust the agents’ goals, backstories and allowed tools to suit your needs.  When adding new categories or tasks, extend the `build_agents()` and `build_tasks()` functions accordingly.
-
-Agents share context through a simple knowledge base (not implemented here).  For production use, integrate a vector store (e.g., Chroma, Pinecone) to persist embeddings and retrieval results.  Ensure that sensitive API keys and tokens are never hard‑coded in the repository.
+Agent definitions live in `src/agents/agents.yaml` and task descriptions in `src/agents/tasks.yaml`. Writing-style rules are in `src/agents/writing_guidelines.yaml`. Adjust agent goals, backstories, and tool configurations to suit your needs. When adding new pages or sections, extend the page configuration in `src/agents/utils/page_config.py`.
 
 ## Citation Handling
 
@@ -330,7 +331,7 @@ All factual statements on the website should link to authoritative sources.  The
 
 ## Updating or Extending the Site
 
-- To add a new page, create an HTML file in `docs/` and link it from the navigation bar.
+- To add a new page, create a Markdown file in `src/content/` and run `uv run aisafety build`.
 
 ## License
 

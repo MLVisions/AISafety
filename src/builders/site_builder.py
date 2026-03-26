@@ -117,7 +117,7 @@ class SiteBuilder:
         Writes to src/static/ so ``copy_static_assets()`` picks them up.
         Only called when the user explicitly requests market-data updates.
         """
-        from .plot_generator import (
+        from market.plot_functions import (
             create_category_comparison_plots,
             create_raw_ticker_plots,
             create_ticker_dropdown_data,
@@ -135,19 +135,11 @@ class SiteBuilder:
         create_ticker_dropdown_data(output_file=str(data_dir / "ticker_dropdown.json"))
 
     def process_markdown_files(self) -> None:
-        """Process all markdown files and generate HTML.
-
-        Excludes timestamped backup files that may linger in the content
-        directory (e.g. ``references_20260310_004056.md``).
-        """
-        import re
+        """Process all markdown files and generate HTML."""
+        from agents.utils.file_operations import list_content_files
 
         print("Processing markdown files...")
-        timestamp_pattern = re.compile(r"_\d{8}_\d{6}$")
-        md_files = [
-            f for f in self.content_dir.glob("*.md")
-            if not timestamp_pattern.search(f.stem)
-        ]
+        md_files = [Path(f) for f in list_content_files(str(self.content_dir))]
 
         for md_file in md_files:
             with open(md_file, encoding="utf-8") as f:
@@ -199,16 +191,3 @@ class SiteBuilder:
 
         print("-" * 50)
         print(f"Build complete -> {self.output_dir}")
-
-
-def main() -> None:
-    """Main entry point for the build script."""
-    import sys
-
-    project_root = sys.argv[1] if len(sys.argv) > 1 else "."
-    builder = SiteBuilder(project_root)
-    builder.build()
-
-
-if __name__ == "__main__":
-    main()

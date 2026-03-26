@@ -10,17 +10,17 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.agents.utils.data_sources import (
+from market.data_sources import (
     DEFAULT_TICKERS,
     analyze_data_availability,
     get_supported_tickers,
 )
-from src.agents.utils.economic_models import (
+from market.economic_models import (
     MonteCarloPortfolioSimulator,
     create_default_investment_scenarios,
 )
-from src.agents.utils.historical_visualization import HistoricalDataVisualizationAgent
-from src.agents.utils.portfolio_simulation import PortfolioSimulationAgent
+from market.historical_visualization import HistoricalDataVisualizationAgent
+from market.portfolio_simulation import PortfolioSimulationAgent
 
 
 class TestEconomicModels:
@@ -133,7 +133,7 @@ class TestHistoricalDataVisualization:
         agent = HistoricalDataVisualizationAgent()
 
         assert agent._get_display_name('^GSPC') == 'S&P 500 Index'
-        assert agent._get_display_name('BTC-USD') == 'Bitcoin'
+        assert agent._get_display_name('BTC-USD') == 'Bitcoin (BTC)'
         assert agent._get_display_name('UNKNOWN') == 'UNKNOWN'
 
     def test_dropdown_data_structure(self) -> None:
@@ -180,7 +180,7 @@ class TestPortfolioSimulationAgent:
         assert isinstance(agent.simulator, MonteCarloPortfolioSimulator)
         assert isinstance(agent.viz_agent, HistoricalDataVisualizationAgent)
 
-    @patch('src.agents.utils.portfolio_simulation.fetch_market_data')
+    @patch('market.portfolio_simulation.fetch_market_data')
     def test_csv_data_generation(self, mock_fetch: Any) -> None:
         """Test CSV data generation for website"""
         # Mock market data for all assets needed by default scenarios
@@ -255,7 +255,7 @@ class TestDataSources:
 class TestInvestmentPipeline:
     """Integration tests for the complete investment pipeline"""
 
-    @patch('src.agents.utils.data_sources.fetch_market_data')
+    @patch('market.data_sources.fetch_market_data')
     def test_pipeline_integration(self, mock_fetch: Any) -> None:
         """Test end-to-end pipeline integration"""
         # Mock market data for key assets

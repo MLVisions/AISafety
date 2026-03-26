@@ -17,6 +17,16 @@ Re-use code, centralize logic, and maintain a single source of truth for all con
  - Avoid redundancies in logic or code. If you find places where this exists, consider creating helper functions to consolidate logic and improve maintainability. The most efficient and minimal code solutions are preferred, though flexibility is also important where helpful.
  - Identify areas where more modularity may help with the re-use of helper functions and reduce redundancies in code/logic. Consider refactoring existing functions (e.g., adding a new argument) to make them more flexible and reusable across different agents or parts of the codebase, rather than creating new functions with similar logic.
  - Centralization: import functions, data, styling, content, and other resources from a single source of truth. For example, if there are specific colors or styling elements used across the site, centralize those in a single CSS file or a Python module that generates styles. If there are common content elements or data sources, centralize those in a single markdown file or Python module that can be imported and used across different pages or agents. This reduces the risk of inconsistencies and makes it easier to update and maintain the codebase as the project evolves. It can also help to reduce the amount of code we need to maintain. 
+ - Verify arguments and supported functionality for libraries used. Write functions as efficiently (minimal code) as possible using supported functionality.
+ - Only add support for needed functionality. Good modularity is important, but avoid adding unecessary flexibility or support if they arent needed.
+ - Avoid overcomplicating logic with unecessary conditionals or try/except blocks. Engineer clean, modular solutions that are easy to read and maintain and follow docs from libraries used.
+- __init__.py scripts should generally be empty. Import functions from submodules and follow best coding pratices.
+- Imports should be at the top of all scripts
+- Aim to simplify and reduce code/complexity if found during development. If you find a more efficient way to do something, consider refactoring existing code to use that method, even if it means changing multiple files. Ask the user before making changes like this unless they are simple.
+- Be sure there are no unused imports, variables, or functions in the codebase. If you find any during development, remove them to keep the code clean and maintainable.
+- Be sure to understand enough surrounding code (upstream and downstream logic) before making changes, to ensure you dont break any functionality.
+- Check behavior in the termianl (uv run python) before/after making changes to ensure proper understanding of behavior.
+
 
 ### Environment & Dependencies
 - **ALWAYS use `uv`** for all dependency management and command execution
@@ -28,7 +38,7 @@ Re-use code, centralize logic, and maintain a single source of truth for all con
 - **Linting**: `uv run ruff check` - must pass with zero issues
 - **Type checking**: `uv run mypy .` - address all type annotation requirements
 - **Testing**: `uv run pytest` - maintain comprehensive test coverage for business logic
-- **Build verification**: `uv run python build.py` - ensure functionality remains intact
+- **Build verification**: `uv run aisafety build` - ensure functionality remains intact
 
 ### Development Practices
 - **Context-aware development**: Always consider upstream and downstream logic when making changes

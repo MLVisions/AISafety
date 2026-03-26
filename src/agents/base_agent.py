@@ -6,7 +6,7 @@ Agent role/goal/backstory are loaded from agents.yaml so non-coders can
 tweak behaviour by editing the YAML file.
 
 Configure your provider/model via:
-  uv run python -m src.agents.utils.llm_config
+  uv run aisafety llm-config
 """
 
 import json
@@ -15,6 +15,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+import litellm
 import yaml
 
 from .utils.llm_config import get_llm_config
@@ -66,9 +67,21 @@ class BaseAgent:
     # Public API
     # ------------------------------------------------------------------
 
-    def run(self, task_description: str, context: str = "", **kwargs: Any) -> dict[str, Any]:
+    def run(
+        self,
+        task_description: str,
+        context: str = "",
+        images: list[dict[str, str]] | None = None,
+        **kwargs: Any,
+    ) -> dict[str, Any]:
         """
         Execute the agent's task via the configured LLM provider.
+
+        Args:
+            task_description: The task prompt for the agent.
+            context: Additional context (e.g. current page content).
+            images: Optional list of dicts with ``url`` keys containing
+                ``data:<mime>;base64,...`` strings for vision-capable models.
 
         Returns a dict with at minimum ``{"raw": <str>, "success": True/False}``.
         Subclasses may add structured fields via ``parse_response``.
@@ -77,7 +90,7 @@ class BaseAgent:
         user_prompt = self._build_user_prompt(task_description, context)
 
         try:
-            raw_response = self._call_llm(system_prompt, user_prompt, **kwargs)
+            raw_response = self._call_llm(system_prompt, user_prompt, images=images, **kwargs)
             result = self.parse_response(raw_response)
             result.setdefault("raw", raw_response)
             result.setdefault("success", True)
@@ -134,32 +147,49 @@ class BaseAgent:
         user_prompt: str,
         model: str | None = None,
         temperature: float | None = None,
-        max_tokens: int | None = None,
+        images: list[dict[str, str]] | None = None,
         **_kwargs: Any,
     ) -> str:
-        """Call the LLM via litellm (provider-agnostic)."""
-        import litellm
+        """Call the LLM via litellm (provider-agnostic).
 
+        When *images* are provided and the model supports vision,
+        the user message is sent as multimodal content blocks.
+        Otherwise images are silently ignored and the text-based
+        structural hints already in the prompt serve as fallback.
+        """
         cfg = get_llm_config()
+        resolved_model = model or cfg.model
+
+        # Build user message — multimodal when vision is available
+        user_message: dict[str, Any]
+        if images and litellm.supports_vision(model=resolved_model):
+            user_content: list[dict[str, Any]] = [
+                {"type": "text", "text": user_prompt},
+            ]
+            for img in images:
+                user_content.append({
+                    "type": "image_url",
+                    "image_url": {"url": img["url"]},
+                })
+            user_message = {"role": "user", "content": user_content}
+            logger.info("Including %d image(s) in vision-enabled request", len(images))
+        else:
+            user_message = {"role": "user", "content": user_prompt}
 
         kwargs: dict[str, Any] = {
-            "model": model or cfg.model,
+            "model": resolved_model,
             "messages": [
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
+                user_message,
             ],
             "api_key": cfg.api_key,
         }
 
-        # Only include optional params when explicitly set in config
         temp = temperature if temperature is not None else cfg.temperature
         if temp is not None:
             kwargs["temperature"] = temp
-        tokens = max_tokens if max_tokens is not None else cfg.max_tokens
-        if tokens is not None:
-            kwargs["max_completion_tokens"] = tokens
 
-        response = litellm.completion(**kwargs)
+        response = litellm.completion(**kwargs, drop_params=True)
         return response.choices[0].message.content or ""
 
     @staticmethod

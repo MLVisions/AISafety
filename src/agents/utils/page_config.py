@@ -79,6 +79,8 @@ PAGE_CONFIGS: dict[str, PageConfig] = {
             SectionAgentConfig("Policy & Regulation", "policy_researcher", "economy_policy_task"),
             SectionAgentConfig("Financial System Evolution", "digital_assets_researcher", "economy_financial_infra_task"),
             SectionAgentConfig("Strategic Recommendations", "market_researcher", "economy_strategy_task"),
+            # Portfolio & Simulations is excluded — manual section with
+            # ticker dropdowns and generated plots that agents should not touch.
         ],
         has_plots=True,
         has_data_fetching=True,

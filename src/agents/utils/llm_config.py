@@ -1,21 +1,21 @@
 """
 LLM configuration — provider-agnostic.
 
-All LLM settings (provider, model, API key, parameters) are read from
-a single YAML config file.  No provider-specific defaults or fallbacks.
+All LLM settings are read from a single YAML config file.
+API keys are stored in separate files and referenced by path.
 
-Default config path: ~/.config/aisafety/llm.yaml
-Override with env-var: LLM_CONFIG_PATH=/path/to/llm.yaml
+Default config path: ~/.config/aisafety/aisafety_config.yaml
+Override with env-var: AISAFETY_CONFIG_PATH=/path/to/config.yaml
 
-Run ``uv run python -m src.agents.utils.llm_config`` to create or
-update the config interactively.
+Run ``uv run aisafety llm-config`` to create or update interactively.
 
-Example llm.yaml
------------------
-model: openai/gpt-5-mini
-api_key: sk-...
-temperature: 0.3
-max_tokens: 4096
+Example aisafety_config.yaml
+-----------------------------
+model: openai/gpt-5.4
+api_keys:
+  openai: ~/.config/api_keys/openai/api_key.txt
+  anthropic: ~/.config/api_keys/anthropic/api_key.txt
+temperature: 0.7
 """
 
 from __future__ import annotations
@@ -28,8 +28,8 @@ from typing import Any
 
 import yaml
 
-# Default location — one file for all LLM settings
-_DEFAULT_CONFIG_PATH = Path.home() / ".config" / "aisafety" / "llm.yaml"
+# Default location — one file for all settings
+_DEFAULT_CONFIG_PATH = Path.home() / ".config" / "aisafety" / "aisafety_config.yaml"
 
 
 @dataclass
@@ -39,52 +39,66 @@ class LLMConfig:
     model: str
     api_key: str
     temperature: float | None = None
-    max_tokens: int | None = None
 
 
 def get_config_path() -> Path:
     """Return the resolved config file path."""
-    override = os.getenv("LLM_CONFIG_PATH")
+    override = os.getenv("AISAFETY_CONFIG_PATH")
     if override:
         return Path(override).expanduser()
     return _DEFAULT_CONFIG_PATH
+
+
+def _read_key_file(path_str: str) -> str:
+    """Read an API key from a file, expanding ~ and stripping whitespace."""
+    key_path = Path(path_str).expanduser()
+    if not key_path.exists():
+        raise FileNotFoundError(f"API key file not found: {key_path}")
+    return key_path.read_text().strip()
 
 
 def get_llm_config() -> LLMConfig:
     """
     Load LLM settings from the YAML config file.
 
-    Raises ``FileNotFoundError`` with setup instructions if the config
-    file does not exist.  Raises ``ValueError`` if required fields are
-    missing.
+    The ``api_keys`` mapping stores ``provider: /path/to/key.txt``.
+    The provider is derived from the model string (e.g. ``openai/gpt-5.4``
+    → ``openai``).
     """
     config_path = get_config_path()
 
     if not config_path.exists():
         raise FileNotFoundError(
-            f"LLM config not found at {config_path}\n"
-            "Run:  uv run python -m src.agents.utils.llm_config\n"
-            "Or set LLM_CONFIG_PATH to point to your config file."
+            f"Config not found at {config_path}\n"
+            "Run:  uv run aisafety llm-config\n"
+            "Or set AISAFETY_CONFIG_PATH to point to your config file."
         )
 
     with open(config_path) as f:
         data: dict[str, Any] = yaml.safe_load(f) or {}
 
     model = data.get("model")
-    api_key = data.get("api_key")
-
     if not model:
         raise ValueError(f"'model' is required in {config_path}")
-    if not api_key:
-        raise ValueError(f"'api_key' is required in {config_path}")
+
+    # Derive provider from model string (e.g. "openai/gpt-5.4" -> "openai")
+    provider = str(model).split("/")[0] if "/" in str(model) else str(model)
+
+    # Resolve API key from file path
+    api_keys: dict[str, str] = data.get("api_keys", {})
+    key_path = api_keys.get(provider)
+    if not key_path:
+        raise ValueError(
+            f"No API key path for provider '{provider}' in {config_path}\n"
+            f"Add to api_keys:\n  {provider}: /path/to/api_key.txt"
+        )
+    api_key = _read_key_file(key_path)
 
     raw_temp = data.get("temperature")
-    raw_tokens = data.get("max_tokens")
     return LLMConfig(
         model=str(model),
-        api_key=str(api_key),
+        api_key=api_key,
         temperature=float(raw_temp) if raw_temp is not None else None,
-        max_tokens=int(raw_tokens) if raw_tokens is not None else None,
     )
 
 
@@ -110,8 +124,8 @@ def _setup_config() -> None:
         print("(Current values shown in brackets — press Enter to keep)\n")
 
     # Prompt for values
-    print("Model examples:")
-    print("  openai/gpt-5-mini              openai/gpt-4o-mini")
+    print("Model examples (use litellm provider/model format):")
+    print("  openai/gpt-5.4                 openai/o3-mini")
     print("  anthropic/claude-sonnet-4-20250514  gemini/gemini-2.5-flash")
     print("  ollama/llama3                   mistral/mistral-large-latest")
     print()
@@ -124,29 +138,40 @@ def _setup_config() -> None:
         print("Error: model is required.")
         sys.exit(1)
 
-    api_key = (
-        input(f"  api_key [{_mask(existing.get('api_key', ''))}]: ").strip()
-        or existing.get("api_key", "")
+    # Derive provider from model
+    provider = model.split("/")[0] if "/" in model else model
+    existing_keys: dict[str, str] = existing.get("api_keys", {})
+
+    print(f"\n  Provider detected: {provider}")
+    print("  Enter the path to a file containing the API key.")
+    key_path = (
+        input(f"  api_key file [{existing_keys.get(provider, '')}]: ").strip()
+        or existing_keys.get(provider, "")
     )
-    if not api_key:
-        print("Error: api_key is required.")
+    if not key_path:
+        print("Error: api_key file path is required.")
         sys.exit(1)
 
-    temperature = (
-        input(f"  temperature [{existing.get('temperature', 0.3)}]: ").strip()
-        or str(existing.get("temperature", 0.3))
-    )
-    max_tokens = (
-        input(f"  max_tokens [{existing.get('max_tokens', 4096)}]: ").strip()
-        or str(existing.get("max_tokens", 4096))
+    # Validate the key file exists
+    resolved = Path(key_path).expanduser()
+    if not resolved.exists():
+        print(f"Warning: key file not found at {resolved}")
+        print("  You can create it later; config will be saved anyway.")
+
+    existing_keys[provider] = key_path
+
+    temp_default = existing.get("temperature", "")
+    temperature_str = (
+        input(f"  temperature [{temp_default}] (Enter to skip): ").strip()
+        or str(temp_default) if temp_default != "" else ""
     )
 
-    config_data = {
+    config_data: dict[str, Any] = {
         "model": model,
-        "api_key": api_key,
-        "temperature": float(temperature),
-        "max_tokens": int(max_tokens),
+        "api_keys": existing_keys,
     }
+    if temperature_str:
+        config_data["temperature"] = float(temperature_str)
 
     # Write
     config_path.parent.mkdir(parents=True, exist_ok=True)
@@ -158,8 +183,7 @@ def _setup_config() -> None:
 
     print(f"\n✅ Config saved to {config_path}")
     print(f"   model:       {model}")
-    print(f"   temperature:  {temperature}")
-    print(f"   max_tokens:   {max_tokens}")
+    print(f"   api_keys:    {existing_keys}")
 
 
 def _mask(value: str) -> str:

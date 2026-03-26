@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.patches import Circle, Rectangle
 
-from src.agents.utils.constants import COLORS
+from agents.utils.constants import COLORS
 
 
 def setup_icon_style() -> None:

@@ -66,7 +66,8 @@ def backup_file(filepath: str | Path) -> str | None:
         return None
 
     try:
-        backup_dir = Path("backups")
+        # Resolve backups/ relative to the project root (two levels up from content)
+        backup_dir = original_path.resolve().parent.parent.parent / "backups"
         backup_dir.mkdir(parents=True, exist_ok=True)
 
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -151,24 +152,6 @@ def write_markdown_file(
     return safe_write_file(filepath, full_content, backup=backup)
 
 
-def ensure_directory(dirpath: str | Path) -> bool:
-    """
-    Ensure a directory exists, creating it if necessary
-
-    Args:
-        dirpath: Path to the directory
-
-    Returns:
-        True if directory exists/was created, False on error
-    """
-    try:
-        Path(dirpath).mkdir(parents=True, exist_ok=True)
-        return True
-    except OSError as e:
-        print(f"Error creating directory {dirpath}: {e}")
-        return False
-
-
 def list_content_files(content_dir: str | Path = "src/content") -> list[str]:
     """
     List canonical markdown files in the content directory.
@@ -196,31 +179,3 @@ def list_content_files(content_dir: str | Path = "src/content") -> list[str]:
         for f in content_path.glob("*.md")
         if not timestamp_pattern.search(f.stem)
     ]
-
-
-def get_file_info(filepath: str | Path) -> dict[str, Any]:
-    """
-    Get information about a file
-
-    Args:
-        filepath: Path to the file
-
-    Returns:
-        Dictionary with file information
-    """
-    filepath = Path(filepath)
-
-    if not filepath.exists():
-        return {"exists": False}
-
-    stat = filepath.stat()
-
-    return {
-        "exists": True,
-        "size": stat.st_size,
-        "modified": datetime.fromtimestamp(stat.st_mtime),
-        "created": datetime.fromtimestamp(stat.st_ctime),
-        "is_file": filepath.is_file(),
-        "is_dir": filepath.is_dir(),
-        "extension": filepath.suffix
-    }

@@ -9,7 +9,7 @@ from typing import Any
 
 import jinja2
 
-from src.agents.utils.page_config import get_cta_page, get_nav_pages
+from agents.utils.page_config import get_cta_page, get_nav_pages
 
 
 class TemplateEngine:

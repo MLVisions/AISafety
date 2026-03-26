@@ -18,11 +18,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from .reference_manager import sync_references_file
 from .research_agents import create_research_agent
 from .utils.content_update_applier import ContentUpdateApplier
 from .utils.content_validation_utils import ContentValidationUtils
 from .utils.page_config import PAGE_CONFIGS, get_content_pages, get_page_config
+from .utils.reference_manager import sync_references_file
 
 logger = logging.getLogger(__name__)
 
@@ -160,6 +160,13 @@ class Orchestrator:
                     include_market_plots=needs_market_data and not skip_market_data,
                 )
                 report["stages"]["build"] = build_result
+
+                # 7. Verify build output
+                verify = self._verify_build_output()
+                report["stages"]["build_verify"] = verify
+                if not verify["success"]:
+                    logger.warning(f"Build verification: missing files {verify['missing']}")
+                    report["errors"].append(f"build_verify: missing {verify['missing']}")
             except Exception as e:
                 logger.error(f"Build failed: {e}")
                 report["errors"].append(f"build: {e}")
@@ -205,9 +212,9 @@ class Orchestrator:
                 logger.info(f"  Agent returned {len(updates)} updates")
                 for i, u in enumerate(updates):
                     logger.info(
-                        f"    [{i}] type={u.get('update_type')} "
-                        f"section={u.get('section_title', '')!r} "
-                        f"has_new_content={'new_content' in u and bool(u['new_content'])}"
+                        f"    [{i}] section={u.get('section_title', '')!r} "
+                        f"confidence={u.get('confidence', 0)} "
+                        f"has_content={bool(u.get('new_content'))}"
                     )
                 all_updates.extend(updates)
                 # Tag each reference with the section it came from
@@ -238,7 +245,7 @@ class Orchestrator:
         src/static/, then cleans docs/ and copies everything over.
         """
         try:
-            from src.builders.site_builder import SiteBuilder
+            from builders.site_builder import SiteBuilder
 
             builder = SiteBuilder(str(self.project_root))
             builder.build(include_market_plots=include_market_plots)
@@ -251,7 +258,7 @@ class Orchestrator:
     def _run_investment_pipeline(self) -> dict[str, Any]:
         """Run the investment/market data pipeline."""
         try:
-            from .investment_pipeline import run_complete_investment_pipeline
+            from market.investment_pipeline import run_complete_investment_pipeline
 
             result = run_complete_investment_pipeline(
                 output_dir=str(self.data_dir),
@@ -287,54 +294,3 @@ class Orchestrator:
                 logging.StreamHandler(sys.stdout),
             ],
         )
-
-
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
-
-
-def main() -> None:
-    """CLI entry point."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description="AI Safety Website Automation")
-    parser.add_argument(
-        "mode",
-        nargs="?",
-        default="full",
-        choices=["full", "build", "references", "market-data", "page"],
-        help="Automation mode",
-    )
-    parser.add_argument("--page", help="Page name (for 'page' mode)")
-    parser.add_argument("--skip-research", action="store_true")
-    parser.add_argument("--skip-market-data", action="store_true")
-    parser.add_argument("--skip-build", action="store_true")
-
-    args = parser.parse_args()
-    orch = Orchestrator()
-
-    if args.mode == "build":
-        result = orch.run_build_only()
-    elif args.mode == "references":
-        result = orch.run_references_only()
-    elif args.mode == "market-data":
-        result = orch.run_market_data()
-    elif args.mode == "page":
-        if not args.page:
-            parser.error("--page required for 'page' mode")
-        result = orch.run_page(args.page)
-    else:
-        result = orch.run_full_cycle(
-            skip_research=args.skip_research,
-            skip_market_data=args.skip_market_data,
-            skip_build=args.skip_build,
-        )
-
-    success = result.get("success", False)
-    print(f"\n{'OK' if success else 'FAILED'}: {result.get('duration', 'N/A')}")
-    sys.exit(0 if success else 1)
-
-
-if __name__ == "__main__":
-    main()

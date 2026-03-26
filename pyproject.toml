@@ -24,6 +24,7 @@ dependencies = [
     "litellm>=1.40.0",
     "yfinance>=0.2.66",
     "scipy>=1.15.3",
+    "plotly>=5.18.0",
 ]
 
 [project.optional-dependencies]
@@ -40,10 +41,10 @@ Repository = "https://github.com/MLVisions/AISafety.git"
 Documentation = "https://github.com/MLVisions/AISafety/blob/main/README.md"
 
 [project.scripts]
-aisafety = "build:main"
+aisafety = "agents.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src"]
+packages = ["src/agents", "src/builders", "src/market"]
 
 [tool.ruff]
 line-length = 88

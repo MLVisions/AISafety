@@ -169,38 +169,3 @@ def process_markdown_file(file_path: str) -> tuple[dict[str, Any], str]:
         content = f.read()
 
     return processor.convert(content)
-
-
-if __name__ == "__main__":
-    # Test the processor
-    test_content = """---
-title: "Test Page"
-layout: "page"
----
-
-# Test Page
-
-This is a **test** with *emphasis*.
-
-## Section
-
-- List item 1
-- List item 2
-
-![Test Image](images/test.png)
-*Caption text*
-
-{{< tabs >}}
-{{< tab "Tab 1" "tab1" >}}
-Content for tab 1
-{{< /tab >}}
-{{< tab "Tab 2" "tab2" >}}
-Content for tab 2
-{{< /tab >}}
-{{< /tabs >}}
-"""
-
-    processor = MarkdownProcessor()
-    frontmatter, html = processor.convert(test_content)
-    print("Frontmatter:", frontmatter)
-    print("HTML:", html)

@@ -5,7 +5,7 @@ Tests PageConfig and factory functions
 
 import pytest
 
-from src.agents.utils.page_config import (
+from agents.utils.page_config import (
     PAGE_CONFIGS,
     PageConfig,
     SectionAgentConfig,

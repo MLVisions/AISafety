@@ -7,7 +7,10 @@ structured findings with references that feed into the content update
 and reference management pipelines.
 """
 
+import base64
 import logging
+import mimetypes
+import re
 from pathlib import Path
 from typing import Any
 
@@ -64,14 +67,9 @@ Respond with a JSON object matching this schema exactly:
   "summary": "<brief summary of findings>",
   "updates": [
     {{
-      "section_title": "<exact markdown heading the update belongs under>",
-      "update_type": "statistic_update | content_addition | content_deletion | clarification | section_rewrite",
-      "original_text": "<exact text to replace, for statistic_update/clarification/content_deletion>",
-      "updated_text": "<replacement text, for statistic_update/clarification>",
-      "insertion_point": "<text after which to insert, for content_addition>",
-      "new_content": "<new paragraph(s) to add, for content_addition or section_rewrite>",
-      "reason": "<why this change is needed>",
-      "source_url": "<authoritative URL>",
+      "section_title": "<exact markdown heading to rewrite>",
+      "new_content": "<complete replacement body for the section>",
+      "reason": "<why this update is needed>",
       "confidence": 0.0
     }}
   ],
@@ -85,15 +83,11 @@ Respond with a JSON object matching this schema exactly:
   ]
 }}
 
-Update types:
-- statistic_update: Replace a specific fact/figure (provide original_text + updated_text)
-- content_addition: Insert new paragraph(s) after insertion_point
-- content_deletion: Remove original_text
-- clarification: Reword original_text for clarity (provide original_text + updated_text)
-- section_rewrite: Replace the ENTIRE body of a section (provide section_title + new_content).
-  Use this when a section is substantially outdated and needs wholesale refresh.
-  The section heading itself is preserved; everything under it until the next
-  heading at the same or higher level is replaced with new_content.
+You are updating ONE section at a time. Return exactly one entry in the
+"updates" array with section_title matching the TARGET SECTION heading.
+Provide the complete new body for that section in "new_content". The
+heading itself is preserved automatically; only include the content that
+goes under it.
 
 Rules:
 - Only include updates with confidence > 0.7
@@ -112,6 +106,116 @@ def _get_full_output_schema() -> str:
     if guidelines:
         return RESEARCH_OUTPUT_SCHEMA + "\n" + guidelines
     return RESEARCH_OUTPUT_SCHEMA
+
+
+# ---------------------------------------------------------------------------
+# Structural element extraction and vision support
+# ---------------------------------------------------------------------------
+
+
+def _extract_structural_elements(content: str, heading: str) -> list[dict[str, str]]:
+    """Extract images and HTML elements from the section under *heading*.
+
+    Returns a list of dicts, each with:
+      kind:    "image" or "html"
+      path:    relative image path (e.g. "images/market_trends.png") or ""
+      alt:     alt-text for images, class name for HTML divs
+      caption: caption text if present, else ""
+    """
+    lines = content.split("\n")
+    heading_lower = re.sub(r"^#{1,6}\s*", "", heading.strip()).lower()
+
+    start_idx: int | None = None
+    heading_level = 0
+    for i, line in enumerate(lines):
+        m = re.match(r"^(#{1,6})\s+(.*)", line)
+        if m and m.group(2).strip().lower() == heading_lower:
+            start_idx = i
+            heading_level = len(m.group(1))
+            break
+
+    if start_idx is None:
+        return []
+
+    end_idx = len(lines)
+    for j in range(start_idx + 1, len(lines)):
+        m = re.match(r"^(#{1,6})\s+", lines[j])
+        if m and len(m.group(1)) <= heading_level:
+            end_idx = j
+            break
+
+    body = lines[start_idx + 1 : end_idx]
+    elements: list[dict[str, str]] = []
+    for idx, line in enumerate(body):
+        stripped = line.strip()
+        img = re.match(r"^!\[([^\]]*)\]\(([^)]+)\)$", stripped)
+        if img:
+            alt, src = img.group(1), img.group(2)
+            caption = ""
+            if idx + 1 < len(body):
+                nxt = body[idx + 1].strip()
+                if nxt.startswith("*") and nxt.endswith("*"):
+                    caption = nxt.strip("* ")
+            elements.append({"kind": "image", "path": src, "alt": alt, "caption": caption})
+        elif stripped.startswith("<div"):
+            class_match = re.search(r'class="([^"]+)"', stripped)
+            cls = class_match.group(1) if class_match else "unknown"
+            elements.append({"kind": "html", "path": "", "alt": cls, "caption": ""})
+
+    return elements
+
+
+def _build_structural_prompt(elements: list[dict[str, str]]) -> str:
+    """Convert structural elements to a text-based STRUCTURAL NOTE for the prompt.
+
+    Always included so the agent knows what elements exist and where,
+    regardless of whether the model can also see the actual images.
+    """
+    if not elements:
+        return ""
+    hints: list[str] = []
+    for el in elements:
+        if el["kind"] == "image":
+            caption = f" — caption: {el['caption']}" if el["caption"] else ""
+            hints.append(f"- Image: {el['path']} (alt=\"{el['alt']}\"){caption}")
+        elif el["kind"] == "html":
+            hints.append(f"- HTML element: <div class=\"{el['alt']}\">")
+    return (
+        "\nSTRUCTURAL NOTE: This section contains the following visual/interactive "
+        "elements that are preserved automatically. Do NOT reproduce them in your "
+        "output, but write a natural lead-in sentence before where they appear "
+        "so the content flows into the visual element. If the actual image is "
+        "included in this message, use what you see to write a more contextual "
+        "transition:\n"
+        + "\n".join(hints)
+        + "\n"
+    )
+
+
+def _load_section_images(
+    elements: list[dict[str, str]],
+    static_dir: Path,
+) -> list[dict[str, str]]:
+    """Read image files from *static_dir* and return base64 data URLs.
+
+    Each returned dict has a ``url`` key with a ``data:<mime>;base64,...``
+    URI suitable for litellm's vision content blocks.  Images that cannot
+    be found are silently skipped (the text hints still cover them).
+    """
+    images: list[dict[str, str]] = []
+    for el in elements:
+        if el["kind"] != "image" or not el["path"]:
+            continue
+        img_path = static_dir / el["path"]
+        if not img_path.is_file():
+            logger.debug("Image not found, skipping vision: %s", img_path)
+            continue
+        mime = mimetypes.guess_type(str(img_path))[0] or "image/png"
+        data = img_path.read_bytes()
+        b64 = base64.b64encode(data).decode()
+        images.append({"url": f"data:{mime};base64,{b64}"})
+        logger.debug("Loaded image for vision: %s (%d bytes)", img_path.name, len(data))
+    return images
 
 
 # ---------------------------------------------------------------------------
@@ -166,11 +270,15 @@ class ResearchAgent(BaseAgent):
         # Build the task prompt with output schema
         today = date.today().isoformat()
         section_directive = ""
+        elements: list[dict[str, str]] = []
         if target_section:
+            elements = _extract_structural_elements(current_content, target_section)
+            structural_prompt = _build_structural_prompt(elements)
             section_directive = (
                 f"TARGET SECTION: ## {target_section}\n"
                 "Only produce updates for this section. "
                 "Your output section_title values MUST match this heading.\n\n"
+                + structural_prompt
             )
 
         task = (
@@ -181,7 +289,11 @@ class ResearchAgent(BaseAgent):
             f"IMPORTANT: {_get_full_output_schema()}"
         )
 
-        result = self.run(task, context=current_content)
+        # Load actual image bytes for vision-capable models
+        static_dir = Path(__file__).parent.parent / "static"
+        section_images = _load_section_images(elements, static_dir) if elements else None
+
+        result = self.run(task, context=current_content, images=section_images)
 
         # Ensure required fields exist
         result.setdefault("page", page_name)
