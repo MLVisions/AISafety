@@ -4,7 +4,9 @@ Handles parsing agent outputs and updating content while preserving structure
 """
 
 import logging
+import re
 from datetime import datetime
+from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Any
 
@@ -64,6 +66,20 @@ class ContentUpdateApplier:
 
                 rewritten = self._rewrite_section(content, section, new_body)
                 if rewritten is not None:
+                    old_body = self._section_body(content, section)
+                    if old_body is not None:
+                        ratio = SequenceMatcher(
+                            None, old_body.strip(), new_body.strip()
+                        ).ratio()
+                        if ratio > 0.9:
+                            logger.info(
+                                "Skipped cosmetic change to '%s' "
+                                "(similarity %.0f%%)",
+                                section,
+                                ratio * 100,
+                            )
+                            skipped += 1
+                            continue
                     content = rewritten
                     applied += 1
                     details.append({"section": section, "change": f"Rewrote: {section}"})
@@ -95,6 +111,31 @@ class ContentUpdateApplier:
             }
 
     @staticmethod
+    def _section_body(content: str, heading: str) -> str | None:
+        """Return the body text under *heading*, or ``None`` if not found."""
+        lines = content.split("\n")
+        heading_lower = re.sub(r"^#{1,6}\s*", "", heading.strip()).lower()
+
+        start_idx: int | None = None
+        heading_level = 0
+        for i, line in enumerate(lines):
+            m = re.match(r"^(#{1,6})\s+(.*)", line)
+            if m and m.group(2).strip().lower() == heading_lower:
+                start_idx = i
+                heading_level = len(m.group(1))
+                break
+        if start_idx is None:
+            return None
+
+        end_idx = len(lines)
+        for j in range(start_idx + 1, len(lines)):
+            m = re.match(r"^(#{1,6})\s+", lines[j])
+            if m and len(m.group(1)) <= heading_level:
+                end_idx = j
+                break
+        return "\n".join(lines[start_idx + 1 : end_idx])
+
+    @staticmethod
     def _rewrite_section(content: str, heading: str, new_body: str) -> str | None:
         """Replace the body of a markdown section identified by *heading*.
 
@@ -110,8 +151,6 @@ class ContentUpdateApplier:
 
         Returns the updated content, or ``None`` if the heading was not found.
         """
-        import re
-
         lines = content.split("\n")
         # Strip any leading '#' markers so both "### Foo" and "Foo" match
         heading_lower = re.sub(r"^#{1,6}\s*", "", heading.strip()).lower()
@@ -151,14 +190,22 @@ class ContentUpdateApplier:
                 or stripped.startswith("<div")           # HTML open
                 or stripped.startswith("</div")          # HTML close
                 or re.match(r"^<[a-z]", stripped)        # other HTML
+                or stripped.startswith("{{<")            # shortcodes
             )
             if is_structural:
                 preserved.append(line)
                 # Also keep a caption line immediately following an image
-                if re.match(r"^!\[.*\]\(.*\)$", stripped) and idx + 1 < len(old_body_lines):
-                    next_line = old_body_lines[idx + 1].strip()
-                    if next_line.startswith("*") and next_line.endswith("*"):
-                        preserved.append(old_body_lines[idx + 1])
+                # (possibly separated by a single blank line)
+                if re.match(r"^!\[.*\]\(.*\)$", stripped):
+                    for offset in (1, 2):
+                        nxt = idx + offset
+                        if nxt < len(old_body_lines):
+                            next_line = old_body_lines[nxt].strip()
+                            if next_line.startswith("*") and next_line.endswith("*"):
+                                preserved.append(old_body_lines[nxt])
+                                break
+                            if next_line:  # non-blank, non-caption → stop
+                                break
             # Keep italic caption lines that follow images (caught above)
             # but skip standalone ones to avoid duplicating normal text.
 

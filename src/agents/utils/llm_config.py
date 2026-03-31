@@ -186,6 +186,87 @@ def _setup_config() -> None:
     print(f"   api_keys:    {existing_keys}")
 
 
+# ------------------------------------------------------------------
+# Programmatic config helpers (used by CLI flags and future Shiny app)
+# ------------------------------------------------------------------
+
+
+def _load_config_data() -> dict[str, Any]:
+    """Load raw config data from YAML, or empty dict if missing."""
+    config_path = get_config_path()
+    if config_path.exists():
+        with open(config_path) as f:
+            return yaml.safe_load(f) or {}
+    return {}
+
+
+def _save_config_data(data: dict[str, Any]) -> None:
+    """Write config data to YAML and restrict permissions."""
+    config_path = get_config_path()
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(config_path, "w") as f:
+        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
+    config_path.chmod(0o600)
+
+
+def set_model(model: str) -> None:
+    """Set the default model in the config file."""
+    data = _load_config_data()
+    data["model"] = model
+    _save_config_data(data)
+
+
+def set_api_key(provider: str, key_or_path: str) -> None:
+    """Set the API key for a provider.
+
+    *key_or_path* can be either a literal key string or a path to a
+    file containing the key.  If the value looks like a file path
+    (starts with ``/``, ``~``, or ``.``) and the resolved path exists,
+    it is stored as a file reference; otherwise the value is written
+    to the default key file location and that path is stored.
+    """
+    data = _load_config_data()
+    api_keys: dict[str, str] = data.setdefault("api_keys", {})
+
+    resolved = Path(key_or_path).expanduser()
+    if resolved.is_file():
+        # Store as file reference
+        api_keys[provider] = key_or_path
+    else:
+        # Treat as literal key — write to standard location
+        key_dir = Path.home() / ".config" / "api_keys" / provider
+        key_dir.mkdir(parents=True, exist_ok=True)
+        key_file = key_dir / "api_key.txt"
+        key_file.write_text(key_or_path.strip())
+        key_file.chmod(0o600)
+        api_keys[provider] = str(key_file)
+
+    _save_config_data(data)
+
+
+def show_config() -> None:
+    """Print the current configuration with masked API keys."""
+    data = _load_config_data()
+    if not data:
+        print("No configuration found. Run:  uv run aisafety config")
+        return
+
+    print(f"Config file: {get_config_path()}")
+    print(f"  model:       {data.get('model', '(not set)')}")
+
+    temp = data.get("temperature")
+    if temp is not None:
+        print(f"  temperature: {temp}")
+
+    api_keys: dict[str, str] = data.get("api_keys", {})
+    for provider, key_path in api_keys.items():
+        try:
+            key = _read_key_file(key_path)
+            print(f"  {provider} key:  {_mask(key)}  ({key_path})")
+        except FileNotFoundError:
+            print(f"  {provider} key:  (file not found: {key_path})")
+
+
 def _mask(value: str) -> str:
     """Mask an API key for display, showing only last 4 chars."""
     if not value or len(value) < 8:

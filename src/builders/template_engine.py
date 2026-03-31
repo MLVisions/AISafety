@@ -38,16 +38,10 @@ class TemplateEngine:
             'build_date': datetime.now(tz=timezone.utc).strftime('%B %Y'),
         }
 
-    def render_page(self,
-                   template_name: str,
-                   content: str,
-                   frontmatter: dict[str, Any],
-                   current_page: str = '') -> str:
-        """Render a page with content and navigation"""
+    def render_page(self, content: str, frontmatter: dict[str, Any], current_page: str = '') -> str:
+        """Render a page with content and navigation."""
+        template = self.env.get_template('page.html')
 
-        template = self.env.get_template(template_name)
-
-        # Combine all context
         context = {
             'content': content,
             'title': frontmatter.get('title', 'AI Safety'),
@@ -58,11 +52,3 @@ class TemplateEngine:
         }
 
         return template.render(**context)
-
-    def render_index(self, content: str, frontmatter: dict[str, Any]) -> str:
-        """Render the index page with special layout"""
-        return self.render_page('index.html', content, frontmatter, 'index')
-
-    def render_content_page(self, content: str, frontmatter: dict[str, Any], page_name: str) -> str:
-        """Render a content page"""
-        return self.render_page('page.html', content, frontmatter, page_name)

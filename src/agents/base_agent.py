@@ -72,6 +72,7 @@ class BaseAgent:
         task_description: str,
         context: str = "",
         images: list[dict[str, str]] | None = None,
+        documents: list[dict[str, str]] | None = None,
         **kwargs: Any,
     ) -> dict[str, Any]:
         """
@@ -82,6 +83,8 @@ class BaseAgent:
             context: Additional context (e.g. current page content).
             images: Optional list of dicts with ``url`` keys containing
                 ``data:<mime>;base64,...`` strings for vision-capable models.
+            documents: Optional list of dicts with ``mime`` and ``data``
+                (base64) keys for PDF document attachments.
 
         Returns a dict with at minimum ``{"raw": <str>, "success": True/False}``.
         Subclasses may add structured fields via ``parse_response``.
@@ -90,7 +93,11 @@ class BaseAgent:
         user_prompt = self._build_user_prompt(task_description, context)
 
         try:
-            raw_response = self._call_llm(system_prompt, user_prompt, images=images, **kwargs)
+            raw_response = self._call_llm(
+                system_prompt, user_prompt,
+                images=images, documents=documents,
+                **kwargs,
+            )
             result = self.parse_response(raw_response)
             result.setdefault("raw", raw_response)
             result.setdefault("success", True)
@@ -148,31 +155,63 @@ class BaseAgent:
         model: str | None = None,
         temperature: float | None = None,
         images: list[dict[str, str]] | None = None,
+        documents: list[dict[str, str]] | None = None,
         **_kwargs: Any,
     ) -> str:
         """Call the LLM via litellm (provider-agnostic).
 
-        When *images* are provided and the model supports vision,
-        the user message is sent as multimodal content blocks.
-        Otherwise images are silently ignored and the text-based
-        structural hints already in the prompt serve as fallback.
+        When *images* are provided and the model supports vision, image
+        content blocks are included.  When *documents* (PDFs) are provided
+        and the model supports PDF input, file content blocks are included.
+        Unsupported attachment types are logged and skipped.
         """
+        from litellm.utils import supports_pdf_input
+
         cfg = get_llm_config()
         resolved_model = model or cfg.model
 
-        # Build user message — multimodal when vision is available
+        can_vision = litellm.supports_vision(model=resolved_model)
+        can_pdf = supports_pdf_input(resolved_model, None)
+
+        # Determine which attachments the model can actually accept
+        send_images = images if (images and can_vision) else None
+        send_docs = documents if (documents and can_pdf) else None
+
+        if images and not can_vision:
+            logger.warning(
+                "Model %s does not support vision; %d image(s) will be skipped",
+                resolved_model, len(images),
+            )
+        if documents and not can_pdf:
+            logger.warning(
+                "Model %s does not support PDF input; %d document(s) will be skipped",
+                resolved_model, len(documents),
+            )
+
+        # Build user message — multimodal when attachments are accepted
         user_message: dict[str, Any]
-        if images and litellm.supports_vision(model=resolved_model):
+        if send_images or send_docs:
             user_content: list[dict[str, Any]] = [
                 {"type": "text", "text": user_prompt},
             ]
-            for img in images:
+            for img in (send_images or []):
                 user_content.append({
                     "type": "image_url",
                     "image_url": {"url": img["url"]},
                 })
+            for doc in (send_docs or []):
+                user_content.append({
+                    "type": "file",
+                    "file": {
+                        "file_data": f"data:{doc['mime']};base64,{doc['data']}",
+                    },
+                })
             user_message = {"role": "user", "content": user_content}
-            logger.info("Including %d image(s) in vision-enabled request", len(images))
+            logger.info(
+                "Including %d image(s) and %d document(s) in request",
+                len(send_images or []),
+                len(send_docs or []),
+            )
         else:
             user_message = {"role": "user", "content": user_prompt}
 

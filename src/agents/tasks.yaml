@@ -13,7 +13,7 @@ economy_macro_task:
     Research the current macroeconomic environment as it affects
     individuals and households.  Lead with the most recent data,
     then provide enough historical context (2-3 years) to show the
-    trajectory.  Do NOT dwell on 2020-2021 pandemic-era data.
+    trajectory. Forecast 6 months to a year where possible.
 
     Topics to cover (each with current figures and trend direction):
     - Inflation: CPI/PCE trends, categories driving inflation (housing,
@@ -21,7 +21,8 @@ economy_macro_task:
     - Federal Reserve policy: current fed funds rate, forward guidance,
       rate-cut timeline and market expectations.
     - Labor market: unemployment rate, job openings, hiring trends by
-      sector, wage growth vs inflation, AI-driven displacement signals.
+      sector, wage growth vs inflation, AI-driven displacement signals 
+      and speculation.
     - Housing: mortgage rates, home prices, affordability metrics,
       rental market pressures.
     - Equity markets: S&P 500 and Nasdaq performance, market breadth
@@ -30,9 +31,6 @@ economy_macro_task:
       delinquencies, consumer confidence indices.
     - Recession indicators: yield curve, leading economic indicators,
       GDP growth trajectory.
-
-    For EVERY claim provide a direct source URL and date.
-    Use section_rewrite if the section is substantially outdated.
 
   expected_output: >
     Structured JSON updating "Macroeconomic Landscape" with current
@@ -64,8 +62,8 @@ economy_geopolitics_task:
     - Black swan indicators: geopolitical flashpoints, financial system
       leverage, liquidity conditions.
 
-    For EVERY claim provide a direct source URL and date.
-    Use section_rewrite if the section is substantially outdated.
+  local_files:
+    - "FILE_2466.pdf"
 
   expected_output: >
     Structured JSON updating "Geopolitical & Market Risks" with current
@@ -93,9 +91,10 @@ economy_policy_task:
     - Monetary policy: Fed communications, rate path, balance sheet.
     - International frameworks: EU AI Act milestones, MiCA regulation,
       UK, China, and other national strategies.
+    Include bill/order numbers for all referenced legislation.
 
-    For EVERY claim provide a direct source URL, bill/order number where
-    applicable, and date.  Use section_rewrite when materially aged.
+  local_files:
+    - "FILE_2466.pdf"
 
   expected_output: >
     Structured JSON updating "Policy & Regulation" with current
@@ -132,8 +131,8 @@ economy_financial_infra_task:
     Mention Bitcoin only where factually relevant (e.g. Strategic
     Reserve, ETF infrastructure) but do not center the section on it.
 
-    For EVERY claim provide a direct source URL and date.
-    Use section_rewrite when materially aged.
+  local_files:
+    - "FILE_2466.pdf"
 
   expected_output: >
     Structured JSON updating "Financial System Evolution" with current
@@ -166,9 +165,6 @@ economy_strategy_task:
       is heading.
     - Short / medium / long-term outlook (3 / 12 / 36 months).
 
-    For EVERY claim provide a direct source URL and date.
-    Use section_rewrite when materially aged.
-
   expected_output: >
     Structured JSON updating "Strategic Recommendations" with a
     current preparation-focused discussion framework.  Source every claim.
@@ -194,8 +190,7 @@ technology_capabilities_task:
       scam agents.
     - Open-source vs closed-source landscape.
 
-    For EVERY claim provide a direct source URL and date.
-    Use section_rewrite when materially aged.
+
 
   expected_output: >
     Structured JSON updating "AI Capabilities Today" with current
@@ -216,8 +211,7 @@ technology_investment_task:
     - Job displacement and creation estimates (WEF, OECD, ILO).
     - Productivity studies and measured economic effects.
 
-    For EVERY claim provide a direct source URL and date.
-    Use section_rewrite when materially aged.
+
 
   expected_output: >
     Structured JSON updating "Investment & Economic Impact" with
@@ -238,9 +232,6 @@ technology_agents_task:
     - Multi-agent orchestration research and patterns.
     - Safety and alignment challenges specific to agentic systems.
 
-    For EVERY claim provide a direct source URL and date.
-    Use section_rewrite when materially aged.
-
   expected_output: >
     Structured JSON updating "Agentic AI & Swarm Architecture" with
     current agent framework and deployment data.  Source every claim.
@@ -260,8 +251,7 @@ technology_trends_task:
     - Market bubble / correction risk indicators.
     - Government-driven opportunities (AI Action Plans, CHIPS Act).
 
-    For EVERY claim provide a direct source URL and date.
-    Use section_rewrite when materially aged.
+
 
   expected_output: >
     Structured JSON updating "Future Trends & Opportunities" with
@@ -287,9 +277,6 @@ society_mental_health_task:
     - Demographic vulnerability (age, education, geography).
     - Case studies of communities already affected.
 
-    For EVERY claim provide a direct source URL and date.
-    Use section_rewrite when materially aged.
-
   expected_output: >
     Structured JSON updating "Mental Health & Labour Disruption" with
     current displacement and mental health research.  Source every claim.
@@ -307,9 +294,6 @@ society_resilience_task:
     - Community economic resilience models.
     - Corporate transition support and workforce planning.
     - Equitable-access initiatives and digital-divide mitigation.
-
-    For EVERY claim provide a direct source URL and date.
-    Use section_rewrite when materially aged.
 
   expected_output: >
     Structured JSON updating "Economic Uncertainty & Resilience" with
@@ -331,9 +315,6 @@ society_misinformation_task:
     - Regulatory responses to synthetic media.
     - "Firehose of falsehood" and information warfare tactics.
 
-    For EVERY claim provide a direct source URL and date.
-    Use section_rewrite when materially aged.
-
   expected_output: >
     Structured JSON updating "AI Misinformation & Reality Distortion"
     with current misinformation and deepfake research.  Source every claim.
@@ -351,9 +332,6 @@ society_community_task:
     - Peer-support network frameworks.
     - Collective action against manipulation and misinformation.
     - Local organizing toolkits and best practices.
-
-    For EVERY claim provide a direct source URL and date.
-    Use section_rewrite when materially aged.
 
   expected_output: >
     Structured JSON updating "Community & Support" with current
@@ -377,9 +355,6 @@ privacy_threats_task:
     - AI-powered phishing and credential harvesting.
     - Predictive profiling and behavioral manipulation.
 
-    For EVERY claim provide a direct source URL and date.
-    Use section_rewrite when materially aged.
-
   expected_output: >
     Structured JSON updating "Threats & Misinformation" with current
     AI threat landscape data.  Source every claim.
@@ -399,9 +374,6 @@ privacy_security_task:
     - Practical security habits updated for current threat landscape.
     - Incident response and reporting guidance.
 
-    For EVERY claim provide a direct source URL and date.
-    Use section_rewrite when materially aged.
-
   expected_output: >
     Structured JSON updating "Security Best Practices" with current
     security guidance.  Source every claim.
@@ -420,9 +392,6 @@ privacy_ethics_task:
     - Consent mechanisms and data-minimization best practices.
     - Corporate AI ethics commitments and accountability measures.
     - International data-transfer rules and adequacy decisions.
-
-    For EVERY claim provide a direct source URL and date.
-    Use section_rewrite when materially aged.
 
   expected_output: >
     Structured JSON updating "Data Privacy & Ethics" with current
@@ -446,9 +415,6 @@ action_steps_task:
     - In-demand AI-adjacent skills and reskilling resources (Reskill).
     - Community organizing best practices (Build community).
     - Current asset-allocation considerations (Diversify investments).
-
-    For EVERY claim provide a direct source URL and date.
-    Use section_rewrite when materially aged.
 
   expected_output: >
     Structured JSON updating "Take Practical Steps" and its
@@ -474,9 +440,6 @@ llm_foundations_task:
     - RAG and retrieval improvements.
     - Notable new models and their distinguishing features.
 
-    For EVERY claim provide a direct source URL and date.
-    Prefer granular updates over section_rewrite for educational content.
-
   expected_output: >
     Structured JSON updating "How Large Language Models Work" with
     current architecture and training developments.  Source every claim.
@@ -496,9 +459,6 @@ llm_agents_task:
     - Tool-use, code-execution, and computer-use capabilities.
     - Orchestration patterns and reliability improvements.
     - Safety and alignment research for agentic systems.
-
-    For EVERY claim provide a direct source URL and date.
-    Prefer granular updates over section_rewrite for educational content.
 
   expected_output: >
     Structured JSON updating "AI Agent Architectures" with current

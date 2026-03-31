@@ -57,55 +57,83 @@ def _load_writing_guidelines() -> str:
 
 
 # ---------------------------------------------------------------------------
-# Structured output schema (shared by all research agents)
+# Unified research instructions (appended to every task prompt)
 # ---------------------------------------------------------------------------
 
-RESEARCH_OUTPUT_SCHEMA = """\
-Respond with a JSON object matching this schema exactly:
-{{
-  "page": "<page_name>",
-  "summary": "<brief summary of findings>",
-  "updates": [
-    {{
-      "section_title": "<exact markdown heading to rewrite>",
-      "new_content": "<complete replacement body for the section>",
-      "reason": "<why this update is needed>",
-      "confidence": 0.0
-    }}
-  ],
-  "references": [
-    {{
-      "text": "<human-readable citation title>",
-      "url": "<full URL>",
-      "type": "government | academic | financial | tech_industry | report | general",
-      "originating_page": "<page_name>"
-    }}
-  ]
-}}
-
-You are updating ONE section at a time. Return exactly one entry in the
-"updates" array with section_title matching the TARGET SECTION heading.
-Provide the complete new body for that section in "new_content". The
-heading itself is preserved automatically; only include the content that
-goes under it.
-
-Rules:
-- Only include updates with confidence > 0.7
-- Every factual claim MUST link directly to its authoritative source URL.
-  NEVER use references.md or references.html anchors.
-  Example: **[claim text](https://source-url.com)** *(Source Name, Year)*
-- Preserve the existing markdown structure and tone
-- Do not use em dashes; use commas, semicolons, or rewrite instead
-- Content must feel current: lead with recent data, then provide historical context
-"""
+_RESEARCH_INSTRUCTIONS: str | None = None
 
 
-def _get_full_output_schema() -> str:
-    """Combine the output schema with writing guidelines."""
+def _build_research_instructions() -> str:
+    """Build the full instruction block appended to every research task.
+
+    Combines three concerns into one authoritative prompt:
+    1. **When to update** — guardrails against cosmetic rewording
+    2. **Writing & formatting rules** — loaded from writing_guidelines.yaml
+    3. **Output schema** — the JSON contract the applier expects
+    """
+    global _RESEARCH_INSTRUCTIONS
+    if _RESEARCH_INSTRUCTIONS is not None:
+        return _RESEARCH_INSTRUCTIONS
+
     guidelines = _load_writing_guidelines()
-    if guidelines:
-        return RESEARCH_OUTPUT_SCHEMA + "\n" + guidelines
-    return RESEARCH_OUTPUT_SCHEMA
+
+    _RESEARCH_INSTRUCTIONS = (
+        "=== RESEARCH INSTRUCTIONS (follow strictly) ===\n\n"
+
+        # ---- When to update ----
+        "WHEN TO UPDATE:\n"
+        "Only propose an update (confidence > 0.7) when one or more of these apply:\n"
+        "- New data, statistics, or events have occurred since the existing content was written.\n"
+        "- An existing claim is factually wrong or its source link is broken.\n"
+        "- The section is missing important context that materially helps the reader.\n"
+        "- The formatting violates the writing rules below (e.g., stats buried in prose\n"
+        "  instead of a bulleted list, missing citations, prohibited punctuation).\n\n"
+        "Do NOT propose an update that merely rewords, rephrases, or reorganizes content\n"
+        "without adding new information or fixing an actual problem. Cosmetic changes\n"
+        "alone should receive confidence 0.0 so they are skipped.\n\n"
+
+        # ---- Writing & formatting ----
+        + (guidelines + "\n\n" if guidelines else "")
+
+        # ---- Output schema ----
+        + "OUTPUT SCHEMA:\n"
+        "Respond with a JSON object matching this schema exactly:\n"
+        "{{\n"
+        '  "page": "<page_name>",\n'
+        '  "summary": "<brief summary of findings>",\n'
+        '  "updates": [\n'
+        "    {{\n"
+        '      "section_title": "<exact markdown heading to rewrite>",\n'
+        '      "new_content": "<complete replacement body for the section>",\n'
+        '      "reason": "<why this update is needed>",\n'
+        '      "confidence": 0.0\n'
+        "    }}\n"
+        "  ],\n"
+        '  "references": [\n'
+        "    {{\n"
+        '      "text": "<human-readable citation title>",\n'
+        '      "url": "<full URL>",\n'
+        '      "type": "government | academic | financial | tech_industry | report | general",\n'
+        '      "originating_page": "<page_name>"\n'
+        "    }}\n"
+        "  ]\n"
+        "}}\n\n"
+        "You are updating ONE section at a time. Return exactly one entry in the\n"
+        '"updates" array with section_title matching the TARGET SECTION heading.\n'
+        'Provide the complete new body for that section in "new_content". The\n'
+        "heading itself is preserved automatically; only include the content that\n"
+        "goes under it.\n\n"
+        "Rules:\n"
+        "- Only include updates with confidence > 0.7\n"
+        "- Every factual claim MUST link directly to its authoritative source URL.\n"
+        "  NEVER use references.md or references.html anchors.\n"
+        "  Example: **[claim text](https://source-url.com)** *(Source Name, Year)*\n"
+        "- Preserve the existing markdown structure and tone\n"
+        "- Do not use em dashes; use commas, semicolons, or rewrite instead\n"
+        "- Content must feel current: lead with recent data, then provide historical context\n"
+        "- Provide the complete updated section content\n"
+    )
+    return _RESEARCH_INSTRUCTIONS
 
 
 # ---------------------------------------------------------------------------
@@ -238,6 +266,7 @@ class ResearchAgent(BaseAgent):
             raise ValueError(f"Task '{task_key}' not found in tasks.yaml")
         self.task_description: str = tasks[task_key]["description"]
         self.expected_output: str = tasks[task_key].get("expected_output", "")
+        self.local_files: list[str] = tasks[task_key].get("local_files", [])
 
     def research_page(
         self,
@@ -286,14 +315,40 @@ class ResearchAgent(BaseAgent):
             f"Page: {page_name}\n\n"
             f"{section_directive}"
             f"{self.task_description}\n\n"
-            f"IMPORTANT: {_get_full_output_schema()}"
+            f"{_build_research_instructions()}"
         )
 
         # Load actual image bytes for vision-capable models
         static_dir = Path(__file__).parent.parent / "static"
         section_images = _load_section_images(elements, static_dir) if elements else None
 
-        result = self.run(task, context=current_content, images=section_images)
+        # Load local reference data files (PDFs, images) specified in task config
+        local_images: list[dict[str, str]] | None = None
+        local_documents: list[dict[str, str]] | None = None
+        if self.local_files:
+            from .utils.local_data_loader import load_local_files
+
+            attachments = load_local_files(self.local_files)
+            imgs = [{"url": f"data:{a.mime};base64,{a.data}"} for a in attachments if a.kind == "image"]
+            docs = [{"mime": a.mime, "data": a.data} for a in attachments if a.kind == "document"]
+            local_images = imgs or None
+            local_documents = docs or None
+
+            if attachments:
+                task += (
+                    "\n\nLOCAL REFERENCE DATA: The following local files are attached. "
+                    "You MUST incorporate relevant claims, data points, and perspectives "
+                    "from these files into your updated content. Treat them as primary "
+                    "source material — cite specific findings, quote key arguments, and "
+                    "weave their insights into the narrative alongside your other research. "
+                    "Do not ignore attached files.\n"
+                    + "\n".join(f"- {a.filename}" for a in attachments)
+                )
+
+        # Merge section images with local images
+        all_images = (section_images or []) + (local_images or []) or None
+
+        result = self.run(task, context=current_content, images=all_images, documents=local_documents)
 
         # Ensure required fields exist
         result.setdefault("page", page_name)

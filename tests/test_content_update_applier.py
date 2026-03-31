@@ -31,8 +31,8 @@ Another body.
 class TestStructuredUpdates:
     """Test structured update functionality"""
 
-    def test_apply_section_rewrite(self) -> None:
-        """Test applying a section rewrite via apply_updates"""
+    def test_apply_section_update(self) -> None:
+        """Test applying a section update via apply_updates"""
         applier = ContentUpdateApplier()
 
         with patch('agents.utils.content_update_applier.read_markdown_file') as mock_read, \
@@ -169,3 +169,77 @@ class TestRewriteSection:
         )
         assert result is not None
         assert "New body." in result
+
+
+# ---------------------------------------------------------------------------
+# Tests for structural element preservation
+# ---------------------------------------------------------------------------
+
+
+STRUCTURAL_MD = """\
+## Tech Section
+
+Some content here.
+
+![Chart](images/chart.png)
+
+*Chart caption*
+
+{{< callout-card "How LLMs Work" "llm.html" "Deep dive into LLMs" >}}
+
+<div class="ticker-dropdown-container"></div>
+
+## Next Section
+
+Other content.
+"""
+
+
+class TestStructuralPreservation:
+    """Test that structural lines (images, HTML, shortcodes) survive rewrites."""
+
+    def test_shortcodes_preserved(self) -> None:
+        """Shortcodes like callout-card must survive section rewrites."""
+        result = ContentUpdateApplier._rewrite_section(
+            STRUCTURAL_MD, "Tech Section", "Completely new content.",
+        )
+        assert result is not None
+        assert "Completely new content." in result
+        assert '{{< callout-card "How LLMs Work"' in result
+
+    def test_images_preserved(self) -> None:
+        """Image markdown lines must survive section rewrites."""
+        result = ContentUpdateApplier._rewrite_section(
+            STRUCTURAL_MD, "Tech Section", "New content.",
+        )
+        assert result is not None
+        assert "![Chart](images/chart.png)" in result
+
+    def test_html_preserved(self) -> None:
+        """HTML elements must survive section rewrites."""
+        result = ContentUpdateApplier._rewrite_section(
+            STRUCTURAL_MD, "Tech Section", "New content.",
+        )
+        assert result is not None
+        assert '<div class="ticker-dropdown-container"></div>' in result
+
+    def test_image_caption_preserved(self) -> None:
+        """Italic captions following images must survive section rewrites."""
+        result = ContentUpdateApplier._rewrite_section(
+            STRUCTURAL_MD, "Tech Section", "New content.",
+        )
+        assert result is not None
+        assert "*Chart caption*" in result
+
+    def test_preserved_not_duplicated(self) -> None:
+        """If new content already contains a structural line, don't duplicate."""
+        new_content = (
+            'New content.\n\n'
+            '{{< callout-card "How LLMs Work" "llm.html" "Deep dive into LLMs" >}}'
+        )
+        result = ContentUpdateApplier._rewrite_section(
+            STRUCTURAL_MD, "Tech Section", new_content,
+        )
+        assert result is not None
+        count = result.count("callout-card")
+        assert count == 1

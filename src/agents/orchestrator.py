@@ -21,8 +21,7 @@ from typing import Any
 from .research_agents import create_research_agent
 from .utils.content_update_applier import ContentUpdateApplier
 from .utils.content_validation_utils import ContentValidationUtils
-from .utils.page_config import PAGE_CONFIGS, get_content_pages, get_page_config
-from .utils.reference_manager import sync_references_file
+from .utils.page_config import get_content_pages, get_page_config
 
 logger = logging.getLogger(__name__)
 
@@ -45,15 +44,15 @@ class Orchestrator:
     # Public API
     # ------------------------------------------------------------------
 
-    def run_full_cycle(
+    def run_update(
         self,
         pages: list[str] | None = None,
-        skip_research: bool = False,
-        skip_market_data: bool = False,
-        skip_build: bool = False,
+        sections: list[str] | None = None,
+        build: bool = True,
+        include_plots: bool = False,
     ) -> dict[str, Any]:
         """
-        Run the complete automation cycle for all (or specified) pages.
+        Run the content update pipeline for all (or specified) pages.
 
         Pipeline per page:
           1. Research - LLM agents gather findings (AI)
@@ -61,15 +60,14 @@ class Orchestrator:
           3. Validate - Check content quality (engineered)
 
         Cross-page stages (after all pages):
-          4. References  - Sync references.md from citations in all content files
-          5. Market data - Fetch tickers and run simulations (if any page needs it)
-          6. Build       - Regenerate plots and rebuild docs/*.html from markdown
+          4. Market data - Fetch tickers and run simulations (only with include_plots)
+          5. Build       - Sync references, rebuild HTML (+ plots if include_plots)
 
         Args:
             pages: List of page names to update. None = all content pages.
-            skip_research: Skip the LLM research step (useful for testing).
-            skip_market_data: Skip market data fetching and economic modeling.
-            skip_build: Skip plot regeneration and the final site build.
+            sections: H2 headings to target. None = all sections on each page.
+            build: Whether to build the site after updating content.
+            include_plots: Also fetch market data and regenerate plots (slow).
 
         Returns:
             Report dict with per-stage results.
@@ -87,34 +85,26 @@ class Orchestrator:
 
         # Collect all agent references across pages
         all_agent_refs: list[dict[str, Any]] = []
-        needs_market_data = False
 
         # Per-page pipeline
         for page_name in pages:
             logger.info(f"--- Processing {page_name} ---")
             page_report: dict[str, Any] = {}
 
-            config = get_page_config(page_name)
-            if config.has_data_fetching:
-                needs_market_data = True
-
             try:
                 # 1. Research
-                if not skip_research:
-                    research_result = self._research_page(page_name)
-                    page_report["research"] = {
-                        "updates_found": len(research_result.get("updates", [])),
-                        "refs_found": len(research_result.get("references", [])),
-                    }
-                    all_agent_refs.extend(research_result.get("references", []))
+                research_result = self._research_page(page_name, sections=sections)
+                page_report["research"] = {
+                    "updates_found": len(research_result.get("updates", [])),
+                    "refs_found": len(research_result.get("references", [])),
+                }
+                all_agent_refs.extend(research_result.get("references", []))
 
-                    # 2. Apply updates to markdown
-                    updates = research_result.get("updates", [])
-                    if updates:
-                        apply_result = self._apply_updates(page_name, updates)
-                        page_report["updates"] = apply_result
-                else:
-                    page_report["research"] = {"skipped": True}
+                # 2. Apply updates to markdown
+                updates = research_result.get("updates", [])
+                if updates:
+                    apply_result = self._apply_updates(page_name, updates)
+                    page_report["updates"] = apply_result
 
                 # 3. Validate
                 validation = self._validate_page(page_name)
@@ -132,19 +122,9 @@ class Orchestrator:
             report["stages"][page_name] = page_report
 
         # Cross-page stages
-        try:
-            # 4. Sync references
-            ref_result = sync_references_file(
-                content_dir=str(self.content_dir),
-                agent_refs=all_agent_refs if all_agent_refs else None,
-            )
-            report["stages"]["references"] = ref_result
-        except Exception as e:
-            logger.error(f"Reference sync failed: {e}")
-            report["errors"].append(f"references: {e}")
 
-        # 5. Market data + economic modeling (if any page needs it)
-        if needs_market_data and not skip_market_data:
+        # 4. Market data + economic modeling (only when explicitly requested)
+        if include_plots:
             try:
                 md_result = self._run_investment_pipeline()
                 report["stages"]["market_data"] = md_result
@@ -152,21 +132,14 @@ class Orchestrator:
                 logger.error(f"Market data pipeline failed: {e}")
                 report["errors"].append(f"market_data: {e}")
 
-        # 6. Build site (includes plot generation + markdown -> HTML)
-        if not skip_build:
+        # 5. Build site (includes references sync, markdown -> HTML, + plots if requested)
+        if build:
             try:
-                # If we just fetched market data, regenerate market plots too
                 build_result = self._build_site(
-                    include_market_plots=needs_market_data and not skip_market_data,
+                    include_market_plots=include_plots,
+                    agent_refs=all_agent_refs or None,
                 )
                 report["stages"]["build"] = build_result
-
-                # 7. Verify build output
-                verify = self._verify_build_output()
-                report["stages"]["build_verify"] = verify
-                if not verify["success"]:
-                    logger.warning(f"Build verification: missing files {verify['missing']}")
-                    report["errors"].append(f"build_verify: missing {verify['missing']}")
             except Exception as e:
                 logger.error(f"Build failed: {e}")
                 report["errors"].append(f"build: {e}")
@@ -175,27 +148,35 @@ class Orchestrator:
         report["duration"] = str(datetime.now() - start)
         return report
 
-    def run_page(self, page_name: str, skip_build: bool = True) -> dict[str, Any]:
-        """Run the pipeline for a single page."""
-        return self.run_full_cycle(pages=[page_name], skip_build=skip_build)
+    def run_market(self, plots_only: bool = False) -> dict[str, Any]:
+        """Fetch market data and run investment pipeline.
 
-    def run_build_only(self) -> dict[str, Any]:
-        """Just rebuild the site (no research/updates)."""
-        return self._build_site()
-
-    def run_references_only(self) -> dict[str, Any]:
-        """Just sync references from content files."""
-        return sync_references_file(content_dir=str(self.content_dir))
-
-    def run_market_data(self) -> dict[str, Any]:
-        """Fetch market data and run investment pipeline."""
-        return self._run_investment_pipeline()
+        Args:
+            plots_only: If True, skip data fetching and only regenerate
+                plots from cached CSV data.
+        """
+        start = datetime.now()
+        try:
+            if plots_only:
+                result = self._regenerate_market_plots()
+            else:
+                result = self._run_investment_pipeline()
+            result.setdefault("duration", str(datetime.now() - start))
+            return result
+        except Exception as e:
+            return {
+                "success": False,
+                "errors": [str(e)],
+                "duration": str(datetime.now() - start),
+            }
 
     # ------------------------------------------------------------------
     # Pipeline stages
     # ------------------------------------------------------------------
 
-    def _research_page(self, page_name: str) -> dict[str, Any]:
+    def _research_page(
+        self, page_name: str, sections: list[str] | None = None,
+    ) -> dict[str, Any]:
         """Run section-level research agents for a page and return structured findings."""
         config = get_page_config(page_name)
         content_path = str(self.content_dir / config.content_file)
@@ -203,7 +184,11 @@ class Orchestrator:
         all_updates: list[dict[str, Any]] = []
         all_refs: list[dict[str, Any]] = []
 
-        for sa in config.section_agents:
+        agents = config.section_agents
+        if sections:
+            agents = [sa for sa in agents if sa.section in sections]
+
+        for sa in agents:
             logger.info(f"  Running {sa.agent} ({sa.task}) for {page_name} § {sa.section}")
             try:
                 agent = create_research_agent(sa.agent, sa.task)
@@ -237,22 +222,43 @@ class Orchestrator:
         config = get_page_config(page_name)
         return self.content_validator.validate_single_file(config.content_file)
 
-    def _build_site(self, include_market_plots: bool = False) -> dict[str, Any]:
+    def _build_site(
+        self,
+        include_market_plots: bool = False,
+        agent_refs: list[dict[str, Any]] | None = None,
+        pages: list[str] | None = None,
+    ) -> dict[str, Any]:
         """
         Rebuild the static site from src/content/*.md -> docs/*.html.
 
-        Delegates to ``SiteBuilder.build()`` which generates plots into
-        src/static/, then cleans docs/ and copies everything over.
+        References are synced as part of each build so references.md is
+        always current.  Delegates to ``SiteBuilder.build()``.
         """
         try:
             from builders.site_builder import SiteBuilder
 
             builder = SiteBuilder(str(self.project_root))
-            builder.build(include_market_plots=include_market_plots)
+            builder.build(
+                include_market_plots=include_market_plots,
+                agent_refs=agent_refs,
+                pages=pages,
+            )
 
             return {"success": True}
         except Exception as e:
             logger.error(f"Site build failed: {e}")
+            return {"success": False, "error": str(e)}
+
+    def _regenerate_market_plots(self) -> dict[str, Any]:
+        """Regenerate market plots from cached data without fetching."""
+        try:
+            from builders.site_builder import SiteBuilder
+
+            builder = SiteBuilder(str(self.project_root))
+            builder.generate_market_plots()
+            return {"success": True}
+        except Exception as e:
+            logger.error(f"Plot regeneration failed: {e}")
             return {"success": False, "error": str(e)}
 
     def _run_investment_pipeline(self) -> dict[str, Any]:
@@ -270,12 +276,6 @@ class Orchestrator:
         except Exception as e:
             logger.error(f"Investment pipeline failed: {e}")
             return {"success": False, "error": str(e)}
-
-    def _verify_build_output(self) -> dict[str, Any]:
-        """Check that the build produced expected output files."""
-        expected = [f"{p}.html" for p in PAGE_CONFIGS] + ["style.css", "script.js"]
-        missing = [f for f in expected if not (self.docs_dir / f).exists()]
-        return {"success": len(missing) == 0, "missing": missing}
 
     # ------------------------------------------------------------------
     # Logging

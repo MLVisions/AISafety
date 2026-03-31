@@ -6,6 +6,7 @@ content_validation, build verification, and reference management.
 """
 
 from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
@@ -42,6 +43,9 @@ class PageConfig:
     section_agents: list[SectionAgentConfig] = field(default_factory=list)
     has_plots: bool = False
     has_data_fetching: bool = False
+
+    # Sub-pages shown as a secondary link under this nav button
+    sub_pages: list[str] = field(default_factory=list)  # page_name keys
 
     # Validation thresholds
     validation_thresholds: dict[str, float] = field(default_factory=dict)
@@ -100,6 +104,7 @@ PAGE_CONFIGS: dict[str, PageConfig] = {
             SectionAgentConfig("Agentic AI & Swarm Architecture", "technology_researcher", "technology_agents_task"),
             SectionAgentConfig("Future Trends & Opportunities", "technology_researcher", "technology_trends_task"),
         ],
+        sub_pages=["llm"],
         validation_thresholds={"technical_accuracy": 0.8, "model_claims": 0.7},
     ),
     "society": PageConfig(
@@ -188,17 +193,25 @@ def get_content_pages() -> list[str]:
     ]
 
 
-def get_nav_pages() -> list[dict[str, str]]:
+def get_nav_pages() -> list[dict[str, Any]]:
     """Get ordered list of pages for the main navigation bar."""
     nav_items = []
     for cfg in sorted(PAGE_CONFIGS.values(), key=lambda c: c.nav_order):
         if cfg.show_in_nav and cfg.nav_style == "nav-button" and cfg.nav_order > 0:
-            nav_items.append({
+            sub = []
+            for sp_name in cfg.sub_pages:
+                sp = PAGE_CONFIGS.get(sp_name)
+                if sp:
+                    sub.append({"name": sp.page_name, "url": sp.url, "title": sp.title})
+            item: dict[str, str | list[dict[str, str]]] = {
                 "name": cfg.page_name,
                 "url": cfg.url,
                 "title": cfg.title,
                 "icon": cfg.nav_icon,
-            })
+            }
+            if sub:
+                item["sub_pages"] = sub
+            nav_items.append(item)
     return nav_items
 
 

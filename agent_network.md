@@ -40,7 +40,10 @@ Shared color palettes and plot styling live in `src/agents/utils/constants.py`. 
 All writing agents incorporate rules from `src/agents/writing_guidelines.yaml` into their prompts. Key rules: no em dashes, Oxford comma always, professional tone, every claim needs citation.
 
 ### LLM Configuration
-LLM access is provider-agnostic via `litellm`. Default model: `openai/gpt-5-mini`. Configuration managed through `src/agents/utils/llm_config.py` with environment variable overrides.
+LLM access is provider-agnostic via `litellm`. Default model: `openai/gpt-5-mini`. Configuration managed through `src/agents/utils/llm_config.py` with environment variable overrides. The `config` CLI command provides both interactive setup and non-interactive flags (`--show`, `--model`, `--set-key`) for scripting and future Shiny app integration.
+
+### Local Data Integration
+Research agents can receive local reference files (PDF, PNG) alongside web search results. Files live in `src/agents/local_data/` and are assigned to tasks via the `local_files` list in `tasks.yaml`. The `LocalDataLoader` (`src/agents/utils/local_data_loader.py`) base64-encodes files and passes them to the LLM as multimodal content blocks. Unsupported formats (DOCX, PPTX) are logged as warnings and skipped.
 
 ## Current Implementation Status
 
@@ -102,7 +105,7 @@ src/content/economy.md
 [economic_modeling] - economic_models.py
     Monte Carlo simulations for portfolio projections
     |
-[plot_generation] - plot_generator.py
+[plot_generation] - plot_functions.py
     |
 [reference_manager] - reference_manager.py
     |
@@ -237,24 +240,38 @@ src/content/references.md
 
 The `Orchestrator` class (`src/agents/orchestrator.py`) provides these entry points:
 
-1. **`run_full_cycle(skip_research, skip_market_data, skip_build)`** - Complete automation: research, validate, update content, build site. Market data is fetched only for pages with `has_data_fetching=True` in page config.
-2. **`run_market_data()`** - Fetch market data and update CSVs only
-3. **`run_build_only()`** - Rebuild site from existing content (no AI, no data fetch)
-4. **`run_references_only()`** - Sync references.md from citations in content files
-5. **`run_page(page_name)`** - Run pipeline for a single page
+1. **`run_update(pages, build)`** - Research → validate → update content → (optionally) build site. Scoped to specific pages when `pages` is provided.
+2. **`run_market(plots_only)`** - Fetch market data and update CSVs. When `plots_only=True`, regenerates plots from existing data without re-fetching.
+
+References are synced automatically as part of every build — no standalone references command is needed.
 
 ### Build Efficiency
-- **Icons**: Static assets in `src/static/images/` -- not regenerated during build. Use `uv run python -m builders.icon_generator` to regenerate when the design changes.
+- **Icons**: Static assets in `src/static/images/` -- not regenerated during build. Use `uv run python scripts/icon_generator.py` to regenerate when the design changes.
 - **Data plots**: Hash-based caching via `.plot_cache.json`. Plots are skipped if CSV data has not changed.
-- **Market plots**: Raw ticker and category comparison plots require live yfinance data and are only generated when explicitly requested (e.g., `--auto market-data`).
+- **Market plots**: Raw ticker and category comparison plots require live yfinance data and are only generated when explicitly requested (e.g., `uv run aisafety market`).
 
-CLI entry point (`uv run aisafety`) supports:
-- `uv run aisafety build` - Basic build (static assets, cached plots, markdown processing)
-- `uv run aisafety auto` - Full automation cycle (research + build)
-- `uv run aisafety auto market-data` - Market data update only
-- `uv run aisafety auto content` - Content research only (no build)
-- `uv run aisafety auto content --page economy` - Research one page only
-- `uv run aisafety auto page --page economy` - Full pipeline for one page
+### CLI Commands
+
+CLI entry point: `uv run aisafety`
+
+| Command | Description | Key Flags |
+|---------|-------------|----------|
+| `build` | Generate site from markdown → HTML | `--page PAGE`, `--plots` |
+| `update` | Research + validate + update content (+ build) | `--page PAGE`, `--no-build` |
+| `market` | Fetch market data and generate plots | `--plots-only` |
+| `config` | Manage LLM configuration | `--show`, `--model MODEL`, `--set-key PROVIDER KEY` |
+
+Examples:
+- `uv run aisafety build` — Build full site
+- `uv run aisafety build --page economy --plots` — Build economy page with market plots
+- `uv run aisafety update --page technology` — Research and update technology page
+- `uv run aisafety update --no-build` — Research all pages without building
+- `uv run aisafety market` — Fetch market data and generate all plots
+- `uv run aisafety market --plots-only` — Regenerate plots from existing data
+- `uv run aisafety config` — Interactive configuration setup
+- `uv run aisafety config --show` — Display current config
+- `uv run aisafety config --model anthropic/claude-sonnet-4` — Set model
+- `uv run aisafety config --set-key openai sk-abc123` — Set API key
 
 ## File Locations Reference
 
@@ -274,8 +291,10 @@ CLI entry point (`uv run aisafety`) supports:
 
 ### Utilities (`src/agents/utils/`)
 - `constants.py` - Centralized colors and palettes
-- `llm_config.py` - LLM provider configuration (litellm)
+- `llm_config.py` - LLM provider configuration (litellm); includes `set_api_key()`, `set_model()`, `show_config()` for programmatic access
+- `local_data_loader.py` - Load local PDF/PNG files as base64 attachments for LLM consumption
 - `page_config.py` - Per-page automation settings
+- `patterns.py` - Shared regex patterns and link extraction helpers
 - `content_update_applier.py` - Structured content update application
 - `content_validation_utils.py` - Content quality validation
 - `reference_manager.py` - Citation management
@@ -294,8 +313,9 @@ CLI entry point (`uv run aisafety`) supports:
 - `site_builder.py` - Main site build orchestrator
 - `markdown_processor.py` - Markdown to HTML with frontmatter and shortcodes
 - `template_engine.py` - Jinja2 template rendering
-- `plot_generator.py` - Financial chart generation
-- `icon_generator.py` - Navigation icon generation (one-time use; icons are static assets)
+
+### Scripts (`scripts/`)
+- `icon_generator.py` - Navigation icon generation (one-time developer utility)
 
 ### Content (`src/content/`)
 - `index.md`, `economy.md`, `technology.md`, `llm.md`, `society.md`, `privacy.md`, `action.md`, `references.md`
@@ -306,7 +326,6 @@ CLI entry point (`uv run aisafety`) supports:
 ### Tests (`tests/`)
 - `test_investment_pipeline.py` - Economic models, data sources, portfolio simulation, visualization
 - `test_markdown_processor.py` - Markdown processing and frontmatter
-- `test_plot_generator.py` - Plot generation
 - `test_page_config.py` - Page configuration factory
 - `test_content_update_applier.py` - Content update application
 

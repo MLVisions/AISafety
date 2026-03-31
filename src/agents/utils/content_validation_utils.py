@@ -10,6 +10,7 @@ from typing import Any
 
 from .file_operations import read_markdown_file
 from .page_config import PAGE_CONFIGS
+from .patterns import extract_external_citations, extract_markdown_links
 
 
 class ContentValidationUtils:
@@ -93,8 +94,8 @@ class ContentValidationUtils:
 
             # Basic metrics
             word_count = len(content.split())
-            citations = self._extract_citations(content)
-            links = self._extract_links(content)
+            citations = extract_external_citations(content)
+            links = [url for _, url in extract_markdown_links(content)]
 
             # Quality analysis
             quality_indicators = {
@@ -181,25 +182,7 @@ class ContentValidationUtils:
                 'link_count': 0
             }
 
-    def _extract_citations(self, content: str) -> list[str]:
-        """Extract markdown citations from content"""
-        # Pattern for markdown links: [text](url)
-        pattern = r'\[([^\]]+)\]\(([^)]+)\)'
-        matches = re.findall(pattern, content)
 
-        # Filter for citations (exclude internal links)
-        citations = []
-        for text, url in matches:
-            if url.startswith('http') or url.startswith('https'):
-                citations.append(f"[{text}]({url})")
-
-        return citations
-
-    def _extract_links(self, content: str) -> list[str]:
-        """Extract all links from content"""
-        pattern = r'\[([^\]]+)\]\(([^)]+)\)'
-        matches = re.findall(pattern, content)
-        return [url for text, url in matches]
 
     def _identify_claims(self, content: str) -> list[str]:
         """Identify statistical claims that likely need citations"""

@@ -8,6 +8,7 @@ to docs/ on build.  There is exactly one copy of each file.
 
 import shutil
 from pathlib import Path
+from typing import Any
 
 from .markdown_processor import MarkdownProcessor
 from .template_engine import TemplateEngine
@@ -73,12 +74,33 @@ class SiteBuilder:
         create_ticker_data_files(output_dir=str(data_dir / "tickers"))
         create_ticker_dropdown_data(output_file=str(data_dir / "ticker_dropdown.json"))
 
-    def process_markdown_files(self) -> None:
-        """Process all markdown files and generate HTML."""
+    def sync_references(self, agent_refs: list[dict[str, Any]] | None = None) -> None:
+        """Sync references.md from citations across all content files."""
+        from agents.utils.reference_manager import sync_references_file
+
+        print("Syncing references...")
+        sync_references_file(
+            content_dir=str(self.content_dir),
+            agent_refs=agent_refs,
+        )
+
+    def process_markdown_files(self, pages: list[str] | None = None) -> None:
+        """Process markdown files and generate HTML.
+
+        Args:
+            pages: If provided, only process these page names (stems).
+                   None processes all content files.
+        """
         from agents.utils.file_operations import list_content_files
 
         print("Processing markdown files...")
         md_files = [Path(f) for f in list_content_files(str(self.content_dir))]
+
+        if pages:
+            page_set = set(pages)
+            # Always include references since it's derived
+            page_set.add("references")
+            md_files = [f for f in md_files if f.stem in page_set]
 
         for md_file in md_files:
             with open(md_file, encoding="utf-8") as f:
@@ -88,13 +110,7 @@ class SiteBuilder:
 
             page_name = md_file.stem
             output_file = self.output_dir / f"{page_name}.html"
-
-            if page_name == "index":
-                html_output = self.template_engine.render_index(html_content, frontmatter)
-            else:
-                html_output = self.template_engine.render_content_page(
-                    html_content, frontmatter, page_name
-                )
+            html_output = self.template_engine.render_page(html_content, frontmatter, page_name)
 
             with open(output_file, "w", encoding="utf-8") as f:
                 f.write(html_output)
@@ -105,13 +121,21 @@ class SiteBuilder:
     # Top-level build
     # ------------------------------------------------------------------
 
-    def build(self, include_market_plots: bool = False) -> None:
+    def build(
+        self,
+        include_market_plots: bool = False,
+        agent_refs: list[dict[str, Any]] | None = None,
+        pages: list[str] | None = None,
+    ) -> None:
         """Build the complete website.
 
         Args:
             include_market_plots: If True, also fetch live ticker data and
-                generate raw-ticker / category-comparison plots.  Off by
-                default because it requires network access and is slow.
+                generate raw-ticker / category-comparison plots.
+            agent_refs: Optional references from research agents to merge
+                into references.md during the build.
+            pages: If provided, only rebuild HTML for these page names.
+                Static assets and references are always synced in full.
         """
         print("Building AI Safety Website")
         print("=" * 50)
@@ -120,12 +144,21 @@ class SiteBuilder:
         if include_market_plots:
             self.generate_market_plots()
 
-        # 2. Clean docs/ and copy everything from src/static/
-        self.clean_output()
-        self.copy_static_assets()
+        # 2. Sync references.md from content citations
+        self.sync_references(agent_refs=agent_refs)
 
-        # 3. Render markdown -> HTML
-        self.process_markdown_files()
+        # 3. Clean docs/ and copy everything from src/static/
+        if not pages:
+            # Full build: clean and recopy everything
+            self.clean_output()
+            self.copy_static_assets()
+        else:
+            # Partial build: ensure output dir exists, refresh static assets
+            self.output_dir.mkdir(parents=True, exist_ok=True)
+            self.copy_static_assets()
+
+        # 4. Render markdown -> HTML
+        self.process_markdown_files(pages=pages)
 
         print("-" * 50)
         print(f"Build complete -> {self.output_dir}")

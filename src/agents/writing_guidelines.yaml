@@ -18,14 +18,56 @@ formatting:
   headings: sentence case (e.g., "Understanding the economic cycle")
   bold: use sparingly for key statistics, names of acts/policies, and critical findings
   italics: source attributions (e.g., *(Goldman Sachs, 2023)*) and figure captions
-  lists: prefer bullet lists for 3+ items; keep items parallel in structure
+  lists: >
+    REQUIRED when presenting 3 or more data points, statistics, metrics,
+    or parallel items.  Do NOT bury multiple statistics in a single prose
+    paragraph; extract them into a bulleted list with bold key figures.
   numbers: spell out one through nine; use numerals for 10+, percentages, and dollar amounts
+  formatting_variety: >
+    Every section MUST use a mix of formatting.  No section should be
+    100% prose paragraphs or 100% bullet lists.  Follow this pattern:
+    1. Open with a short narrative paragraph (2-3 sentences) that frames
+       the topic and provides context or a key takeaway.
+    2. Present supporting data, evidence, or items as a bulleted list.
+       Each bullet should lead with a bold key metric or term.
+       Sections with 3 or more data points MUST extract them into bullets.
+    3. Optionally close with a brief narrative paragraph for analysis,
+       interpretation, or transition to the next topic.
+
+    GOOD example:
+      Inflation continues to cool but remains above the Fed's 2% target,
+      with shelter costs driving most of the overshoot.
+
+      - **CPI rose 2.8% year-over-year** in March 2026 [*(BLS, 2026)*](https://www.bls.gov/news.release/cpi.nr0.htm)
+      - **Core PCE at 2.6%**, down from 3.1% a year earlier [*(BEA, 2026)*](https://www.bea.gov/news/...)
+      - **Shelter inflation at 4.3%**, the largest single contributor
+      - **Energy costs fell 0.2%**, providing mild relief
+
+      The trajectory suggests the Fed may begin easing later in 2026,
+      though services inflation remains sticky.
+
+    BAD example (all stats buried in prose):
+      Consumer prices rose 2.8% with core PCE at 2.6% while shelter
+      rose 4.3% and food rose 2.1% and energy fell 0.2% which
+      suggests the Fed may begin easing.
 
 citations:
   inline_format: >
-    Bold the claim, link directly to the authoritative source URL,
-    then add an italic source tag.
-    Example: **[83 million jobs may be displaced by 2027](https://www.weforum.org/reports/the-future-of-jobs-report-2023/)** *(WEF, 2023)*
+    Use a light citation style.  Bold only the key metric or finding,
+    NOT the entire sentence.  Link the source attribution tag (not the
+    full claim sentence) to the authoritative URL.
+
+    IN BULLET LISTS — bold the leading metric, plain-text the context,
+    link the source tag:
+      - **CPI rose 2.8% year-over-year** in March 2026 [*(BLS, 2026)*](https://www.bls.gov/news.release/cpi.nr0.htm)
+
+    IN PROSE — link only the key claim phrase, keep the rest plain:
+      Consumer prices [rose 2.8%](https://www.bls.gov/news.release/cpi.nr0.htm)
+      over the 12 months ending February 2026 *(BLS, 2026)*.
+
+    BAD (too heavy — do NOT bold+link the entire sentence):
+      **[Consumer prices rose 2.8% over the 12 months ending February 2026](url)** *(BLS, 2026)*
+
     NEVER link to references.md or references.html with anchors.
     Always use the direct https:// URL of the source.
     The references page is auto-generated from these direct links.

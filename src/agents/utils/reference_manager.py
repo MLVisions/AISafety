@@ -6,7 +6,6 @@ appears under), merges agent-provided references, deduplicates, and
 writes a clean references.md organized by page and section.
 """
 
-import re
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +14,7 @@ from .file_operations import (
     read_markdown_file,
     write_markdown_file,
 )
+from .patterns import extract_citations_by_section
 
 # ---------------------------------------------------------------------------
 # Citation extraction
@@ -40,30 +40,9 @@ def extract_citations_from_file(file_path: str) -> list[dict[str, Any]]:
     except Exception:
         return []
 
-    citations: list[dict[str, Any]] = []
-    seen_urls: set[str] = set()
-
-    # Parse line-by-line to track the current H2 section
-    current_section = ""
-    for line in content.split("\n"):
-        # Detect H2 headings
-        h2_match = re.match(r"^##\s+(.+)", line)
-        if h2_match:
-            current_section = h2_match.group(1).strip()
-            continue
-
-        # Extract markdown links to external URLs
-        for text, url in re.findall(r"\[([^\]]+)\]\((https?://[^)]+)\)", line):
-            if url not in seen_urls:
-                seen_urls.add(url)
-                citations.append({
-                    "text": text.strip(),
-                    "url": url.strip(),
-                    "type": _classify_url(text, url),
-                    "originating_page": page_name,
-                    "originating_section": current_section,
-                })
-
+    citations = extract_citations_by_section(content, page_name)
+    for cite in citations:
+        cite["type"] = _classify_url(cite["text"], cite["url"])
     return citations
 
 

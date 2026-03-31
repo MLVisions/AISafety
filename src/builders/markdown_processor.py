@@ -53,11 +53,16 @@ class MarkdownProcessor:
             return {}, content
 
     def process_custom_shortcodes(self, content: str) -> str:
-        """Process custom shortcodes like {{< tabs >}}"""
+        """Process custom shortcodes like {{< tabs >}} and {{< callout-card >}}"""
 
         # Process tabs shortcode
         tab_pattern = r'{{< tabs >}}(.*?){{< /tabs >}}'
         content = re.sub(tab_pattern, self._process_tabs, content, flags=re.DOTALL)
+
+        # Process callout-card shortcode
+        # {{< callout-card "Title" "link" "description" >}}
+        card_pattern = r'{{<\s*callout-card\s+"([^"]+)"\s+"([^"]+)"\s+"([^"]+)"\s*>}}'
+        content = re.sub(card_pattern, self._process_callout_card, content)
 
         return content
 
@@ -113,6 +118,21 @@ class MarkdownProcessor:
 
         return '\n'.join(html)
 
+    @staticmethod
+    def _process_callout_card(match: re.Match[str]) -> str:
+        """Convert a callout-card shortcode to an HTML card element."""
+        title = match.group(1)
+        link = match.group(2)
+        description = match.group(3)
+        return (
+            f'<div class="callout-card">'
+            f'<a href="{link}">'
+            f'<h3>{title}</h3>'
+            f'<p>{description}</p>'
+            f'<span class="callout-card-arrow">&#8594;</span>'
+            f'</a></div>'
+        )
+
     def process_images(self, content: str) -> str:
         """Process image markdown and wrap in chart-wrapper if needed"""
 
@@ -159,13 +179,3 @@ class MarkdownProcessor:
         self.md.reset()
 
         return frontmatter, html_content
-
-
-def process_markdown_file(file_path: str) -> tuple[dict[str, Any], str]:
-    """Process a markdown file and return frontmatter and HTML content"""
-    processor = MarkdownProcessor()
-
-    with open(file_path, encoding='utf-8') as f:
-        content = f.read()
-
-    return processor.convert(content)

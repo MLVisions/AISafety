@@ -58,12 +58,9 @@ AISafety/
 │   ├── builders/          # Python build system
 │   │   ├── site_builder.py       # Main build orchestration
 │   │   ├── markdown_processor.py # Markdown to HTML conversion
-│   │   ├── template_engine.py    # Jinja2 template rendering
-│   │   ├── plot_generator.py     # Data visualization
-│   │   └── icon_generator.py     # Navigation icon creation
+│   │   └── template_engine.py    # Jinja2 template rendering
 │   ├── templates/         # Jinja2 HTML templates
 │   │   ├── base.html      # Base template with navigation
-│   │   ├── index.html     # Homepage template
 │   │   └── page.html      # Standard page template
 │   └── static/            # CSS, JavaScript, and images
 │       ├── style.css      # Website styling
@@ -104,7 +101,7 @@ Use standard Markdown syntax...
 
 ### Adding Data Visualizations
 
-Add new plots by extending `src/builders/plot_generator.py`:
+Add new plots via `src/market/plot_functions.py`:
 
 ```python
 def create_your_plot():
@@ -273,8 +270,8 @@ uv run aisafety build && uv run python -m http.server 8000 -d docs
 
 1. **New Page**: Add `your-page.md` to `src/content/`
 2. **New Template**: Add to `src/templates/` if needed
-3. **New Icons**: Extend `src/builders/icon_generator.py`
-4. **New Plots**: Extend `src/builders/plot_generator.py`
+3. **New Icons**: Run `uv run python scripts/icon_generator.py`
+4. **New Plots**: Extend `src/market/plot_functions.py`
 
 ## 📊 Content Structure
 

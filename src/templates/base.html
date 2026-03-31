@@ -20,10 +20,19 @@
   <nav id="nav-buttons">
     <div class="button-row">
       {% for page in pages %}
-      <button class="nav-button {{ page.name | current_page(current_page) }}" onclick="location.href='{{ page.url }}'">
-        <img src="images/{{ page.icon }}" alt="{{ page.title }} icon" class="nav-icon" />
-        <span class="label">{{ page.title }}</span>
-      </button>
+      <div class="nav-item">
+        <button class="nav-button {{ page.name | current_page(current_page) }}" onclick="location.href='{{ page.url }}'">
+          <img src="images/{{ page.icon }}" alt="{{ page.title }} icon" class="nav-icon" />
+          <span class="label">{{ page.title }}</span>
+        </button>
+        {% if page.sub_pages %}
+        <div class="sub-nav">
+          {% for sub in page.sub_pages %}
+          <a href="{{ sub.url }}" class="sub-nav-link">{{ sub.title }}</a>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
       {% endfor %}
     </div>
     {% if action_page %}
