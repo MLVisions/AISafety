@@ -32,8 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Add gamification elements
   addGamificationElements();
 
-  // Initialize ticker dropdown functionality
-  initializeTickerDropdowns();
+  // Initialize ticker dropdown functionality (isolated so errors don't hide page content)
+  try { initializeTickerDropdowns(); } catch (e) { console.error('Ticker init error:', e); }
 });
 
 function initializeTabs() {
@@ -315,31 +315,52 @@ function addFloatingElements() {
   }
 }
 
-// Ticker dropdown functionality for raw data exploration
+// Ticker dropdown functionality — multi-select with Plotly rendering
 function initializeTickerDropdowns() {
   const containers = document.querySelectorAll('.ticker-dropdown-container');
   if (containers.length === 0) return;
 
+  // Lazy-load Plotly.js from CDN only when needed
+  let plotlyReady = false;
+  const plotlyQueue = [];
+
+  function loadPlotly() {
+    if (plotlyReady || document.getElementById('plotly-cdn')) return;
+    const s = document.createElement('script');
+    s.id = 'plotly-cdn';
+    s.src = 'https://cdn.plot.ly/plotly-2.35.2.min.js';
+    s.defer = true;
+    s.onload = () => {
+      plotlyReady = true;
+      plotlyQueue.forEach(fn => fn());
+      plotlyQueue.length = 0;
+    };
+    document.head.appendChild(s);
+  }
+
+  function whenPlotlyReady(fn) {
+    if (plotlyReady) fn();
+    else { loadPlotly(); plotlyQueue.push(fn); }
+  }
+
   fetch('data/ticker_dropdown.json')
     .then(r => r.json())
-    .then(data => containers.forEach(c => createTickerPicker(c, data)))
-    .catch(() => {}); // Silently skip if data not generated yet
+    .then(data => containers.forEach(c => createTickerPicker(c, data, whenPlotlyReady)))
+    .catch(() => {});
 }
 
-function createTickerPicker(container, tickerData) {
-  // Build flat list of all tickers with their category
-  const allTickers = [];
-  for (const [catKey, cat] of Object.entries(tickerData.categories)) {
-    for (const t of cat.tickers) {
-      allTickers.push({ ...t, category: catKey, categoryName: cat.display_name });
-    }
-  }
+function createTickerPicker(container, tickerData, whenPlotlyReady) {
+  const TRACE_COLORS = ['#295da0', '#d4952a', '#4da3d8', '#c45c5c', '#5cb88a', '#8e6cc2', '#e07b53', '#4aa396'];
+  let nextColor = 0;
+  const selected = new Map(); // ticker -> { info, data, color }
+  let currentView = 'normalized';
 
   container.innerHTML = `
     <div class="ticker-picker">
+      <div class="ticker-selected-chips"></div>
       <div class="ticker-picker-control">
         <button class="ticker-picker-toggle" type="button">
-          <span class="ticker-picker-label">📊 Select an asset to view interactive chart</span>
+          <span class="ticker-picker-label">📊 Select assets to compare</span>
           <span class="ticker-picker-arrow">▾</span>
         </button>
       </div>
@@ -349,19 +370,19 @@ function createTickerPicker(container, tickerData) {
         </div>
         <div class="ticker-picker-options"></div>
         <div class="ticker-picker-footer">
-          <small>${tickerData.metadata.total_tickers} assets tracked</small>
+          <small>${tickerData.metadata.total_tickers} assets · click to add/remove</small>
         </div>
       </div>
     </div>
     <div class="ticker-chart-area" style="display:none;">
       <div class="ticker-chart-header">
-        <div>
-          <h4 class="ticker-chart-title"></h4>
-          <p class="ticker-chart-desc"></p>
+        <h4 class="ticker-chart-title">Asset Comparison</h4>
+        <div class="ticker-chart-controls">
+          <button class="ticker-view-toggle active" data-view="normalized">% Change</button>
+          <button class="ticker-view-toggle" data-view="raw">Raw Price</button>
         </div>
-        <button class="ticker-chart-close" type="button">✕</button>
       </div>
-      <iframe class="ticker-chart-frame" src="" frameborder="0"></iframe>
+      <div class="ticker-plotly-chart"></div>
     </div>
   `;
 
@@ -369,14 +390,25 @@ function createTickerPicker(container, tickerData) {
   const dropdown = container.querySelector('.ticker-picker-dropdown');
   const optionsEl = container.querySelector('.ticker-picker-options');
   const searchInput = container.querySelector('.ticker-search-input');
+  const chipsArea = container.querySelector('.ticker-selected-chips');
   const chartArea = container.querySelector('.ticker-chart-area');
-  const closeBtn = container.querySelector('.ticker-chart-close');
-  const labelSpan = container.querySelector('.ticker-picker-label');
+  const chartDiv = container.querySelector('.ticker-plotly-chart');
+  const viewToggles = container.querySelectorAll('.ticker-view-toggle');
+
+  // View toggle
+  viewToggles.forEach(btn => {
+    btn.addEventListener('click', () => {
+      viewToggles.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentView = btn.dataset.view;
+      renderChart();
+    });
+  });
 
   function renderOptions(filter = '') {
     const lf = filter.toLowerCase();
     let html = '';
-    for (const [catKey, cat] of Object.entries(tickerData.categories)) {
+    for (const [, cat] of Object.entries(tickerData.categories)) {
       const matching = cat.tickers.filter(t =>
         !lf || t.display_name.toLowerCase().includes(lf) ||
         t.ticker.toLowerCase().includes(lf) ||
@@ -385,32 +417,116 @@ function createTickerPicker(container, tickerData) {
       if (matching.length === 0) continue;
       html += `<div class="picker-optgroup-label">${cat.display_name}</div>`;
       for (const t of matching) {
-        html += `<div class="picker-option" data-chart="${t.chart_path}" data-name="${t.display_name}" data-desc="${t.description}">${t.display_name}<span class="picker-option-ticker">${t.ticker}</span></div>`;
+        const sel = selected.has(t.ticker) ? ' selected' : '';
+        html += `<div class="picker-option${sel}" data-ticker="${t.ticker}">`
+          + `<span class="picker-option-check">${sel ? '✓' : ''}</span>`
+          + `${t.display_name}<span class="picker-option-ticker">${t.ticker}</span></div>`;
       }
     }
     optionsEl.innerHTML = html || '<div class="picker-no-results">No matching assets</div>';
-
     optionsEl.querySelectorAll('.picker-option').forEach(opt => {
-      opt.addEventListener('click', () => selectTicker(opt));
+      opt.addEventListener('click', () => toggleTicker(opt.dataset.ticker));
     });
   }
 
-  function selectTicker(opt) {
-    const name = opt.dataset.name;
-    const chartPath = opt.dataset.chart;
-    const desc = opt.dataset.desc;
-
-    labelSpan.textContent = `📊 ${name}`;
-    dropdown.style.display = 'none';
-    searchInput.value = '';
-
-    container.querySelector('.ticker-chart-title').textContent = name;
-    container.querySelector('.ticker-chart-desc').textContent = desc;
-    container.querySelector('.ticker-chart-frame').src = chartPath;
-    chartArea.style.display = 'block';
-    chartArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  function findTickerInfo(ticker) {
+    for (const cat of Object.values(tickerData.categories)) {
+      const found = cat.tickers.find(t => t.ticker === ticker);
+      if (found) return found;
+    }
+    return null;
   }
 
+  function toggleTicker(ticker) {
+    if (selected.has(ticker)) {
+      selected.delete(ticker);
+      renderChips();
+      renderOptions(searchInput.value);
+      renderChart();
+    } else {
+      const info = findTickerInfo(ticker);
+      if (!info || !info.data_path) return;
+      const color = TRACE_COLORS[nextColor++ % TRACE_COLORS.length];
+      fetch(info.data_path)
+        .then(r => r.json())
+        .then(data => {
+          selected.set(ticker, { info, data, color });
+          renderChips();
+          renderOptions(searchInput.value);
+          renderChart();
+        })
+        .catch(() => {});
+    }
+  }
+
+  function renderChips() {
+    chipsArea.innerHTML = [...selected].map(([key, { info, color }]) =>
+      `<span class="ticker-chip" style="border-color:${color};color:${color}">` +
+      `${info.display_name} <button data-ticker="${key}" type="button">✕</button></span>`
+    ).join('');
+    chipsArea.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        selected.delete(btn.dataset.ticker);
+        renderChips();
+        renderOptions(searchInput.value);
+        renderChart();
+      });
+    });
+  }
+
+  function renderChart() {
+    if (selected.size === 0) {
+      chartArea.style.display = 'none';
+      return;
+    }
+    chartArea.style.display = 'block';
+
+    whenPlotlyReady(() => {
+      const traces = [];
+      for (const [, { info, data, color }] of selected) {
+        let yVals, hoverTpl, yTitle;
+        if (currentView === 'normalized') {
+          const first = data.close[0];
+          yVals = data.close.map(v => ((v / first) - 1) * 100);
+          hoverTpl = '%{x|%Y-%m-%d}<br>%{y:+.1f}%<extra>' + info.display_name + '</extra>';
+          yTitle = 'Change from Start (%)';
+        } else {
+          yVals = data.close;
+          hoverTpl = '%{x|%Y-%m-%d}<br>$%{y:,.2f}<extra>' + info.display_name + '</extra>';
+          yTitle = 'Price (USD)';
+        }
+        traces.push({
+          x: data.dates, y: yVals, type: 'scatter', mode: 'lines',
+          name: info.display_name, line: { color, width: 2 },
+          hovertemplate: hoverTpl,
+        });
+      }
+
+      const layout = {
+        font: { family: 'Arial, Helvetica, sans-serif', color: '#0a1f44', size: 12 },
+        paper_bgcolor: 'white', plot_bgcolor: 'white',
+        margin: { l: 55, r: 20, t: 10, b: 45 },
+        xaxis: {
+          gridcolor: '#e8f2fe', showline: true, linecolor: '#6a7aa2',
+          rangeselector: { buttons: [
+            { count: 6, label: '6M', step: 'month', stepmode: 'backward' },
+            { count: 1, label: '1Y', step: 'year', stepmode: 'backward' },
+            { count: 5, label: '5Y', step: 'year', stepmode: 'backward' },
+            { step: 'all', label: 'All' },
+          ]},
+        },
+        yaxis: { gridcolor: '#e8f2fe', showline: true, linecolor: '#6a7aa2', title: traces.length ? (currentView === 'normalized' ? 'Change from Start (%)' : 'Price (USD)') : '' },
+        hovermode: 'x unified',
+        legend: { orientation: 'h', y: -0.18, x: 0.5, xanchor: 'center' },
+        height: 480,
+      };
+
+      Plotly.react(chartDiv, traces, layout, { responsive: true, displayModeBar: true, displaylogo: false });
+    });
+  }
+
+  // Toggle dropdown
   toggle.addEventListener('click', () => {
     const open = dropdown.style.display !== 'none';
     dropdown.style.display = open ? 'none' : 'block';
@@ -419,12 +535,7 @@ function createTickerPicker(container, tickerData) {
 
   searchInput.addEventListener('input', () => renderOptions(searchInput.value));
 
-  closeBtn.addEventListener('click', () => {
-    chartArea.style.display = 'none';
-    container.querySelector('.ticker-chart-frame').src = '';
-    labelSpan.textContent = '📊 Select an asset to view interactive chart';
-  });
-
+  // Close dropdown on outside click
   document.addEventListener('click', e => {
     if (!container.querySelector('.ticker-picker').contains(e.target)) {
       dropdown.style.display = 'none';
@@ -432,4 +543,23 @@ function createTickerPicker(container, tickerData) {
   });
 
   renderOptions();
+
+  // Auto-load defaults (S&P 500 + Bitcoin)
+  const defaults = tickerData.metadata.defaults || [];
+  if (defaults.length > 0) {
+    const loadPromises = defaults.map(ticker => {
+      const info = findTickerInfo(ticker);
+      if (!info || !info.data_path) return Promise.resolve();
+      const color = TRACE_COLORS[nextColor++ % TRACE_COLORS.length];
+      return fetch(info.data_path)
+        .then(r => r.json())
+        .then(data => { selected.set(ticker, { info, data, color }); })
+        .catch(() => {});
+    });
+    Promise.all(loadPromises).then(() => {
+      renderChips();
+      renderOptions();
+      renderChart();
+    });
+  }
 }

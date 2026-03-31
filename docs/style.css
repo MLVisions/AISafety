@@ -1198,8 +1198,8 @@ header h1 {
   color: #0a1f44;
   cursor: pointer;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 2px;
   transition: background 0.15s ease;
 }
 
@@ -1211,6 +1211,7 @@ header h1 {
   font-size: 0.78rem;
   color: #6a7aa2;
   font-family: monospace;
+  margin-left: auto;
 }
 
 .picker-no-results {
@@ -1245,50 +1246,99 @@ header h1 {
 .ticker-chart-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: 12px 16px;
+  align-items: center;
+  padding: 10px 16px;
   border-bottom: 1px solid #e8f2fe;
 }
 
 .ticker-chart-title {
   margin: 0;
   color: #0a1f44;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
 }
 
-.ticker-chart-desc {
-  margin: 2px 0 0;
-  color: #6a7aa2;
-  font-size: 0.85rem;
-}
-
-.ticker-chart-close {
-  background: rgba(255, 0, 0, 0.08);
-  border: 1px solid rgba(255, 0, 0, 0.2);
-  border-radius: 50%;
-  color: #cc0000;
-  width: 28px;
-  height: 28px;
+.ticker-chart-controls {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: 4px;
+}
+
+.ticker-view-toggle {
+  background: rgba(10, 31, 68, 0.05);
+  border: 1px solid rgba(41, 93, 160, 0.2);
+  border-radius: 6px;
+  color: #6a7aa2;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
   cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: bold;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+}
+
+.ticker-view-toggle.active {
+  background: #295da0;
+  border-color: #295da0;
+  color: #fff;
+}
+
+.ticker-view-toggle:hover:not(.active) {
+  background: rgba(10, 31, 68, 0.10);
+}
+
+.ticker-plotly-chart {
+  width: 100%;
+  min-height: 480px;
+}
+
+/* Selected ticker chips */
+.ticker-selected-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+  min-height: 0;
+}
+
+.ticker-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1.5px solid;
+  border-radius: 16px;
+  padding: 3px 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+}
+
+.ticker-chip button {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0 1px;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.ticker-chip button:hover {
+  opacity: 1;
+}
+
+/* Checkbox indicator on options */
+.picker-option-check {
+  display: inline-block;
+  width: 18px;
+  font-size: 0.85rem;
+  color: #295da0;
   flex-shrink: 0;
 }
 
-.ticker-chart-close:hover {
-  background: rgba(255, 0, 0, 0.15);
-  transform: scale(1.1);
-}
-
-.ticker-chart-frame {
-  width: 100%;
-  height: 520px;
-  border: none;
-  display: block;
+.picker-option.selected {
+  background: rgba(41, 93, 160, 0.08);
+  font-weight: 600;
 }
 
 /* Mobile responsiveness for ticker picker */
@@ -1297,11 +1347,14 @@ header h1 {
     max-height: 220px;
   }
 
-  .ticker-chart-frame {
-    height: 400px;
+  .ticker-plotly-chart {
+    min-height: 380px;
   }
 
   .ticker-chart-header {
-    padding: 10px 12px;
+    padding: 8px 12px;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
   }
 }

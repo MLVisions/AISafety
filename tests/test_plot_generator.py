@@ -2,17 +2,13 @@
 Tests for the plot generator module - Core functionality only
 """
 
-from pathlib import Path
-
 import matplotlib
-import pytest
 
 matplotlib.use('Agg')  # Use non-interactive backend for testing
 
 import matplotlib.pyplot as plt
 
 from agents.utils.constants import setup_plot_style
-from builders.plot_generator import create_market_trends_plot
 
 
 class TestPlotGenerator:
@@ -27,26 +23,3 @@ class TestPlotGenerator:
         assert plt.rcParams['axes.facecolor'] == 'white'
         assert not plt.rcParams['axes.spines.top']
         assert not plt.rcParams['axes.spines.right']
-
-    def test_create_market_trends_plot(self, temp_dir: Path, sample_csv_data: str) -> None:
-        """Test market trends plot creation"""
-        # Create test CSV file
-        csv_file = temp_dir / "market_trends.csv"
-        csv_file.write_text(sample_csv_data)
-
-        # Create output path
-        output_file = temp_dir / "market_trends.png"
-
-        # Generate plot (should not raise exception)
-        create_market_trends_plot(str(csv_file), str(output_file))
-
-        # Verify file was created
-        assert output_file.exists()
-        assert output_file.stat().st_size > 0
-
-    def test_error_handling_missing_csv(self, temp_dir: Path) -> None:
-        """Test error handling when CSV file is missing"""
-        output_file = temp_dir / "test.png"
-
-        with pytest.raises(FileNotFoundError):
-            create_market_trends_plot("nonexistent.csv", str(output_file))

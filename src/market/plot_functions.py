@@ -22,7 +22,13 @@ from .ticker_constants import (
     get_ticker_display_name,
 )
 
+
 # Plotly layout defaults matching the website colour scheme
+def _safe_filename(ticker: str) -> str:
+    """Convert a ticker symbol to a safe filename component."""
+    return ticker.replace("^", "INDEX_").replace("-", "_").replace("=", "_")
+
+
 _LAYOUT_DEFAULTS: dict[str, Any] = {
     "template": "plotly_white",
     "font": {"family": "Arial, Helvetica, sans-serif", "color": COLORS["text_dark"]},
@@ -111,7 +117,7 @@ def create_raw_ticker_plots(output_dir: str = "src/static/images/raw_tickers") -
                     ]},
                 )
 
-                safe_filename = ticker_symbol.replace("^", "INDEX_").replace("-", "_").replace("=", "_")
+                safe_filename = _safe_filename(ticker_symbol)
                 save_path = os.path.join(output_dir, f"{safe_filename}_historical.html")
                 _save_plotly_html(fig, save_path)
                 total_created += 1
@@ -182,6 +188,49 @@ def create_category_comparison_plots(
     print(f"  Generated {total_created} interactive category comparison charts.")
 
 
+def create_ticker_data_files(
+    output_dir: str = "src/static/data/tickers",
+) -> int:
+    """Generate per-ticker JSON data files (weekly) for interactive charting."""
+    os.makedirs(output_dir, exist_ok=True)
+    count = 0
+
+    for category, tickers in DEFAULT_TICKERS.items():
+        for ticker_symbol in tickers:
+            try:
+                data = fetch_maximum_history(ticker_symbol)
+                if data is None or data.empty:
+                    continue
+
+                # Weekly resample for compact files
+                weekly = (
+                    data.set_index("Date")["Close"]
+                    .resample("W-FRI")
+                    .last()
+                    .dropna()
+                    .reset_index()
+                )
+
+                safe_fn = _safe_filename(ticker_symbol)
+                ticker_json = {
+                    "ticker": ticker_symbol,
+                    "name": get_ticker_display_name(ticker_symbol),
+                    "category": category,
+                    "dates": [d.strftime("%Y-%m-%d") for d in weekly["Date"]],
+                    "close": [round(float(v), 2) for v in weekly["Close"]],
+                }
+
+                with open(os.path.join(output_dir, f"{safe_fn}.json"), "w") as f:
+                    json.dump(ticker_json, f)
+
+                count += 1
+            except Exception as e:
+                print(f"  Warning: data file for {ticker_symbol}: {e}")
+
+    print(f"  Generated {count} ticker data files.")
+    return count
+
+
 def create_ticker_dropdown_data(
     output_file: str = "src/static/data/ticker_dropdown.json",
 ) -> dict[str, Any]:
@@ -194,6 +243,7 @@ def create_ticker_dropdown_data(
             "total_tickers": 0,
             "generated_at": datetime.now().isoformat(),
             "description": "Raw ticker historical data for portfolio analysis evidence",
+            "defaults": ["^GSPC", "BTC-USD"],
         },
     }
 
@@ -207,11 +257,12 @@ def create_ticker_dropdown_data(
         }
 
         for ticker_name in tickers:
-            safe_filename = ticker_name.replace("^", "INDEX_").replace("-", "_").replace("=", "_")
+            safe_fn = _safe_filename(ticker_name)
             ticker_info = {
                 "ticker": ticker_name,
                 "display_name": get_ticker_display_name(ticker_name),
-                "chart_path": f"images/raw_tickers/{safe_filename}_historical.html",
+                "chart_path": f"images/raw_tickers/{safe_fn}_historical.html",
+                "data_path": f"data/tickers/{safe_fn}.json",
                 "description": get_ticker_description(ticker_name),
             }
             dropdown_data["categories"][category]["tickers"].append(ticker_info)

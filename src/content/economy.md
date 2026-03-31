@@ -14,7 +14,6 @@ Inflation is no longer being driven broadly by goods in the way it was earlier i
 
 Federal Reserve policy remains restrictive, even after rate cuts in late 2025. **[The FOMC kept the target range for the federal funds rate at 4.25% to 4.50% on March 19, 2026](https://www.federalreserve.gov/newsevents/pressreleases/monetary20260319a.htm)** *(Federal Reserve, 2026-03-19)*, compared with the **[5.25% to 5.50% range in place through much of 2024](https://www.federalreserve.gov/newsevents/pressreleases/monetary20240731a.htm)** *(Federal Reserve, 2024-07-31)*. The Fed's March statement said uncertainty around the outlook has increased and repeated that future decisions will depend on incoming data, labor conditions, and inflation progress rather than any preset easing schedule. In the most recent Summary of Economic Projections available before the March meeting, **[the median participant projected the federal funds rate at 3.9% at year-end 2026](https://www.federalreserve.gov/monetarypolicy/fomcprojtabl20251210.htm)** *(Federal Reserve, 2025-12-10)*, which implies room for additional cuts if disinflation continues, but not a return to the near-zero-rate environment households became used to before 2022.
 
-The labor market is cooling gradually. **[The unemployment rate was 4.1% in February 2026](https://www.bls.gov/news.release/empsit.nr0.htm)** *(BLS, 2026-03-07)*, up from **[3.9% in February 2025](https://www.bls.gov/news.release/archives/empsit_03072025.htm)** *(BLS, 2025-03-07)* and **[3.6% in February 2024](https://www.bls.gov/news.release/archives/empsit_03082024.htm)** *(BLS, 2024-03-08)*. Labor demand has normalized as well, with **[7.7 million job openings on the last business day of January 2026](https://www.bls.gov/news.release/jolts.nr0.htm)** *(BLS, 2026-03-11)*, down from **[8.9 million in January 2025](https://www.bls.gov/news.release/archives/jolts_03112025.htm)** *(BLS, 2025-03-11)* and **[10.8 million in January 2023](https://www.bls.gov/news.release/archives/jolts_03082023.htm)** *(BLS, 2023-03-08)*. Wage growth is still positive, with **[average hourly earnings up 4.1% year over year in February 2026](https://www.bls.gov/news.release/empsit.nr0.htm)** *(BLS, 2026-03-07)*, which is above current headline inflation, but hiring has become more selective.
 
 Sector trends show a labor market that is rotating rather than breaking. **[Health care added 52,000 jobs, government added 21,000, and social assistance added 11,000 in February 2026, while temporary help services lost 12,300 jobs](https://www.bls.gov/news.release/empsit.nr0.htm)** *(BLS, 2026-03-07)*. That mix suggests strength in essential and publicly funded services, and weakness in more cyclical or early-cycle hiring channels. On AI-related displacement risk, the strongest current signal is slower hiring for routine clerical, support, and administrative work rather than broad economy-wide layoffs. That direction is consistent with employer survey evidence, including **[the World Economic Forum finding that 41% of employers expect to reduce workforces where AI can automate tasks by 2030](https://www.weforum.org/publications/the-future-of-jobs-report-2025/)** *(WEF, 2025)* and **[the OECD finding that workers in more AI-exposed occupations report greater task change and training needs](https://www.oecd.org/en/publications/2025/06/ai-jobs-and-skills_4e2d9e4b.html)** *(OECD, 2025)*.
 
@@ -26,8 +25,9 @@ Consumer behavior shows resilience, but also rising strain. **[Real personal con
 
 Recession indicators are mixed rather than uniformly negative. The yield curve has largely moved out of deep inversion, with **[the 10-year minus 2-year Treasury spread at 0.18 percentage point on March 24, 2026](https://fred.stlouisfed.org/series/T10Y2Y)** *(Federal Reserve Bank of St. Louis, 2026-03-24)*, compared with the much deeper inversion seen during 2023 and 2024. Leading indicators are still soft, as **[The Conference Board's Leading Economic Index fell 0.2% in January 2026 and was down 1.0% over the prior six months](https://www.conference-board.org/topics/us-leading-indicators)** *(The Conference Board, 2026-02-20)*. Growth has slowed but stayed positive, with **[real GDP increasing at a 2.3% annual rate in the fourth quarter of 2025](https://www.bea.gov/news/2026/gross-domestic-product-fourth-quarter-and-year-2025-second-estimate)** *(BEA, 2026-02-27)* after **[2.8% growth for full-year 2024](https://www.bea.gov/news/2025/gross-domestic-product-fourth-quarter-and-year-2024-advance-estimate)** *(BEA, 2025-01-30)* and **[2.9% growth for full-year 2023](https://www.bea.gov/news/2024/gross-domestic-product-fourth-quarter-and-year-2023-second-estimate)** *(BEA, 2024-02-28)*. The most plausible near-term base case is continued slower expansion, not a confirmed recession, but households should still prepare for volatility because labor demand, credit quality, housing affordability, and equity valuations all remain sensitive to any inflation or policy surprise.
 
-![Market Trends](images/market_trends.png)
-*Major index and asset performance over recent years*
+*Use the interactive chart below to explore and compare historical performance across tracked asset classes:*
+
+<div class="ticker-dropdown-container"></div>
 
 ## Geopolitical & Market Risks
 
@@ -171,10 +171,6 @@ A useful planning framework is to think in three horizons:
 ## Portfolio & Simulations
 
 Investors face a complex landscape. Combining equities, high-yield cash, real estate, AI/tech, and select digital assets can help diversify risk and capture growth. Real wealth trajectories vary depending on asset mix, risk tolerance, and discipline.
-
-<div class="ticker-dropdown-container"></div>
-
-*The dropdown above provides access to historical data for tracked assets used in our portfolio analysis.*
 
 ---
 

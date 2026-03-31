@@ -35,13 +35,13 @@ Society is splitting into two groups: those who understand and adapt to AI-drive
 
 This isn't about fear. It's about **informed preparation**. We aggregate economic data, policy developments, technological trends, and social research to give you:
 
-• **Clear Analysis** of what's actually happening in AI and automation  
-• **Economic Intelligence** on market trends and investment implications  
-• **Practical Strategies** for career transitions and skill development  
-• **Technology Insights** to understand and leverage AI tools  
-• **Social Awareness** of mental health and community impacts  
-• **Privacy & Security** guidance for the digital-first world  
-• **Actionable Steps** you can take today to prepare for tomorrow
+- **Clear Analysis** of what's actually happening in AI and automation  
+- **Economic Intelligence** on market trends and investment implications  
+- **Practical Strategies** for career transitions and skill development  
+- **Technology Insights** to understand and leverage AI tools  
+- **Social Awareness** of mental health and community impacts  
+- **Privacy & Security** guidance for the digital-first world  
+- **Actionable Steps** you can take today to prepare for tomorrow
 
 ## The Time to Act Is Now
 
